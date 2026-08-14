@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillSignalZA Job Collector</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div>
+      <p class="eyebrow">SkillSignalZA</p>
+      <h1>Job Post Collector</h1>
+    </div>
+    <a class="button button-secondary export-top" href="/api/export">Export Excel</a>
+  </header>
+
+  <main class="layout">
+    <section class="workspace">
+      <div class="intro">
+        <div>
+          <p class="eyebrow green">Collection utility</p>
+          <h2>Turn one job post into one reviewable record.</h2>
+          <p>Paste a public link. The tool extracts what it can locally; you correct or complete the rest before anything reaches Excel.</p>
+        </div>
+        <div class="privacy-chip">No AI API · No usage cost</div>
+      </div>
+
+      <form id="extract-form" class="card source-card">
+        <div class="section-heading">
+          <span class="step">01</span>
+          <div>
+            <h3>Source</h3>
+            <p>Select the destination sheet and add the original job-post URL.</p>
+          </div>
+        </div>
+
+        <div class="two-column">
+          <label class="field">
+            <span>Collection track</span>
+            <select id="track" required>
+              <option value="SE Track">Software Engineering</option>
+              <option value="DA Track">Data Analyst</option>
+            </select>
+          </label>
+          <label class="field wide-field">
+            <span>Job post URL</span>
+            <input id="url" type="url" placeholder="https://company.co.za/careers/job..." required>
+          </label>
+        </div>
+
+        <details id="manual-fallback" class="fallback">
+          <summary>Job board blocked the link? Paste the full job text</summary>
+          <label class="field">
+            <span>Full job-page text</span>
+            <textarea id="manual-text" rows="10" placeholder="Copy the title, company, location, description and requirements from the open job post..."></textarea>
+          </label>
+        </details>
+
+        <div id="extract-error" class="message error hidden" role="alert"></div>
+        <button id="extract-button" class="button button-primary" type="submit">
+          <span>Extract post</span><span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <section id="review-section" class="card review-card hidden" aria-live="polite">
+        <div class="section-heading review-heading">
+          <span class="step">02</span>
+          <div>
+            <h3>Review all 21 fields</h3>
+            <p>Green means extracted. Amber fields need your attention. Every value remains editable.</p>
+          </div>
+          <span id="word-count" class="word-count"></span>
+        </div>
+        <div id="warning-list" class="warnings hidden"></div>
+        <form id="record-form">
+          <div id="record-fields"></div>
+          <div id="record-error" class="message error hidden" role="alert"></div>
+          <div id="record-success" class="message success hidden" role="status"></div>
+          <div class="review-actions">
+            <button class="button button-primary" type="submit">Create record</button>
+            <button id="discard-button" class="button button-ghost" type="button">Discard preview</button>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card status-card">
+        <p class="eyebrow green">Workbook status</p>
+        <div class="counts">
+          <div><strong id="se-count">0</strong><span>of 30 SE posts</span></div>
+          <div><strong id="da-count">0</strong><span>of 30 DA posts</span></div>
+        </div>
+        <div class="progress"><span id="total-progress"></span></div>
+        <a class="button button-primary full-width" href="/api/export">Export current .xlsx</a>
+        <p id="export-name" class="file-name"></p>
+      </section>
+
+      <section class="card recent-card">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Latest records</p>
+            <h3>This workbook</h3>
+          </div>
+        </div>
+        <div id="recent-records" class="recent-list"><p class="empty">No records yet.</p></div>
+      </section>
+
+      <section class="tip">
+        <strong>Extraction rule</strong>
+        <p>The tool records explicit wording only. React does not imply JavaScript, and pandas does not imply Python.</p>
+      </section>
+    </aside>
+  </main>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
+
