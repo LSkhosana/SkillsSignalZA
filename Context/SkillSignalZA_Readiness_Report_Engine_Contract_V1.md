@@ -1,9 +1,10 @@
 # SkillSignalZA Readiness Report Engine Contract V1
 
-**Status:** Draft for approval  
+**Status:** Approved and frozen  
 **Contract version:** 1.0.0  
 **Rubric version:** V2 — Launch Candidate  
 **Prepared:** 21 August 2026  
+**Approved:** 24 August 2026  
 **Product owner:** Lesedi Skhosana  
 **Tracks:** Software Engineering and Data Analytics
 
@@ -727,20 +728,16 @@ Approval of this contract authorizes the next design artifacts, not production d
 
 Supabase migrations, authentication, uploads, link retrieval, PDF generation, and customer UI should follow only after the pure scoring package passes the contract fixtures.
 
-## 27. Approval gate
+## 27. Approval record
 
-Before implementation, approve or revise these contract decisions:
+The product owner approved all four contract decision groups on 24 August 2026:
 
-- Evidence bundle and exclusions.
-- Evidence fact and source record models.
-- Manual-review and not-scorable boundaries.
-- Criterion IDs, anchors, weights, qualifications, category caps, and overall caps.
-- Deterministic priority and recommendation rules.
-- Assessment result and customer-report payloads.
-- QA invariants and minimum acceptance fixtures.
-- Versioning, audit, and security boundaries.
+- Group 1: Evidence, intake, and review boundaries.
+- Group 2: Scoring architecture, qualifications, and caps.
+- Group 3: Priorities, recommendations, and report output.
+- Group 4: QA, security, versioning, and release controls.
 
-Approval freezes Engine Contract V1. Subsequent changes require a new contract version and documented migration impact.
+This approval freezes Engine Contract V1. Subsequent changes require a new contract version and documented migration impact.
 
 ## Source basis
 
@@ -748,4 +745,3 @@ Approval freezes Engine Contract V1. Subsequent changes require a new contract v
 - `SkillSignalZA_Rubric_Calibration_Log_V1.xlsx` — approved evidence decisions, weights, rules, QA checks, and candidate-testing queue.
 - `SkillSignalZA_Data_Quality_Report_V1.md` — retained-sample and evidence-quality boundary.
 - `SkillSignalZA_Market_Analysis_V1.xlsx` — market evidence underlying V2.
-
