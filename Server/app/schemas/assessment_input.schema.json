@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-input.json",
+  "title": "SkillSignalZA assessment request",
+  "description": "Intake contract for one assessment run. Protected personal attributes are not scoring inputs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "rubric_version",
+    "track",
+    "candidate_ref",
+    "cv",
+    "submitted_at"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string",
+      "enum": ["software_engineering", "data_analytics"]
+    },
+    "candidate_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque candidate identifier. Must not encode protected personal attributes."
+    },
+    "cv": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "media_type", "sha256", "original_filename"],
+      "properties": {
+        "document_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "media_type": {
+          "type": "string",
+          "enum": [
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          ],
+          "description": "IANA types for launch text-readable PDF and DOCX CVs."
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "original_filename": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["link_id", "submitted_url", "declared_type"],
+        "properties": {
+          "link_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "submitted_url": {
+            "type": "string",
+            "format": "uri",
+            "minLength": 1
+          },
+          "declared_type": {
+            "type": "string",
+            "enum": [
+              "repository",
+              "portfolio",
+              "project",
+              "deployed_project",
+              "kaggle",
+              "dashboard",
+              "other_professional"
+            ]
+          }
+        }
+      }
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/evidence-fact.json",
+  "title": "SkillSignalZA normalized evidence fact",
+  "description": "Scoring consumes these facts. The schema does not infer parent skills or award points.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_id",
+    "source_id",
+    "locator",
+    "fact_type",
+    "subject",
+    "explicit_text",
+    "evidence_level",
+    "attribution_status",
+    "rule_id",
+    "review_status"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable identifier within the assessment run. Not a database primary key."
+    },
+    "locator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fact_type": {
+      "type": "string",
+      "enum": [
+        "skill_name",
+        "skill_application",
+        "tool_name",
+        "tool_application",
+        "project_proof",
+        "project_context",
+        "project_process",
+        "project_outcome",
+        "qualification",
+        "professional_behaviour",
+        "role_alignment",
+        "document_quality"
+      ]
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "explicit_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": ["demonstrated", "documented", "named_only", "missing_unverifiable"]
+    },
+    "attribution_status": {
+      "type": "string",
+      "enum": ["attributed", "unclear", "conflicting"],
+      "description": "Matches the source ownership_status values in the engine contract."
+    },
+    "rule_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "review_status": {
+      "type": "string",
+      "enum": ["accepted"],
+      "description": "The engine contract names accepted as the evidence-fact review value. Other review states are not specified."
+    }
+  }
+}
