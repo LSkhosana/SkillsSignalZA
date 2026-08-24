@@ -56,6 +56,25 @@ VALID_EVIDENCE_FACT = {
     "review_status": "accepted",
 }
 
+APPROVED_RESULT_ANCHORS = (
+    "demonstrated",
+    "documented",
+    "named_only",
+    "missing_unverifiable",
+    "se.qual.completed",
+    "se.qual.in_progress",
+    "se.qual.experience",
+    "se.qual.bootcamp",
+    "se.qual.adjacent",
+    "se.qual.none",
+    "da.qual.completed",
+    "da.qual.in_progress",
+    "da.qual.experience",
+    "da.qual.bootcamp",
+    "da.qual.adjacent",
+    "da.qual.none",
+)
+
 VALID_ASSESSMENT_RESULT = {
     "assessment_id": "assessment-id",
     "run_id": "run-id",
@@ -192,7 +211,48 @@ def test_unrecognized_fact_type_fails(evidence_fact_schema: dict[str, Any]) -> N
 
 
 def test_valid_completed_result_passes(assessment_result_schema: dict[str, Any]) -> None:
+    assert VALID_ASSESSMENT_RESULT["status"] == "COMPLETED"
     _assert_valid(assessment_result_schema, VALID_ASSESSMENT_RESULT)
+
+
+def test_not_scorable_cannot_validate_as_scored_result(
+    assessment_result_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["status"] = "NOT_SCORABLE"
+    _assert_invalid(assessment_result_schema, payload)
+
+
+def test_failed_cannot_validate_as_scored_result(
+    assessment_result_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["status"] = "FAILED"
+    _assert_invalid(assessment_result_schema, payload)
+
+
+def test_unfinished_status_cannot_validate_as_scored_result(
+    assessment_result_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["status"] = "SCORING"
+    _assert_invalid(assessment_result_schema, payload)
+
+
+def test_unknown_anchor_fails(assessment_result_schema: dict[str, Any]) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["criterion_results"][0]["anchor"] = "advanced"
+    _assert_invalid(assessment_result_schema, payload)
+
+
+@pytest.mark.parametrize("anchor", APPROVED_RESULT_ANCHORS)
+def test_approved_evidence_and_qualification_anchors_pass(
+    assessment_result_schema: dict[str, Any],
+    anchor: str,
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["criterion_results"][0]["anchor"] = anchor
+    _assert_valid(assessment_result_schema, payload)
 
 
 def test_result_score_over_100_fails(assessment_result_schema: dict[str, Any]) -> None:

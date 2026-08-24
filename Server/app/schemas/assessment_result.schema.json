@@ -52,18 +52,8 @@
     },
     "status": {
       "type": "string",
-      "enum": [
-        "RECEIVED",
-        "VALIDATING",
-        "EXTRACTING",
-        "REVIEW_REQUIRED",
-        "READY_TO_SCORE",
-        "SCORING",
-        "QA_PENDING",
-        "COMPLETED",
-        "NOT_SCORABLE",
-        "FAILED"
-      ]
+      "const": "COMPLETED",
+      "description": "This schema validates the canonical completed scoring result only."
     },
     "assessed_at": {
       "type": "string",
@@ -138,8 +128,24 @@
           },
           "anchor": {
             "type": "string",
-            "minLength": 1,
-            "description": "Evidence level or selected qualification route identifier."
+            "enum": [
+              "demonstrated",
+              "documented",
+              "named_only",
+              "missing_unverifiable",
+              "se.qual.completed",
+              "se.qual.in_progress",
+              "se.qual.experience",
+              "se.qual.bootcamp",
+              "se.qual.adjacent",
+              "se.qual.none",
+              "da.qual.completed",
+              "da.qual.in_progress",
+              "da.qual.experience",
+              "da.qual.bootcamp",
+              "da.qual.adjacent",
+              "da.qual.none"
+            ]
           },
           "awarded_points": {
             "$ref": "#/$defs/non_negative_integer"
