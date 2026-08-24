@@ -1,0 +1,952 @@
+{
+  "contract_version": "1.0.0",
+  "rubric_version": "V2",
+  "rubric_display_name": "V2 — Launch Candidate",
+  "status": "approved_and_frozen",
+  "supported_tracks": ["software_engineering", "data_analytics"],
+  "evidence_levels": [
+    {"id": "demonstrated", "default_anchor": "high"},
+    {"id": "documented", "default_anchor": "medium"},
+    {"id": "named_only", "default_anchor": "low"},
+    {"id": "missing_unverifiable", "default_anchor": "zero"}
+  ],
+  "fact_types": [
+    "skill_name",
+    "skill_application",
+    "tool_name",
+    "tool_application",
+    "project_proof",
+    "project_context",
+    "project_process",
+    "project_outcome",
+    "qualification",
+    "professional_behaviour",
+    "role_alignment",
+    "document_quality"
+  ],
+  "score_bands": [
+    {
+      "id": "limited_application_evidence",
+      "label": "Limited application evidence",
+      "min": 0,
+      "max": 39
+    },
+    {
+      "id": "foundation_visible",
+      "label": "Foundation visible",
+      "min": 40,
+      "max": 59
+    },
+    {
+      "id": "developing_application_readiness",
+      "label": "Developing application readiness",
+      "min": 60,
+      "max": 79
+    },
+    {
+      "id": "strong_application_evidence",
+      "label": "Strong application evidence",
+      "min": 80,
+      "max": 100
+    }
+  ],
+  "tracks": {
+    "software_engineering": {
+      "id": "software_engineering",
+      "display_name": "Software Engineering",
+      "categories": [
+        {"id": "se.core", "display_name": "Core Technical Skills", "max_points": 35},
+        {"id": "se.tools", "display_name": "Tools and Platforms", "max_points": 20},
+        {"id": "se.projects", "display_name": "Applied Project Evidence", "max_points": 15},
+        {
+          "id": "se.alignment",
+          "display_name": "Application Alignment and Qualifications",
+          "max_points": 20
+        },
+        {"id": "se.readiness", "display_name": "Work Readiness Signals", "max_points": 10}
+      ],
+      "criteria": [
+        {
+          "id": "se.core.programming_language",
+          "category_id": "se.core",
+          "display_name": "Programming language evidence",
+          "max_points": 12,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 12,
+            "documented": 9,
+            "named_only": 4,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.core.programming_language"
+        },
+        {
+          "id": "se.core.programming_concepts",
+          "category_id": "se.core",
+          "display_name": "Programming concepts and technical problem-solving",
+          "max_points": 8,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 8,
+            "documented": 6,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.core.programming_concepts"
+        },
+        {
+          "id": "se.core.application_systems",
+          "category_id": "se.core",
+          "display_name": "Application, API, and system fundamentals",
+          "max_points": 6,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 6,
+            "documented": 4,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.core.application_systems"
+        },
+        {
+          "id": "se.core.database_fundamentals",
+          "category_id": "se.core",
+          "display_name": "Database fundamentals",
+          "max_points": 5,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 5,
+            "documented": 4,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.core.database_fundamentals"
+        },
+        {
+          "id": "se.core.debugging_testing",
+          "category_id": "se.core",
+          "display_name": "Debugging and testing awareness",
+          "max_points": 4,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 4,
+            "documented": 3,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.core.debugging_testing"
+        },
+        {
+          "id": "se.tools.version_control",
+          "category_id": "se.tools",
+          "display_name": "Version-control workflow",
+          "max_points": 6,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 6,
+            "documented": 4,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.version_control"
+        },
+        {
+          "id": "se.tools.framework_library",
+          "category_id": "se.tools",
+          "display_name": "Framework or library",
+          "max_points": 5,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 5,
+            "documented": 4,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.framework_library"
+        },
+        {
+          "id": "se.tools.database_platform",
+          "category_id": "se.tools",
+          "display_name": "Database platform or tool",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.database_platform"
+        },
+        {
+          "id": "se.tools.dev_environment",
+          "category_id": "se.tools",
+          "display_name": "Development environment or command line",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.dev_environment"
+        },
+        {
+          "id": "se.tools.repository_platform",
+          "category_id": "se.tools",
+          "display_name": "Collaborative repository platform",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.repository_platform"
+        },
+        {
+          "id": "se.tools.deployment_cloud",
+          "category_id": "se.tools",
+          "display_name": "Deployment, container, or cloud awareness",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.tools.deployment_cloud"
+        },
+        {
+          "id": "se.projects.accessibility",
+          "category_id": "se.projects",
+          "display_name": "Proof and accessibility",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.projects.accessibility"
+        },
+        {
+          "id": "se.projects.problem_relevance",
+          "category_id": "se.projects",
+          "display_name": "Problem definition and track relevance",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.projects.problem_relevance"
+        },
+        {
+          "id": "se.projects.depth_ownership",
+          "category_id": "se.projects",
+          "display_name": "Technical depth and ownership",
+          "max_points": 4,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 4,
+            "documented": 3,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.projects.depth_ownership"
+        },
+        {
+          "id": "se.projects.documentation",
+          "category_id": "se.projects",
+          "display_name": "Documentation and organisation",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.projects.documentation"
+        },
+        {
+          "id": "se.projects.outcome",
+          "category_id": "se.projects",
+          "display_name": "Demonstrability or outcome",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.projects.outcome"
+        },
+        {
+          "id": "se.alignment.qualification",
+          "category_id": "se.alignment",
+          "display_name": "Qualification and market-access evidence",
+          "max_points": 10,
+          "scoring": "qualification_routes",
+          "rule_id": "rubric.v2.se.alignment.qualification"
+        },
+        {
+          "id": "se.alignment.target_role",
+          "category_id": "se.alignment",
+          "display_name": "Target-role alignment",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.alignment.target_role"
+        },
+        {
+          "id": "se.alignment.claim_specificity",
+          "category_id": "se.alignment",
+          "display_name": "Specificity of skills and claims",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.alignment.claim_specificity"
+        },
+        {
+          "id": "se.alignment.description_evidence",
+          "category_id": "se.alignment",
+          "display_name": "Evidence and outcomes in descriptions",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.alignment.description_evidence"
+        },
+        {
+          "id": "se.alignment.readability",
+          "category_id": "se.alignment",
+          "display_name": "Structure and readability",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.alignment.readability"
+        },
+        {
+          "id": "se.readiness.communication",
+          "category_id": "se.readiness",
+          "display_name": "Communication or documentation",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.readiness.communication"
+        },
+        {
+          "id": "se.readiness.collaboration",
+          "category_id": "se.readiness",
+          "display_name": "Collaboration or teamwork",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.readiness.collaboration"
+        },
+        {
+          "id": "se.readiness.professional_exposure",
+          "category_id": "se.readiness",
+          "display_name": "Professional exposure or responsibility",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.readiness.professional_exposure"
+        },
+        {
+          "id": "se.readiness.initiative",
+          "category_id": "se.readiness",
+          "display_name": "Initiative and continued learning",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.readiness.initiative"
+        },
+        {
+          "id": "se.readiness.self_management",
+          "category_id": "se.readiness",
+          "display_name": "Self-management or applied problem-solving",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.se.readiness.self_management"
+        }
+      ],
+      "qualification_routes": [
+        {
+          "id": "se.qual.completed",
+          "display_name": "Completed relevant qualification meeting the typical market threshold",
+          "points": 10
+        },
+        {
+          "id": "se.qual.in_progress",
+          "display_name": "Relevant qualification in progress",
+          "points": 7
+        },
+        {
+          "id": "se.qual.experience",
+          "display_name": "Substantial equivalent technical experience without the typical qualification",
+          "points": 6
+        },
+        {
+          "id": "se.qual.bootcamp",
+          "display_name": "Relevant bootcamp or certifications supported by applied evidence",
+          "points": 4
+        },
+        {
+          "id": "se.qual.adjacent",
+          "display_name": "Adjacent qualification with limited relevant upskilling",
+          "points": 2
+        },
+        {
+          "id": "se.qual.none",
+          "display_name": "No relevant qualification, training, or equivalent experience",
+          "points": 0
+        }
+      ],
+      "category_caps": [
+        {
+          "rule_id": "rubric.v2.se.cap.cv_only_projects",
+          "track": "software_engineering",
+          "category_id": "se.projects",
+          "cap_points": 8,
+          "category_maximum": 15,
+          "trigger": "no_accessible_candidate_submitted_project_link"
+        }
+      ],
+      "overall_caps": [
+        {
+          "rule_id": "rubric.v2.se.cap.no_language",
+          "track": "software_engineering",
+          "related_criterion_id": "se.core.programming_language",
+          "cap_points": 59,
+          "named_only_counts_as_evidence": true,
+          "trigger": "no_explicit_programming_language"
+        }
+      ],
+      "criterion_caps": [],
+      "special_rules": [
+        {
+          "rule_id": "rubric.v2.se.rule.framework_is_not_language",
+          "track": "software_engineering",
+          "kind": "inference_forbidden",
+          "subject": "framework",
+          "cannot_satisfy_rule_id": "rubric.v2.se.cap.no_language"
+        }
+      ]
+    },
+    "data_analytics": {
+      "id": "data_analytics",
+      "display_name": "Data Analytics",
+      "categories": [
+        {"id": "da.core", "display_name": "Core Role Skills", "max_points": 40},
+        {"id": "da.tools", "display_name": "Tools and Platforms", "max_points": 25},
+        {"id": "da.projects", "display_name": "Applied Project Evidence", "max_points": 10},
+        {
+          "id": "da.alignment",
+          "display_name": "Application Alignment and Qualifications",
+          "max_points": 15
+        },
+        {"id": "da.readiness", "display_name": "Work Readiness Signals", "max_points": 10}
+      ],
+      "criteria": [
+        {
+          "id": "da.core.sql",
+          "category_id": "da.core",
+          "display_name": "SQL competency",
+          "max_points": 15,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 15,
+            "documented": 11,
+            "named_only": 5,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.core.sql"
+        },
+        {
+          "id": "da.core.spreadsheets",
+          "category_id": "da.core",
+          "display_name": "Spreadsheet analysis",
+          "max_points": 8,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 8,
+            "documented": 6,
+            "named_only": 3,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.core.spreadsheets"
+        },
+        {
+          "id": "da.core.analysis_statistics",
+          "category_id": "da.core",
+          "display_name": "Analysis, interpretation, and statistics",
+          "max_points": 7,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 7,
+            "documented": 5,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.core.analysis_statistics"
+        },
+        {
+          "id": "da.core.cleaning",
+          "category_id": "da.core",
+          "display_name": "Data cleaning and preparation",
+          "max_points": 5,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 5,
+            "documented": 3,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.core.cleaning"
+        },
+        {
+          "id": "da.core.reporting",
+          "category_id": "da.core",
+          "display_name": "Reporting and communication of findings",
+          "max_points": 5,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 5,
+            "documented": 3,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.core.reporting"
+        },
+        {
+          "id": "da.tools.bi_visualisation",
+          "category_id": "da.tools",
+          "display_name": "BI and visualisation capability",
+          "max_points": 9,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 9,
+            "documented": 7,
+            "named_only": 3,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.bi_visualisation"
+        },
+        {
+          "id": "da.tools.power_bi_alignment",
+          "category_id": "da.tools",
+          "display_name": "Power BI market-alignment point",
+          "max_points": 1,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 1,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.power_bi_alignment"
+        },
+        {
+          "id": "da.tools.programming",
+          "category_id": "da.tools",
+          "display_name": "Python, R, and relevant libraries",
+          "max_points": 6,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 6,
+            "documented": 4,
+            "named_only": 2,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.programming"
+        },
+        {
+          "id": "da.tools.database_environment",
+          "category_id": "da.tools",
+          "display_name": "Database or data environment",
+          "max_points": 4,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 4,
+            "documented": 3,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.database_environment"
+        },
+        {
+          "id": "da.tools.transformation_cloud",
+          "category_id": "da.tools",
+          "display_name": "Transformation, platform, or cloud tools",
+          "max_points": 3,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 3,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.transformation_cloud"
+        },
+        {
+          "id": "da.tools.integration",
+          "category_id": "da.tools",
+          "display_name": "Tool breadth and integration",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.tools.integration"
+        },
+        {
+          "id": "da.projects.accessibility",
+          "category_id": "da.projects",
+          "display_name": "Proof and accessibility",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.projects.accessibility"
+        },
+        {
+          "id": "da.projects.context",
+          "category_id": "da.projects",
+          "display_name": "Question, dataset, or business context",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.projects.context"
+        },
+        {
+          "id": "da.projects.process",
+          "category_id": "da.projects",
+          "display_name": "Cleaning, exploration, and analysis process",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.projects.process"
+        },
+        {
+          "id": "da.projects.findings",
+          "category_id": "da.projects",
+          "display_name": "Findings and visual communication",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.projects.findings"
+        },
+        {
+          "id": "da.projects.reproducibility",
+          "category_id": "da.projects",
+          "display_name": "Reproducibility and presentation",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.projects.reproducibility"
+        },
+        {
+          "id": "da.alignment.qualification",
+          "category_id": "da.alignment",
+          "display_name": "Qualification and market-access evidence",
+          "max_points": 7,
+          "scoring": "qualification_routes",
+          "rule_id": "rubric.v2.da.alignment.qualification"
+        },
+        {
+          "id": "da.alignment.target_role",
+          "category_id": "da.alignment",
+          "display_name": "Target-role alignment",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.alignment.target_role"
+        },
+        {
+          "id": "da.alignment.claim_specificity",
+          "category_id": "da.alignment",
+          "display_name": "Specificity of tools and analytical claims",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.alignment.claim_specificity"
+        },
+        {
+          "id": "da.alignment.description_evidence",
+          "category_id": "da.alignment",
+          "display_name": "Evidence and outcomes in descriptions",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.alignment.description_evidence"
+        },
+        {
+          "id": "da.alignment.readability",
+          "category_id": "da.alignment",
+          "display_name": "Structure and readability",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 2,
+            "named_only": 1,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.alignment.readability"
+        },
+        {
+          "id": "da.readiness.problem_solving",
+          "category_id": "da.readiness",
+          "display_name": "Applied problem-solving",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.readiness.problem_solving"
+        },
+        {
+          "id": "da.readiness.attention_detail",
+          "category_id": "da.readiness",
+          "display_name": "Attention to detail",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.readiness.attention_detail"
+        },
+        {
+          "id": "da.readiness.collaboration",
+          "category_id": "da.readiness",
+          "display_name": "Collaboration",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.readiness.collaboration"
+        },
+        {
+          "id": "da.readiness.communication",
+          "category_id": "da.readiness",
+          "display_name": "Communication or stakeholder interaction",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.readiness.communication"
+        },
+        {
+          "id": "da.readiness.self_management",
+          "category_id": "da.readiness",
+          "display_name": "Self-management and responsibility",
+          "max_points": 2,
+          "scoring": "evidence_anchors",
+          "evidence_anchors": {
+            "demonstrated": 2,
+            "documented": 1,
+            "named_only": 0,
+            "missing_unverifiable": 0
+          },
+          "rule_id": "rubric.v2.da.readiness.self_management"
+        }
+      ],
+      "qualification_routes": [
+        {
+          "id": "da.qual.completed",
+          "display_name": "Completed relevant qualification meeting the typical market threshold",
+          "points": 7
+        },
+        {
+          "id": "da.qual.in_progress",
+          "display_name": "Relevant qualification in progress",
+          "points": 5
+        },
+        {
+          "id": "da.qual.experience",
+          "display_name": "Substantial equivalent analytical experience without the typical qualification",
+          "points": 4
+        },
+        {
+          "id": "da.qual.bootcamp",
+          "display_name": "Relevant bootcamp or certifications supported by applied evidence",
+          "points": 3
+        },
+        {
+          "id": "da.qual.adjacent",
+          "display_name": "Adjacent qualification with limited relevant upskilling",
+          "points": 1
+        },
+        {
+          "id": "da.qual.none",
+          "display_name": "No relevant qualification, training, or equivalent experience",
+          "points": 0
+        }
+      ],
+      "category_caps": [
+        {
+          "rule_id": "rubric.v2.da.cap.cv_only_projects",
+          "track": "data_analytics",
+          "category_id": "da.projects",
+          "cap_points": 6,
+          "category_maximum": 10,
+          "trigger": "no_accessible_candidate_submitted_project_link"
+        }
+      ],
+      "overall_caps": [
+        {
+          "rule_id": "rubric.v2.da.cap.no_sql",
+          "track": "data_analytics",
+          "related_criterion_id": "da.core.sql",
+          "cap_points": 79,
+          "named_only_counts_as_evidence": true,
+          "trigger": "no_explicit_sql"
+        }
+      ],
+      "criterion_caps": [
+        {
+          "rule_id": "rubric.v2.da.cap.google_sheets_ceiling",
+          "track": "data_analytics",
+          "criterion_id": "da.core.spreadsheets",
+          "cap_points": 5,
+          "criterion_maximum": 8,
+          "trigger": "demonstrated_google_sheets_without_excel"
+        }
+      ],
+      "special_rules": [
+        {
+          "rule_id": "rubric.v2.da.rule.context_free_dashboard",
+          "track": "data_analytics",
+          "kind": "zero_points_when",
+          "criterion_id": "da.projects.context",
+          "trigger": "context_free_dashboard_screenshot"
+        },
+        {
+          "rule_id": "rubric.v2.da.rule.power_bi_alignment",
+          "track": "data_analytics",
+          "kind": "any_non_missing_evidence_awards_constant",
+          "criterion_id": "da.tools.power_bi_alignment",
+          "awarded_points": 1
+        },
+        {
+          "rule_id": "rubric.v2.da.rule.database_product_is_not_sql",
+          "track": "data_analytics",
+          "kind": "inference_forbidden",
+          "subject": "sql_database_product",
+          "cannot_satisfy_rule_id": "rubric.v2.da.cap.no_sql"
+        }
+      ]
+    }
+  }
+}
