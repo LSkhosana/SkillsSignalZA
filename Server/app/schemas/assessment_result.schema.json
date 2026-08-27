@@ -127,25 +127,7 @@
             "$ref": "#/$defs/non_negative_integer"
           },
           "anchor": {
-            "type": "string",
-            "enum": [
-              "demonstrated",
-              "documented",
-              "named_only",
-              "missing_unverifiable",
-              "se.qual.completed",
-              "se.qual.in_progress",
-              "se.qual.experience",
-              "se.qual.bootcamp",
-              "se.qual.adjacent",
-              "se.qual.none",
-              "da.qual.completed",
-              "da.qual.in_progress",
-              "da.qual.experience",
-              "da.qual.bootcamp",
-              "da.qual.adjacent",
-              "da.qual.none"
-            ]
+            "$ref": "#/$defs/approved_anchor"
           },
           "awarded_points": {
             "$ref": "#/$defs/non_negative_integer"
@@ -259,8 +241,8 @@
         "required": [
           "action_id",
           "criterion_id",
-          "current_evidence_level",
-          "target_evidence_level",
+          "current_anchor",
+          "target_anchor",
           "required_output",
           "completion_check",
           "priority_order"
@@ -274,13 +256,11 @@
             "type": "string",
             "minLength": 1
           },
-          "current_evidence_level": {
-            "type": "string",
-            "enum": ["demonstrated", "documented", "named_only", "missing_unverifiable"]
+          "current_anchor": {
+            "$ref": "#/$defs/approved_anchor"
           },
-          "target_evidence_level": {
-            "type": "string",
-            "enum": ["demonstrated", "documented", "named_only", "missing_unverifiable"]
+          "target_anchor": {
+            "$ref": "#/$defs/approved_anchor"
           },
           "required_output": {
             "type": "string",
@@ -355,6 +335,27 @@
     }
   },
   "$defs": {
+    "approved_anchor": {
+      "type": "string",
+      "enum": [
+        "demonstrated",
+        "documented",
+        "named_only",
+        "missing_unverifiable",
+        "se.qual.completed",
+        "se.qual.in_progress",
+        "se.qual.experience",
+        "se.qual.bootcamp",
+        "se.qual.adjacent",
+        "se.qual.none",
+        "da.qual.completed",
+        "da.qual.in_progress",
+        "da.qual.experience",
+        "da.qual.bootcamp",
+        "da.qual.adjacent",
+        "da.qual.none"
+      ]
+    },
     "sha256": {
       "type": "string",
       "pattern": "^[a-fA-F0-9]{64}$"

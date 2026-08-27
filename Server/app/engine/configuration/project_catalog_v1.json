@@ -1,0 +1,545 @@
+{
+  "contract_version": "1.0.0",
+  "rubric_version": "V2",
+  "catalog_version": "1.0.0",
+  "status": "approved",
+  "global_exclusion_conditions": [
+    "track_mismatch",
+    "blocking_review_unresolved",
+    "no_positive_core_gap_coverage"
+  ],
+  "selection_policy": {
+    "coverage_inputs": "positive_core_covered_point_gaps",
+    "optional_criteria_contribute_to_score": false,
+    "recommended_count": 1,
+    "tie_break": "stable_project_id",
+    "zero_positive_coverage_outcome": "PROJECT_RECOMMENDATION_REVIEW_REQUIRED"
+  },
+  "projects": [
+    {
+      "project_id": "se.project.01_operations_workflow",
+      "catalog_version": "1.0.0",
+      "track": "software_engineering",
+      "title": "Operations workflow application",
+      "scenario": "A small organisation needs one place to capture, assign, update, and close operational requests.",
+      "required_foundations": [
+        "One explicit programming language",
+        "basic HTTP or application flow",
+        "basic relational data",
+        "basic Git"
+      ],
+      "core_criterion_ids": [
+        "se.core.programming_language",
+        "se.core.programming_concepts",
+        "se.core.application_systems",
+        "se.core.database_fundamentals",
+        "se.core.debugging_testing",
+        "se.tools.version_control",
+        "se.tools.framework_library",
+        "se.tools.database_platform",
+        "se.tools.dev_environment",
+        "se.tools.repository_platform",
+        "se.projects.accessibility",
+        "se.projects.problem_relevance",
+        "se.projects.depth_ownership",
+        "se.projects.documentation",
+        "se.projects.outcome",
+        "se.readiness.communication",
+        "se.readiness.initiative",
+        "se.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "se.tools.deployment_cloud",
+        "se.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "Working request workflow",
+        "related data model",
+        "validation and invalid-transition handling",
+        "filters",
+        "loading, empty, success, and failure states",
+        "seeded data",
+        "audit entry on status change",
+        "central-rule test",
+        "README",
+        "architecture note",
+        "normal and invalid verification record",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Main workflow works from clean setup",
+        "invalid state changes receive a specific response",
+        "relationships are preserved",
+        "failures are visible and recoverable",
+        "another developer can follow setup",
+        "layer boundaries can be explained"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage"
+      ],
+      "source_blueprint": "SkillSignalZA SE Career Map Pack V1, Project Blueprint 1"
+    },
+    {
+      "project_id": "se.project.02_application_tracker_interface",
+      "catalog_version": "1.0.0",
+      "track": "software_engineering",
+      "title": "Application tracker interface",
+      "scenario": "A job seeker needs to manage opportunities, deadlines, stages, and recurring skill gaps through a responsive interface.",
+      "required_foundations": [
+        "Explicit JavaScript or TypeScript",
+        "HTML and CSS fundamentals",
+        "basic asynchronous requests",
+        "basic Git"
+      ],
+      "core_criterion_ids": [
+        "se.core.programming_language",
+        "se.core.programming_concepts",
+        "se.core.application_systems",
+        "se.core.debugging_testing",
+        "se.tools.version_control",
+        "se.tools.framework_library",
+        "se.tools.dev_environment",
+        "se.tools.repository_platform",
+        "se.projects.accessibility",
+        "se.projects.problem_relevance",
+        "se.projects.depth_ownership",
+        "se.projects.documentation",
+        "se.projects.outcome",
+        "se.readiness.communication",
+        "se.readiness.initiative",
+        "se.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "se.tools.deployment_cloud",
+        "se.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "Responsive list and detail views",
+        "create, edit, filter, and sort flows",
+        "loading, empty, error, and confirmation states",
+        "accessible labels, keyboard paths, and focus",
+        "reusable components",
+        "mock or API data",
+        "one interaction test",
+        "mobile layout",
+        "README",
+        "short demo",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Main workflow works at narrow and wide widths",
+        "every asynchronous state is visible",
+        "keyboard users can complete the main task",
+        "essential actions remain available",
+        "failed requests offer recovery",
+        "decisions and limits are documented"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage"
+      ],
+      "source_blueprint": "SkillSignalZA SE Career Map Pack V1, Project Blueprint 2"
+    },
+    {
+      "project_id": "se.project.03_service_request_api",
+      "catalog_version": "1.0.0",
+      "track": "software_engineering",
+      "title": "Service request API",
+      "scenario": "Several clients need a shared request service with assignment, status history, data integrity, and consistent errors.",
+      "required_foundations": [
+        "One explicit server-side language",
+        "HTTP fundamentals",
+        "basic relational data",
+        "basic Git"
+      ],
+      "core_criterion_ids": [
+        "se.core.programming_language",
+        "se.core.programming_concepts",
+        "se.core.application_systems",
+        "se.core.database_fundamentals",
+        "se.core.debugging_testing",
+        "se.tools.version_control",
+        "se.tools.framework_library",
+        "se.tools.database_platform",
+        "se.tools.dev_environment",
+        "se.tools.repository_platform",
+        "se.projects.accessibility",
+        "se.projects.problem_relevance",
+        "se.projects.depth_ownership",
+        "se.projects.documentation",
+        "se.projects.outcome",
+        "se.readiness.communication",
+        "se.readiness.initiative",
+        "se.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "se.tools.deployment_cloud",
+        "se.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "REST endpoints for requests, users, and status changes",
+        "relational schema and migrations",
+        "request validation",
+        "consistent error responses",
+        "server-enforced transitions",
+        "structured logs",
+        "tests for central and invalid paths",
+        "seeded data",
+        "sample requests",
+        "one simulated dependency with defensive handling",
+        "API contract",
+        "data-model note",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Another developer can start the service, run samples, inspect the model, trigger a controlled failure, and locate the matching test or log"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage"
+      ],
+      "source_blueprint": "SkillSignalZA SE Career Map Pack V1, Project Blueprint 3"
+    },
+    {
+      "project_id": "se.project.04_support_ticket_classifier",
+      "catalog_version": "1.0.0",
+      "track": "software_engineering",
+      "title": "Support ticket classifier",
+      "scenario": "A support team needs a proposed category and urgency for text requests while preserving human review.",
+      "required_foundations": [
+        "Explicit Python",
+        "basic API and structured-data handling",
+        "Git",
+        "testing",
+        "safe data handling"
+      ],
+      "core_criterion_ids": [
+        "se.core.programming_language",
+        "se.core.programming_concepts",
+        "se.core.application_systems",
+        "se.core.debugging_testing",
+        "se.tools.version_control",
+        "se.tools.framework_library",
+        "se.tools.dev_environment",
+        "se.tools.repository_platform",
+        "se.projects.accessibility",
+        "se.projects.problem_relevance",
+        "se.projects.depth_ownership",
+        "se.projects.documentation",
+        "se.projects.outcome",
+        "se.readiness.communication",
+        "se.readiness.initiative",
+        "se.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "se.tools.deployment_cloud",
+        "se.tools.database_platform",
+        "se.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "De-identified labelled sample",
+        "rules, small model, or approved API baseline",
+        "endpoint or interface",
+        "held-out evaluation",
+        "suitable metric",
+        "confidence threshold",
+        "human-review fallback",
+        "privacy-safe logs",
+        "input validation",
+        "controlled failure",
+        "error-analysis note",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "The feature has one defined job",
+        "inputs and outputs are inspectable",
+        "evaluation is separated from training or design examples",
+        "low-confidence output follows review",
+        "private source text is excluded from logs",
+        "common failure patterns and limitations are documented"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage",
+        "python_not_explicit",
+        "api_foundation_missing_unverifiable",
+        "safe_labelled_data_unavailable"
+      ],
+      "data_requirement": "Use only public, safely anonymised, or clearly declared synthetic data. Never publish candidate or employer confidential data.",
+      "source_blueprint": "SkillSignalZA SE Career Map Pack V1, Project Blueprint 4"
+    },
+    {
+      "project_id": "da.project.01_kpi_dashboard",
+      "catalog_version": "1.0.0",
+      "track": "data_analytics",
+      "title": "Performance reporting and KPI dashboard",
+      "scenario": "A service or retail organisation needs a monthly overview of volume, value, completion, exceptions, and period movement with traceable detail.",
+      "required_foundations": [
+        "Explicit SQL",
+        "spreadsheet inspection",
+        "basic Power BI or comparable BI use",
+        "metric and denominator awareness"
+      ],
+      "core_criterion_ids": [
+        "da.core.sql",
+        "da.core.spreadsheets",
+        "da.core.analysis_statistics",
+        "da.core.cleaning",
+        "da.core.reporting",
+        "da.tools.bi_visualisation",
+        "da.tools.power_bi_alignment",
+        "da.tools.database_environment",
+        "da.tools.transformation_cloud",
+        "da.tools.integration",
+        "da.projects.accessibility",
+        "da.projects.context",
+        "da.projects.process",
+        "da.projects.findings",
+        "da.projects.reproducibility",
+        "da.readiness.problem_solving",
+        "da.readiness.attention_detail",
+        "da.readiness.communication",
+        "da.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "da.tools.programming",
+        "da.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "Project brief",
+        "dataset declaration",
+        "KPI dictionary",
+        "ordered SQL",
+        "source and query validation table",
+        "clean model",
+        "Power BI or comparable report",
+        "overview and investigation pages",
+        "screenshots or PDF",
+        "refresh note",
+        "written findings",
+        "limitations",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Totals reconcile",
+        "filters preserve denominators",
+        "period comparisons are consistent",
+        "overview and detail have distinct roles",
+        "exceptions trace to records",
+        "instructions reproduce the result"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage",
+        "safe_or_declared_dataset_unavailable"
+      ],
+      "data_requirement": "Use only public, safely anonymised, or clearly declared synthetic data. Never publish candidate or employer confidential data.",
+      "source_blueprint": "SkillSignalZA DA Career Map Pack V1, Project Blueprint 1"
+    },
+    {
+      "project_id": "da.project.02_sla_analysis",
+      "catalog_version": "1.0.0",
+      "track": "data_analytics",
+      "title": "Service operations and SLA analysis",
+      "scenario": "A service team needs to understand workload, response and resolution time, backlog, and SLA breaches from imperfect operational exports.",
+      "required_foundations": [
+        "Explicit SQL or Power Query",
+        "spreadsheet validation",
+        "date and status handling",
+        "basic dashboard use"
+      ],
+      "core_criterion_ids": [
+        "da.core.sql",
+        "da.core.spreadsheets",
+        "da.core.analysis_statistics",
+        "da.core.cleaning",
+        "da.core.reporting",
+        "da.tools.bi_visualisation",
+        "da.tools.power_bi_alignment",
+        "da.tools.database_environment",
+        "da.tools.transformation_cloud",
+        "da.tools.integration",
+        "da.projects.accessibility",
+        "da.projects.context",
+        "da.projects.process",
+        "da.projects.findings",
+        "da.projects.reproducibility",
+        "da.readiness.problem_solving",
+        "da.readiness.attention_detail",
+        "da.readiness.collaboration",
+        "da.readiness.communication",
+        "da.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "da.tools.programming"
+      ],
+      "required_outputs": [
+        "Process map",
+        "SLA and boundary rules",
+        "SQL or Power Query steps",
+        "data-quality log",
+        "Excel control workbook or validation sheet",
+        "Power BI operational report",
+        "record-level breach or backlog export",
+        "insight memo",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Boundary cases follow the rule",
+        "open-record age is consistent",
+        "missing timestamps are visible",
+        "summary counts reconcile to the exception list",
+        "recommendations point to measurable issues",
+        "sensitive or synthetic treatment is declared"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage",
+        "safe_or_declared_dataset_unavailable"
+      ],
+      "data_requirement": "Use only public, safely anonymised, or clearly declared synthetic data. Never publish candidate or employer confidential data.",
+      "source_blueprint": "SkillSignalZA DA Career Map Pack V1, Project Blueprint 2"
+    },
+    {
+      "project_id": "da.project.03_customer_performance_investigation",
+      "catalog_version": "1.0.0",
+      "track": "data_analytics",
+      "title": "Customer or marketing performance investigation",
+      "scenario": "A commercial team needs to understand which segments or channels contribute to conversion, repeat activity, or value without overstating cause.",
+      "required_foundations": [
+        "Explicit SQL",
+        "basic descriptive statistics",
+        "spreadsheet, Python, or R exploration",
+        "safe dataset handling"
+      ],
+      "core_criterion_ids": [
+        "da.core.sql",
+        "da.core.spreadsheets",
+        "da.core.analysis_statistics",
+        "da.core.cleaning",
+        "da.core.reporting",
+        "da.tools.bi_visualisation",
+        "da.tools.programming",
+        "da.tools.database_environment",
+        "da.tools.integration",
+        "da.projects.accessibility",
+        "da.projects.context",
+        "da.projects.process",
+        "da.projects.findings",
+        "da.projects.reproducibility",
+        "da.readiness.problem_solving",
+        "da.readiness.attention_detail",
+        "da.readiness.communication",
+        "da.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "da.tools.power_bi_alignment",
+        "da.tools.transformation_cloud",
+        "da.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "Analytical question",
+        "scope and unit of analysis",
+        "field guide",
+        "cleaning log",
+        "SQL with validation",
+        "script, notebook, or workbook",
+        "labelled visuals",
+        "denominator checks",
+        "alternate analysis",
+        "insight memo",
+        "limitations",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Denominators are explicit",
+        "small segments are flagged",
+        "missing categories remain visible",
+        "observation and causation stay separate",
+        "an alternate definition tests stability",
+        "recommendations fit the evidence"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage",
+        "safe_or_declared_dataset_unavailable"
+      ],
+      "data_requirement": "Use only public, safely anonymised, or clearly declared synthetic data. Never publish candidate or employer confidential data.",
+      "source_blueprint": "SkillSignalZA DA Career Map Pack V1, Project Blueprint 3"
+    },
+    {
+      "project_id": "da.project.04_repeatable_data_quality_workflow",
+      "catalog_version": "1.0.0",
+      "track": "data_analytics",
+      "title": "Data-quality and repeatable reporting workflow",
+      "scenario": "A team needs a controlled monthly-file transformation because headers, categories, and date formats change between deliveries.",
+      "required_foundations": [
+        "Spreadsheet or delimited-file handling",
+        "one explicit transformation tool such as Power Query, Python, or R",
+        "basic validation and reporting"
+      ],
+      "core_criterion_ids": [
+        "da.core.spreadsheets",
+        "da.core.analysis_statistics",
+        "da.core.cleaning",
+        "da.core.reporting",
+        "da.tools.bi_visualisation",
+        "da.tools.programming",
+        "da.tools.transformation_cloud",
+        "da.tools.integration",
+        "da.projects.accessibility",
+        "da.projects.context",
+        "da.projects.process",
+        "da.projects.findings",
+        "da.projects.reproducibility",
+        "da.readiness.problem_solving",
+        "da.readiness.attention_detail",
+        "da.readiness.communication",
+        "da.readiness.self_management"
+      ],
+      "optional_criterion_ids": [
+        "da.core.sql",
+        "da.tools.power_bi_alignment",
+        "da.tools.database_environment",
+        "da.readiness.collaboration"
+      ],
+      "required_outputs": [
+        "Expected-schema document",
+        "unchanged raw input examples",
+        "synthetic-data declaration",
+        "transformation script or queries",
+        "quality exception report",
+        "clean output",
+        "reporting view",
+        "two-cycle refresh log",
+        "failure-handling guide",
+        "reproduction instructions",
+        "accessible project link"
+      ],
+      "completion_checks": [
+        "Raw inputs remain unchanged",
+        "every correction maps to a rule",
+        "failed records remain visible",
+        "a changed file refreshes successfully",
+        "control totals reconcile",
+        "optional classification includes measured error and human review"
+      ],
+      "exclusion_conditions": [
+        "track_mismatch",
+        "blocking_review_unresolved",
+        "no_positive_core_gap_coverage",
+        "safe_synthetic_variations_unavailable"
+      ],
+      "data_requirement": "Use only public, safely anonymised, or clearly declared synthetic data. Never publish candidate or employer confidential data.",
+      "source_blueprint": "SkillSignalZA DA Career Map Pack V1, Project Blueprint 4"
+    }
+  ]
+}

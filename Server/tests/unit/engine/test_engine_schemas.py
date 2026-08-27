@@ -130,6 +130,26 @@ VALID_ASSESSMENT_RESULT = {
     },
 }
 
+VALID_EVIDENCE_PRIORITY_ACTION = {
+    "action_id": "action.v1.se.core.programming_language.documented",
+    "criterion_id": "se.core.programming_language",
+    "current_anchor": "documented",
+    "target_anchor": "demonstrated",
+    "required_output": "Accessible source code plus a language-specific implementation note.",
+    "completion_check": "The language is named explicitly and working code is locatable.",
+    "priority_order": 1,
+}
+
+VALID_QUALIFICATION_PRIORITY_ACTION = {
+    "action_id": "action.v1.se.alignment.qualification.completed",
+    "criterion_id": "se.alignment.qualification",
+    "current_anchor": "se.qual.completed",
+    "target_anchor": "se.qual.completed",
+    "required_output": "Qualification name, institution, completion status, and year.",
+    "completion_check": "The wording matches the submitted evidence without implied skills.",
+    "priority_order": 1,
+}
+
 
 def _validator(schema: dict[str, Any]) -> Draft202012Validator:
     return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
@@ -253,6 +273,56 @@ def test_approved_evidence_and_qualification_anchors_pass(
     payload = deepcopy(VALID_ASSESSMENT_RESULT)
     payload["criterion_results"][0]["anchor"] = anchor
     _assert_valid(assessment_result_schema, payload)
+
+
+def test_evidence_priority_action_validates(assessment_result_schema: dict[str, Any]) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["priority_actions"] = [VALID_EVIDENCE_PRIORITY_ACTION]
+    _assert_valid(assessment_result_schema, payload)
+
+
+def test_qualification_priority_action_validates(assessment_result_schema: dict[str, Any]) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    payload["priority_actions"] = [VALID_QUALIFICATION_PRIORITY_ACTION]
+    _assert_valid(assessment_result_schema, payload)
+
+
+@pytest.mark.parametrize("anchor", APPROVED_RESULT_ANCHORS)
+def test_approved_priority_action_anchors_pass(
+    assessment_result_schema: dict[str, Any],
+    anchor: str,
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    action = deepcopy(VALID_EVIDENCE_PRIORITY_ACTION)
+    action["current_anchor"] = anchor
+    action["target_anchor"] = anchor
+    payload["priority_actions"] = [action]
+    _assert_valid(assessment_result_schema, payload)
+
+
+def test_unknown_priority_action_anchor_fails(assessment_result_schema: dict[str, Any]) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    action = deepcopy(VALID_EVIDENCE_PRIORITY_ACTION)
+    action["current_anchor"] = "advanced"
+    payload["priority_actions"] = [action]
+    _assert_invalid(assessment_result_schema, payload)
+
+
+def test_legacy_priority_action_evidence_level_fields_fail(
+    assessment_result_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_ASSESSMENT_RESULT)
+    action = {
+        "action_id": VALID_EVIDENCE_PRIORITY_ACTION["action_id"],
+        "criterion_id": VALID_EVIDENCE_PRIORITY_ACTION["criterion_id"],
+        "current_evidence_level": "documented",
+        "target_evidence_level": "demonstrated",
+        "required_output": VALID_EVIDENCE_PRIORITY_ACTION["required_output"],
+        "completion_check": VALID_EVIDENCE_PRIORITY_ACTION["completion_check"],
+        "priority_order": 1,
+    }
+    payload["priority_actions"] = [action]
+    _assert_invalid(assessment_result_schema, payload)
 
 
 def test_result_score_over_100_fails(assessment_result_schema: dict[str, Any]) -> None:

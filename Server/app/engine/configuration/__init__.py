@@ -1,7 +1,8 @@
 """Versioned machine-readable engine configuration.
 
-Rubric weights, anchors, caps, bands, and rule identifiers live in JSON.
-This package exposes those documents only; it does not compute scores.
+Rubric weights, anchors, caps, bands, rule identifiers, actions, and
+projects live in JSON. This package exposes those documents only; it
+does not compute scores or select recommendations.
 """
 
 import json
@@ -10,6 +11,8 @@ from typing import Any
 
 CONFIGURATION_DIR = Path(__file__).resolve().parent
 RUBRIC_V2_PATH = CONFIGURATION_DIR / "rubric_v2.json"
+ACTION_CATALOG_V1_PATH = CONFIGURATION_DIR / "action_catalog_v1.json"
+PROJECT_CATALOG_V1_PATH = CONFIGURATION_DIR / "project_catalog_v1.json"
 
 
 def load_json(path: Path) -> Any:
@@ -23,5 +26,23 @@ def load_rubric_v2() -> dict[str, Any]:
     document = load_json(RUBRIC_V2_PATH)
     if not isinstance(document, dict):
         msg = "rubric_v2.json must contain a JSON object"
+        raise TypeError(msg)
+    return document
+
+
+def load_action_catalog_v1() -> dict[str, Any]:
+    """Return the canonical Package B action catalogue."""
+    document = load_json(ACTION_CATALOG_V1_PATH)
+    if not isinstance(document, dict):
+        msg = "action_catalog_v1.json must contain a JSON object"
+        raise TypeError(msg)
+    return document
+
+
+def load_project_catalog_v1() -> dict[str, Any]:
+    """Return the canonical Package B project catalogue."""
+    document = load_json(PROJECT_CATALOG_V1_PATH)
+    if not isinstance(document, dict):
+        msg = "project_catalog_v1.json must contain a JSON object"
         raise TypeError(msg)
     return document
