@@ -2,7 +2,7 @@
 
 **Status:** Approved under delegated product authority  
 **Decision date:** 27 August 2026  
-**Contract:** SkillSignalZA Readiness Report Engine Contract V1, version 1.0.0  
+**Contract:** SkillSignalZA Readiness Report Engine Contract V1.1, version 1.1.0  
 **Rubric:** V2 — Launch Candidate  
 **Implementation target:** `Tests` branch in `LSkhosana/SkillsSignalZA`  
 
@@ -291,7 +291,7 @@ Dataset-based projects must also require public, safely anonymised, or clearly d
 
 Read completely before editing:
 
-- `Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1.md`
+- `Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1_1.md`
 - This Package B decision brief.
 - `Server/app/engine/configuration/rubric_v2.json`
 - Existing Package A schemas and tests.
@@ -309,7 +309,7 @@ Update package-data configuration only if the existing JSON glob does not alread
 
 ### 9.1 Required action-catalog tests
 
-1. JSON parses and catalogue metadata matches contract `1.0.0`, rubric `V2`, catalogue `1.0.0`, status `approved`.
+1. JSON parses and catalogue metadata matches contract `1.1.0`, rubric `V2`, catalogue `1.0.0`, status `approved`.
 2. Exactly 50 rubric criteria are identified as non-qualification criteria.
 3. Every non-qualification criterion has exactly four unique actions covering all approved evidence levels.
 4. Exactly 12 qualification-route actions exist: six per track.
@@ -382,7 +382,7 @@ Return:
 
 Package B is complete only when:
 
-- The repository files match this decision brief and Engine Contract V1.
+- The repository files match this decision brief and Engine Contract V1.1.
 - All new and existing tests pass without weakened gates.
 - CI passes on a pull request from `Tests` to `main`.
 - Contract review finds no invented recommendation behaviour.
