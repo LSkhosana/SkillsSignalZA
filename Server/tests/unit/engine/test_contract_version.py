@@ -14,8 +14,14 @@ CONTRACT_V1_PATH = REPO_ROOT / "Context" / "SkillSignalZA_Readiness_Report_Engin
 CONTRACT_V1_1_PATH = (
     REPO_ROOT / "Context" / "SkillSignalZA_Readiness_Report_Engine_Contract_V1_1.md"
 )
-LOCKED_CONTRACT_V1_SHA256 = "b3790a2dc9b552826b12873940f1be14d32138c00f22bc8a3f7f628ec555bb12"
+# Canonical LF digest of Contract 1.0.0. Raw Windows CRLF bytes hash differently.
+LOCKED_CONTRACT_V1_SHA256 = "af5a56e67b4822f407cd8be3564179b025147067d074bb29e84b4d5b35ec6e69"
 ACTIVE_CONTRACT_VERSION = "1.1.0"
+
+
+def _canonical_text_sha256(text: str) -> str:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def test_rubric_declares_contract_1_1_0() -> None:
@@ -50,12 +56,20 @@ def test_active_configuration_shares_exactly_one_contract_version() -> None:
     assert versions == {ACTIVE_CONTRACT_VERSION}
 
 
+def test_canonical_text_sha256_is_newline_independent() -> None:
+    lf = "line one\nline two\n"
+    crlf = "line one\r\nline two\r\n"
+    cr = "line one\rline two\r"
+    digest = _canonical_text_sha256(lf)
+    assert _canonical_text_sha256(crlf) == digest
+    assert _canonical_text_sha256(cr) == digest
+
+
 def test_contract_1_0_0_remains_present_and_unmodified() -> None:
     assert CONTRACT_V1_PATH.is_file()
     content = CONTRACT_V1_PATH.read_text(encoding="utf-8")
     assert "**Contract version:** 1.0.0" in content
-    digest = hashlib.sha256(CONTRACT_V1_PATH.read_bytes()).hexdigest()
-    assert digest == LOCKED_CONTRACT_V1_SHA256
+    assert _canonical_text_sha256(content) == LOCKED_CONTRACT_V1_SHA256
 
 
 def test_contract_1_1_0_records_action_rules_and_no_production_migration() -> None:
