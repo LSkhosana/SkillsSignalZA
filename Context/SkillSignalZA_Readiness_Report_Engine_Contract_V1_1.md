@@ -748,7 +748,7 @@ The product owner approved all four contract decision groups on 24 August 2026:
 - Group 3: Priorities, recommendations, and report output.
 - Group 4: QA, security, versioning, and release controls.
 
-This approval freezes Engine Contract V1. Subsequent changes require a new contract version and documented migration impact.
+This approval freezes Engine Contract V1.1. Subsequent changes require a new contract version and documented migration impact.
 
 ## Source basis
 

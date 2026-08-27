@@ -16,6 +16,7 @@ CONTRACT_V1_1_PATH = (
 )
 # Canonical LF digest of Contract 1.0.0. Raw Windows CRLF bytes hash differently.
 LOCKED_CONTRACT_V1_SHA256 = "af5a56e67b4822f407cd8be3564179b025147067d074bb29e84b4d5b35ec6e69"
+LOCKED_CONTRACT_V1_1_SHA256 = "5ed6327b98027f178eb7dce570ad6c6fa5e3770208dd2b68bc68c82c4ef89e70"
 ACTIVE_CONTRACT_VERSION = "1.1.0"
 
 
@@ -75,6 +76,7 @@ def test_contract_1_0_0_remains_present_and_unmodified() -> None:
 def test_contract_1_1_0_records_action_rules_and_no_production_migration() -> None:
     content = CONTRACT_V1_1_PATH.read_text(encoding="utf-8")
     assert "**Contract version:** 1.1.0" in content
+    assert "This approval freezes Engine Contract V1.1." in content
     assert (
         "Every non-qualification criterion must have a versioned action mapping "
         "for all four ordinary evidence states"
@@ -86,3 +88,8 @@ def test_contract_1_1_0_records_action_rules_and_no_production_migration() -> No
     ) in content
     assert "no historical assessment, report, or database migration is required" in content
     assert "No production assessments or customer reports exist under contract 1.0.0" in content
+
+
+def test_contract_1_1_0_complete_hash_is_locked() -> None:
+    content = CONTRACT_V1_1_PATH.read_text(encoding="utf-8")
+    assert _canonical_text_sha256(content) == LOCKED_CONTRACT_V1_1_SHA256
