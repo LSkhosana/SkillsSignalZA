@@ -29,7 +29,7 @@ These files are configuration and product content. They must not calculate score
 10. Project selection uses core coverage only. Optional/stretch coverage is disclosed but does not increase the selection score.
 11. Project coverage score is the sum of current `point_gap` values for the project's core-covered criteria that appear in the ordered material-gap list. The highest positive score wins; ties use stable `project_id` order.
 12. If every eligible project has a coverage score of zero, return `PROJECT_RECOMMENDATION_REVIEW_REQUIRED`.
-13. Required foundation skills are preparation steps, not automatic exclusions. A candidate may receive a project recommendation with prerequisites.
+13. Required foundation skills are normally prerequisites rather than automatic exclusions. A candidate may receive a project recommendation with prerequisites, except where a project declares an explicit safety or complexity exclusion. The support-ticket classifier retains `python_not_explicit`, `api_foundation_missing_unverifiable`, and `safe_labelled_data_unavailable`.
 14. Blocking assessment-review flags prevent report release before project selection, as required by the contract.
 15. No time estimates are included in V1. Completion is evidence-gated, not date-gated.
 16. V1 contains eight projects: four Software Engineering and four Data Analytics projects already approved in the Career Map Packs.
@@ -43,7 +43,7 @@ Each non-qualification action record must contain:
   "action_id": "action.v1.se.core.programming_language.missing_unverifiable",
   "criterion_id": "se.core.programming_language",
   "current_anchor": "missing_unverifiable",
-  "target_evidence_level": "documented",
+  "target_anchor": "documented",
   "candidate_instruction": "Create evidence for Programming language evidence: publish a small working feature in one explicitly named language and explain what the code does.",
   "required_output": "Accessible source code plus a short language-specific implementation note.",
   "completion_check": "The language is named explicitly and a reviewer can locate code that implements a working behaviour.",
@@ -60,6 +60,8 @@ Allowed `action_type` values:
 - `package_evidence`
 - `package_qualification`
 - `access_strategy`
+
+Every action uses `current_anchor` and `target_anchor`. Those fields accept the four ordinary evidence anchors and all twelve approved qualification-route anchors. Qualification packaging actions keep the same qualification route for both anchors; packaging must not imply that the scored route changed.
 
 Stable action IDs:
 
@@ -145,7 +147,7 @@ The matrix supplies the exact evidence target, required output, completion check
 
 These actions package truthful market-access evidence. They never create technical-skill evidence and never instruct a candidate to start a qualification merely to increase a score.
 
-Apply the same route-specific content to the corresponding SE or DA qualification criterion, using the track-specific route ID and points already stored in `rubric_v2.json`.
+Apply the same route-specific content to the corresponding SE or DA qualification criterion, using the track-specific route ID and points already stored in `rubric_v2.json`. Each qualification action sets `current_anchor` and `target_anchor` to that same route ID so packaging does not imply the scored route changed.
 
 | Route suffix | Action type | Candidate instruction | Required output | Completion check |
 |---|---|---|---|---|
@@ -315,14 +317,17 @@ Update package-data configuration only if the existing JSON glob does not alread
 6. Every action references an existing rubric criterion.
 7. Every qualification action references a route belonging to the same track.
 8. Action IDs are unique and follow the locked format.
-9. Missing and named-only actions never target a lower evidence level.
-10. Documented actions target demonstrated.
-11. Demonstrated actions remain demonstrated and use `package_evidence`.
+9. Missing and named-only actions never target a lower evidence anchor.
+10. Documented actions target `demonstrated`.
+11. Demonstrated actions remain `demonstrated` and use `package_evidence`.
 12. Every action has non-empty instruction, required output, and completion check.
-13. Project criteria target demonstrated for missing, named-only, and documented states.
+13. Project criteria target `demonstrated` for missing, named-only, and documented states.
 14. `project_addressable` matches the criterion matrix.
 15. No text contains hiring guarantees, score promises, invented achievements, named course providers, or instructions to misrepresent evidence.
 16. Selection policy sets the priority-action limit to five, gives active cap gaps precedence, and does not force a minimum.
+17. Ordinary evidence states use the locked action types: `create_evidence`, `add_context`, `demonstrate_evidence`, and `package_evidence`.
+18. `target_anchor` follows the locked mapping, including the stronger `demonstrated` target for project criteria. Qualification packaging keeps the same route for current and target anchors.
+19. Canonical SHA-256 hashes of both catalogues match the approved content, using normalized parsed JSON with stable key ordering and compact separators.
 
 ### 9.2 Required project-catalog tests
 
@@ -340,6 +345,7 @@ Update package-data configuration only if the existing JSON glob does not alread
 12. Zero positive coverage returns `PROJECT_RECOMMENDATION_REVIEW_REQUIRED`.
 13. The classifier includes its Python, API-foundation, and safe-data exclusions.
 14. No project promises employment, a score increase, or a guaranteed completion time.
+15. Required foundations are not automatic exclusions except explicit safety or complexity exclusions declared on a project.
 
 ### 9.3 Prohibited work
 
@@ -352,7 +358,7 @@ Do not implement or modify:
 - APIs, Supabase, authentication, uploads, or repositories.
 - Report rendering or PDFs.
 - Package C golden fixtures.
-- Rubric points, anchors, qualification values, caps, bands, or Package A schemas.
+- Rubric points, anchors, qualification values, caps, bands, or Package A schemas except the approved priority-action `current_anchor` / `target_anchor` terminology.
 - Expo or scraper code.
 
 Do not create a second rubric copy inside either catalogue. Reference stable rubric criterion IDs.

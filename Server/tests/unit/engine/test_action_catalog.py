@@ -1,5 +1,7 @@
 """Configuration-validation tests for the Package B action catalogue."""
 
+import hashlib
+import json
 from collections.abc import Mapping
 from typing import Any
 
@@ -18,6 +20,12 @@ EVIDENCE_LEVELS = (
     "demonstrated",
 )
 EVIDENCE_RANK = {level: index for index, level in enumerate(EVIDENCE_LEVELS)}
+LOCKED_ACTION_TYPES = {
+    "missing_unverifiable": "create_evidence",
+    "named_only": "add_context",
+    "documented": "demonstrate_evidence",
+    "demonstrated": "package_evidence",
+}
 QUALIFICATION_SUFFIXES = (
     "completed",
     "in_progress",
@@ -26,6 +34,7 @@ QUALIFICATION_SUFFIXES = (
     "adjacent",
     "none",
 )
+APPROVED_ACTION_CATALOG_SHA256 = "73448765ed3c90313af39ebe4900a56f3152d6f12fc32555e6d044ffb1927e12"
 FORBIDDEN_ACTION_TEXT = (
     "hiring guarantee",
     "guaranteed job",
@@ -143,6 +152,23 @@ def _walk_text(node: object) -> list[str]:
     return values
 
 
+def _canonical_sha256(document: Mapping[str, Any]) -> str:
+    payload = json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _expected_target_anchor(action: Mapping[str, Any]) -> str:
+    current = action["current_anchor"]
+    if "qualification_route_id" in action:
+        return current
+    if _is_project_criterion(action["criterion_id"]) or current in {
+        "documented",
+        "demonstrated",
+    }:
+        return "demonstrated"
+    return "documented"
+
+
 @pytest.fixture(scope="module")
 def rubric() -> dict[str, Any]:
     return load_rubric_v2()
@@ -228,6 +254,7 @@ def test_qualification_actions_reference_same_track_routes(
         track_id = "software_engineering" if prefix == "se" else "data_analytics"
         assert action["qualification_route_id"] in routes_by_track[track_id]
         assert action["current_anchor"] == action["qualification_route_id"]
+        assert action["target_anchor"] == action["qualification_route_id"]
         suffix = action["qualification_route_id"].removeprefix(f"{prefix}.qual.")
         assert suffix in QUALIFICATION_SUFFIXES
 
@@ -251,16 +278,13 @@ def test_missing_and_named_only_actions_never_target_a_lower_level(
     for action in actions:
         if action["current_anchor"] not in {"missing_unverifiable", "named_only"}:
             continue
-        assert (
-            EVIDENCE_RANK[action["target_evidence_level"]]
-            >= EVIDENCE_RANK[action["current_anchor"]]
-        )
+        assert EVIDENCE_RANK[action["target_anchor"]] >= EVIDENCE_RANK[action["current_anchor"]]
 
 
 def test_documented_actions_target_demonstrated(actions: list[Mapping[str, Any]]) -> None:
     for action in actions:
         if action["current_anchor"] == "documented":
-            assert action["target_evidence_level"] == "demonstrated"
+            assert action["target_anchor"] == "demonstrated"
 
 
 def test_demonstrated_actions_remain_demonstrated_and_use_package_evidence(
@@ -268,8 +292,15 @@ def test_demonstrated_actions_remain_demonstrated_and_use_package_evidence(
 ) -> None:
     for action in actions:
         if action["current_anchor"] == "demonstrated":
-            assert action["target_evidence_level"] == "demonstrated"
+            assert action["target_anchor"] == "demonstrated"
             assert action["action_type"] == "package_evidence"
+
+
+def test_ordinary_evidence_action_types_are_locked(actions: list[Mapping[str, Any]]) -> None:
+    for action in actions:
+        if action["current_anchor"] in LOCKED_ACTION_TYPES:
+            assert action["action_type"] == LOCKED_ACTION_TYPES[action["current_anchor"]]
+            assert "target_evidence_level" not in action
 
 
 def test_every_action_has_non_empty_instruction_output_and_check(
@@ -288,7 +319,21 @@ def test_project_criteria_target_demonstrated_for_weaker_states(
         if not _is_project_criterion(action["criterion_id"]):
             continue
         if action["current_anchor"] in {"missing_unverifiable", "named_only", "documented"}:
-            assert action["target_evidence_level"] == "demonstrated"
+            assert action["target_anchor"] == "demonstrated"
+
+
+def test_target_anchors_match_locked_mapping(actions: list[Mapping[str, Any]]) -> None:
+    for action in actions:
+        assert action["target_anchor"] == _expected_target_anchor(action)
+
+
+def test_qualification_packaging_does_not_change_the_scored_route(
+    actions: list[Mapping[str, Any]],
+) -> None:
+    for action in actions:
+        if "qualification_route_id" not in action:
+            continue
+        assert action["current_anchor"] == action["target_anchor"]
 
 
 def test_project_addressable_matches_criterion_matrix(actions: list[Mapping[str, Any]]) -> None:
@@ -319,3 +364,7 @@ def test_load_action_catalog_v1_rejects_non_object(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr("app.engine.configuration.load_json", lambda path: ["not-an-object"])
     with pytest.raises(TypeError, match="JSON object"):
         load_action_catalog_v1()
+
+
+def test_approved_action_catalog_canonical_hash_is_locked(catalog: Mapping[str, Any]) -> None:
+    assert _canonical_sha256(catalog) == APPROVED_ACTION_CATALOG_SHA256

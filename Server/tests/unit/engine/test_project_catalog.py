@@ -1,5 +1,7 @@
 """Configuration-validation tests for the Package B project catalogue."""
 
+import hashlib
+import json
 from collections.abc import Mapping
 from typing import Any
 
@@ -44,6 +46,7 @@ FORBIDDEN_PROJECT_TEXT = (
     "complete within",
 )
 SAFE_DATA_MARKERS = ("public", "anonymis", "synthetic")
+APPROVED_PROJECT_CATALOG_SHA256 = "8e6d52575a338fa0d0bde1a924705c9dd1a7e24933d06746ae3bb8a49a48b5ae"
 
 
 def _walk_text(node: object) -> list[str]:
@@ -57,6 +60,11 @@ def _walk_text(node: object) -> list[str]:
         for item in node:
             values.extend(_walk_text(item))
     return values
+
+
+def _canonical_sha256(document: Mapping[str, Any]) -> str:
+    payload = json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _criteria_by_track(rubric: Mapping[str, Any]) -> dict[str, dict[str, Mapping[str, Any]]]:
@@ -218,6 +226,21 @@ def test_classifier_includes_python_api_and_safe_data_exclusions(
         assert condition in classifier["exclusion_conditions"]
 
 
+def test_required_foundations_are_not_automatic_exclusions(
+    projects: list[Mapping[str, Any]],
+) -> None:
+    for project in projects:
+        extras = [
+            condition
+            for condition in project["exclusion_conditions"]
+            if condition not in GLOBAL_EXCLUSIONS
+        ]
+        for foundation in project["required_foundations"]:
+            assert foundation not in extras
+        if project["project_id"] == "se.project.04_support_ticket_classifier":
+            assert extras == list(CLASSIFIER_EXCLUSIONS)
+
+
 def test_no_project_promises_employment_score_increase_or_completion_time(
     catalog: Mapping[str, Any],
 ) -> None:
@@ -230,3 +253,7 @@ def test_load_project_catalog_v1_rejects_non_object(monkeypatch: pytest.MonkeyPa
     monkeypatch.setattr("app.engine.configuration.load_json", lambda path: ["not-an-object"])
     with pytest.raises(TypeError, match="JSON object"):
         load_project_catalog_v1()
+
+
+def test_approved_project_catalog_canonical_hash_is_locked(catalog: Mapping[str, Any]) -> None:
+    assert _canonical_sha256(catalog) == APPROVED_PROJECT_CATALOG_SHA256
