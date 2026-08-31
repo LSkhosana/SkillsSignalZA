@@ -25,7 +25,7 @@ FIXTURE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "golden_candida
 SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 FIXTURE_SCHEMA_PATH = FIXTURE_DIR / "golden_fixture.schema.json"
 MANIFEST_PATH = FIXTURE_DIR / "manifest.json"
-LOCKED_MANIFEST_SHA256 = "858eb189470fb1319f2da2c93ddd2f04084dda183046a9ab51b47f8aaeb72eda"
+LOCKED_MANIFEST_SHA256 = "b953d0ba670d5daf606a084a0fa74bc65655be3a5bf0896ead19ca8870712289"
 LOCKED_CONTRACT_VERSION = "1.2.0"
 LOCKED_RUBRIC_VERSION = "V2"
 SECRET_SENTINEL = "SKILLSIGNALZA_GOLDEN_SECRET_DO_NOT_LEAK_7f9c2e"
@@ -136,6 +136,38 @@ def _completed_results(fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
         if isinstance(run_result, dict):
             results.append(run_result)
     return results
+
+
+def _assessment_inputs(fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
+    inputs: list[dict[str, Any]] = []
+    top_level = fixture.get("assessment_input")
+    if isinstance(top_level, dict):
+        inputs.append(top_level)
+    for run in fixture["expected"].get("runs", []):
+        run_input = run.get("assessment_input")
+        if isinstance(run_input, dict):
+            inputs.append(run_input)
+    return inputs
+
+
+def _assert_submitted_links_have_exactly_one_matching_source(
+    assessment_input: Mapping[str, Any],
+    source_records: list[Mapping[str, Any]],
+) -> None:
+    for link in assessment_input.get("links") or []:
+        expected_source_id = f"src-{link['link_id']}"
+        matches = [
+            source
+            for source in source_records
+            if source["source_id"] == expected_source_id
+            and source["locator"] == link["submitted_url"]
+            and source["source_type"] == link["declared_type"]
+        ]
+        assert len(matches) == 1, (
+            assessment_input.get("candidate_ref"),
+            link,
+            matches,
+        )
 
 
 def _expected_actions(
@@ -427,16 +459,12 @@ def test_evidence_and_source_references_are_closed_and_nonzero_scores_have_accep
         for fact in document["evidence_facts"]:
             assert fact["source_id"] in source_ids
             assert fact["review_status"] == "accepted"
-        input_payload = document.get("assessment_input") or {}
-        cv_present = isinstance(input_payload, dict) and "cv" in input_payload
-        if cv_present:
-            assert any(source["source_id"] == "src-cv" for source in document["source_records"])
-        for link in input_payload.get("links", []) if isinstance(input_payload, dict) else []:
-            assert any(
-                source["source_type"] != "cv"
-                and source["locator"].endswith(link["submitted_url"].split("/")[-1])
-                or source["source_id"] == "src-link-01"
-                for source in document["source_records"]
+        for assessment_input in _assessment_inputs(document):
+            if "cv" in assessment_input:
+                assert any(source["source_id"] == "src-cv" for source in document["source_records"])
+            _assert_submitted_links_have_exactly_one_matching_source(
+                assessment_input,
+                document["source_records"],
             )
         for result in _completed_results(document):
             for item in result["criterion_results"]:
@@ -876,29 +904,35 @@ def test_failure_and_review_fixtures_contain_no_completed_result_or_score(
             assert case["final_score_present"] is False
 
 
-def test_secret_sentinel_and_credential_patterns_do_not_appear_in_public_payloads(
+def test_secret_sentinel_exists_only_at_harness_secret_sentinel(
     fixtures: list[tuple[Path, dict[str, Any]]],
 ) -> None:
     c22 = next(
         document for _path, document in fixtures if document["fixture_id"].startswith("c22.")
     )
-    public = {
-        "assessment_result": c22["expected"]["assessment_result"],
-        "report_data": c22["expected"]["report_data"],
-    }
-    for node in _walk(public):
+    assert c22["harness"]["secret_sentinel"] == SECRET_SENTINEL
+    assert SECRET_SENTINEL not in c22["assertions"].get("forbidden_patterns", [])
+
+    scanned = deepcopy(c22)
+    del scanned["harness"]["secret_sentinel"]
+    for node in _walk(scanned):
         if isinstance(node, Mapping):
             for key, value in node.items():
                 assert SECRET_SENTINEL not in str(key)
                 if isinstance(value, str):
                     assert SECRET_SENTINEL not in value
-                    for pattern in CREDENTIAL_PATTERNS:
-                        assert pattern.search(value) is None
         elif isinstance(node, str):
             assert SECRET_SENTINEL not in node
+
+    public = {
+        "assessment_result": c22["expected"]["assessment_result"],
+        "report_data": c22["expected"]["report_data"],
+    }
+    for node in _walk(public):
+        if isinstance(node, str):
             for pattern in CREDENTIAL_PATTERNS:
                 assert pattern.search(node) is None
-    assert SECRET_SENTINEL == c22["harness"]["secret_sentinel"]
+            assert SECRET_SENTINEL not in node
 
 
 def test_fixture_package_does_not_add_production_engine_modules() -> None:

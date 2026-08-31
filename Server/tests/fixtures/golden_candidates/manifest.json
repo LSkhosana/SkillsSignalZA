@@ -139,7 +139,7 @@
     },
     {
       "acceptance_requirement": 15,
-      "canonical_sha256": "352b7b0be51c2bd22b38d7d8aae0cf7669ebf933c9d0b0960c83bf2d9ef84f06",
+      "canonical_sha256": "5a2e7e467b7f7db5106e1e250cbd447c9a0a0e4f4aad9505568392ebec227ae5",
       "filename": "c15_conflicting_sources_review.json",
       "fixture_id": "c15.da.conflicting_sources_review",
       "fixture_kind": "review_required",
@@ -195,7 +195,7 @@
     },
     {
       "acceptance_requirement": 22,
-      "canonical_sha256": "75792c78f180c2fe89628946044d0d3d0a2b12d3471d3dd5b525bf53d56d66e8",
+      "canonical_sha256": "dde2d69ac513988240c2c31d149ee7e6db16a9ccb1533e2d2b1a48170b7ca25c",
       "filename": "c22_secret_exclusion.json",
       "fixture_id": "c22.da.secret_exclusion",
       "fixture_kind": "security_invariant",

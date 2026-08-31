@@ -81,7 +81,7 @@
       "access_status": "accessible",
       "content_hash": "d67172c64af9f37830dc4b11d1eb9106c3f9011cd24fb28079427b234c17c4a2",
       "extractor_version": "extract.v1.golden",
-      "locator": "https://example.com/golden/c15/project",
+      "locator": "https://example.com/golden/c15/repo",
       "notes": "Repository ownership and SQL use conflict with the CV claim.",
       "ownership_status": "conflicting",
       "retrieved_at": "2026-08-31T09:05:00Z",
