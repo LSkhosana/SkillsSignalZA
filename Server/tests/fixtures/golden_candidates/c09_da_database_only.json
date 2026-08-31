@@ -1,0 +1,922 @@
+{
+  "acceptance_requirement": 9,
+  "assertions": {
+    "postgresql_did_not_create_sql_fact": true
+  },
+  "assessment_input": {
+    "candidate_ref": "golden-c09",
+    "contract_version": "1.2.0",
+    "cv": {
+      "document_id": "doc-c09",
+      "media_type": "application/pdf",
+      "original_filename": "golden-c09-cv.pdf",
+      "sha256": "e2524c5c5118d6007bc348f3cd7e9f1934e3b3f163fdbf24e6cac40991e9403b"
+    },
+    "links": [
+      {
+        "declared_type": "project",
+        "link_id": "link-01",
+        "submitted_url": "https://example.com/golden/c09/project"
+      }
+    ],
+    "rubric_version": "V2",
+    "submitted_at": "2026-08-31T09:00:00Z",
+    "track": "data_analytics"
+  },
+  "contract_version": "1.2.0",
+  "description": "Demonstrated PostgreSQL database-environment evidence without an explicit SQL competency fact.",
+  "evidence_facts": [
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-001",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for spreadsheets.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.spreadsheets.v1",
+      "source_id": "src-cv",
+      "subject": "excel"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-002",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for analysis statistics.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.analysis_statistics.v1",
+      "source_id": "src-cv",
+      "subject": "descriptive statistics"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-003",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for cleaning.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.cleaning.v1",
+      "source_id": "src-cv",
+      "subject": "data cleaning"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-004",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for reporting.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.reporting.v1",
+      "source_id": "src-cv",
+      "subject": "insight memo"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-005",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for bi visualisation.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.bi_visualisation.v1",
+      "source_id": "src-cv",
+      "subject": "power bi"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-006",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for power bi alignment.",
+      "fact_type": "tool_name",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.power_bi_alignment.v1",
+      "source_id": "src-cv",
+      "subject": "power bi"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-007",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for programming.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.programming.v1",
+      "source_id": "src-cv",
+      "subject": "python"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-008",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Used PostgreSQL as the data store.",
+      "fact_type": "tool_name",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.database_environment.v1",
+      "source_id": "src-cv",
+      "subject": "PostgreSQL"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-009",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for transformation cloud.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.transformation_cloud.v1",
+      "source_id": "src-cv",
+      "subject": "power query"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-010",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Connected Excel analysis to a Power BI report.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.integration.v1",
+      "source_id": "src-cv",
+      "subject": "excel to power bi"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-011",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for accessibility.",
+      "fact_type": "project_proof",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.projects.accessibility.v1",
+      "source_id": "src-cv",
+      "subject": "project link"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-012",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for context.",
+      "fact_type": "project_context",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.projects.context.v1",
+      "source_id": "src-cv",
+      "subject": "monthly kpi question"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-013",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for process.",
+      "fact_type": "project_process",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.projects.process.v1",
+      "source_id": "src-cv",
+      "subject": "cleaning and analysis process"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-014",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for findings.",
+      "fact_type": "project_outcome",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.projects.findings.v1",
+      "source_id": "src-cv",
+      "subject": "supported findings"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-015",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for reproducibility.",
+      "fact_type": "project_process",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.projects.reproducibility.v1",
+      "source_id": "src-cv",
+      "subject": "refresh notes"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-016",
+      "evidence_level": "documented",
+      "explicit_text": "Synthetic documented evidence for qualification.",
+      "fact_type": "qualification",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.alignment.qualification.v1",
+      "source_id": "src-cv",
+      "subject": "bcom analytics"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-017",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for target role.",
+      "fact_type": "role_alignment",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.alignment.target_role.v1",
+      "source_id": "src-cv",
+      "subject": "junior data analyst"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-018",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for claim specificity.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.alignment.claim_specificity.v1",
+      "source_id": "src-cv",
+      "subject": "specific claims"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-019",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for description evidence.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.alignment.description_evidence.v1",
+      "source_id": "src-cv",
+      "subject": "evidence-led bullets"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-020",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for readability.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.alignment.readability.v1",
+      "source_id": "src-cv",
+      "subject": "structured cv"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-021",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for problem solving.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.readiness.problem_solving.v1",
+      "source_id": "src-cv",
+      "subject": "analytical framing"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-022",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for attention detail.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.readiness.attention_detail.v1",
+      "source_id": "src-cv",
+      "subject": "reconciliation check"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-023",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for collaboration.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.readiness.collaboration.v1",
+      "source_id": "src-cv",
+      "subject": "stakeholder review"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-024",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for communication.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.readiness.communication.v1",
+      "source_id": "src-cv",
+      "subject": "non-technical explanation"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-025",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for self management.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.readiness.self_management.v1",
+      "source_id": "src-cv",
+      "subject": "analysis plan"
+    }
+  ],
+  "expected": {
+    "assessment_result": {
+      "applicable_overall_cap": 79,
+      "assessed_at": "2026-08-31T10:00:00Z",
+      "assessment_id": "assessment-golden-c09",
+      "band": "developing_application_readiness",
+      "category_caps": [],
+      "category_results": [
+        {
+          "category_id": "da.core",
+          "final_score": 25,
+          "max_points": 40,
+          "pre_cap_score": 25
+        },
+        {
+          "category_id": "da.tools",
+          "final_score": 25,
+          "max_points": 25,
+          "pre_cap_score": 25
+        },
+        {
+          "category_id": "da.projects",
+          "final_score": 10,
+          "max_points": 10,
+          "pre_cap_score": 10
+        },
+        {
+          "category_id": "da.alignment",
+          "final_score": 15,
+          "max_points": 15,
+          "pre_cap_score": 15
+        },
+        {
+          "category_id": "da.readiness",
+          "final_score": 10,
+          "max_points": 10,
+          "pre_cap_score": 10
+        }
+      ],
+      "contract_version": "1.2.0",
+      "criterion_results": [
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.sql",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for SQL competency.",
+          "flags": [],
+          "max_points": 15,
+          "rule_ids": [
+            "rubric.v2.da.core.sql"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 8,
+          "category_id": "da.core",
+          "criterion_id": "da.core.spreadsheets",
+          "evidence_ids": [
+            "ev-001"
+          ],
+          "evidence_note": "Spreadsheet analysis scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 8,
+          "rule_ids": [
+            "rubric.v2.da.core.spreadsheets"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 7,
+          "category_id": "da.core",
+          "criterion_id": "da.core.analysis_statistics",
+          "evidence_ids": [
+            "ev-002"
+          ],
+          "evidence_note": "Analysis, interpretation, and statistics scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 7,
+          "rule_ids": [
+            "rubric.v2.da.core.analysis_statistics"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 5,
+          "category_id": "da.core",
+          "criterion_id": "da.core.cleaning",
+          "evidence_ids": [
+            "ev-003"
+          ],
+          "evidence_note": "Data cleaning and preparation scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.da.core.cleaning"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 5,
+          "category_id": "da.core",
+          "criterion_id": "da.core.reporting",
+          "evidence_ids": [
+            "ev-004"
+          ],
+          "evidence_note": "Reporting and communication of findings scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.da.core.reporting"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 9,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.bi_visualisation",
+          "evidence_ids": [
+            "ev-005"
+          ],
+          "evidence_note": "BI and visualisation capability scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 9,
+          "rule_ids": [
+            "rubric.v2.da.tools.bi_visualisation"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 1,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.power_bi_alignment",
+          "evidence_ids": [
+            "ev-006"
+          ],
+          "evidence_note": "Power BI market-alignment point scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 1,
+          "rule_ids": [
+            "rubric.v2.da.tools.power_bi_alignment"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 6,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.programming",
+          "evidence_ids": [
+            "ev-007"
+          ],
+          "evidence_note": "Python, R, and relevant libraries scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.da.tools.programming"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 4,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.database_environment",
+          "evidence_ids": [
+            "ev-008"
+          ],
+          "evidence_note": "Database or data environment scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.da.tools.database_environment"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.transformation_cloud",
+          "evidence_ids": [
+            "ev-009"
+          ],
+          "evidence_note": "Transformation, platform, or cloud tools scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.da.tools.transformation_cloud"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.integration",
+          "evidence_ids": [
+            "ev-010"
+          ],
+          "evidence_note": "Tool breadth and integration scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.tools.integration"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.accessibility",
+          "evidence_ids": [
+            "ev-011"
+          ],
+          "evidence_note": "Proof and accessibility scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.accessibility"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.context",
+          "evidence_ids": [
+            "ev-012"
+          ],
+          "evidence_note": "Question, dataset, or business context scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.context"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.process",
+          "evidence_ids": [
+            "ev-013"
+          ],
+          "evidence_note": "Cleaning, exploration, and analysis process scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.process"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.findings",
+          "evidence_ids": [
+            "ev-014"
+          ],
+          "evidence_note": "Findings and visual communication scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.findings"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.reproducibility",
+          "evidence_ids": [
+            "ev-015"
+          ],
+          "evidence_note": "Reproducibility and presentation scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.reproducibility"
+          ]
+        },
+        {
+          "anchor": "da.qual.completed",
+          "awarded_points": 7,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.qualification",
+          "evidence_ids": [
+            "ev-016"
+          ],
+          "evidence_note": "Qualification and market-access evidence scored from locked da.qual.completed evidence.",
+          "flags": [],
+          "max_points": 7,
+          "rule_ids": [
+            "rubric.v2.da.alignment.qualification"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.target_role",
+          "evidence_ids": [
+            "ev-017"
+          ],
+          "evidence_note": "Target-role alignment scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.target_role"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.claim_specificity",
+          "evidence_ids": [
+            "ev-018"
+          ],
+          "evidence_note": "Specificity of tools and analytical claims scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.claim_specificity"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.description_evidence",
+          "evidence_ids": [
+            "ev-019"
+          ],
+          "evidence_note": "Evidence and outcomes in descriptions scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.description_evidence"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.readability",
+          "evidence_ids": [
+            "ev-020"
+          ],
+          "evidence_note": "Structure and readability scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.readability"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.problem_solving",
+          "evidence_ids": [
+            "ev-021"
+          ],
+          "evidence_note": "Applied problem-solving scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.problem_solving"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.attention_detail",
+          "evidence_ids": [
+            "ev-022"
+          ],
+          "evidence_note": "Attention to detail scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.attention_detail"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.collaboration",
+          "evidence_ids": [
+            "ev-023"
+          ],
+          "evidence_note": "Collaboration scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.collaboration"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.communication",
+          "evidence_ids": [
+            "ev-024"
+          ],
+          "evidence_note": "Communication or stakeholder interaction scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.communication"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.self_management",
+          "evidence_ids": [
+            "ev-025"
+          ],
+          "evidence_note": "Self-management and responsibility scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.self_management"
+          ]
+        }
+      ],
+      "final_score": 79,
+      "flags": [],
+      "material_gaps": [
+        {
+          "criterion_id": "da.core.sql",
+          "gap_ratio": 1.0,
+          "point_gap": 15
+        }
+      ],
+      "overall_caps": [
+        {
+          "cap": 79,
+          "rule_id": "rubric.v2.da.cap.no_sql"
+        }
+      ],
+      "priority_actions": [
+        {
+          "action_id": "action.v1.da.core.sql.missing_unverifiable",
+          "completion_check": "Queries run in the documented order and outputs reconcile to a stated check.",
+          "criterion_id": "da.core.sql",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 1,
+          "required_output": "Ordered SQL files plus result or validation evidence.",
+          "target_anchor": "documented"
+        }
+      ],
+      "project_recommendation": {
+        "catalogue_version": "1.0.0",
+        "project_id": "da.project.01_kpi_dashboard"
+      },
+      "qa": {
+        "checks": [
+          {
+            "name": "selected_track_valid",
+            "passed": true
+          },
+          {
+            "name": "cv_present_and_readable",
+            "passed": true
+          },
+          {
+            "name": "every_submitted_link_has_source_record",
+            "passed": true
+          },
+          {
+            "name": "nonzero_scores_have_accepted_evidence",
+            "passed": true
+          },
+          {
+            "name": "criterion_scores_match_allowed_anchors",
+            "passed": true
+          },
+          {
+            "name": "no_criterion_exceeds_maximum",
+            "passed": true
+          },
+          {
+            "name": "no_category_exceeds_maximum_or_cap",
+            "passed": true
+          },
+          {
+            "name": "raw_total_equals_sum_of_final_category_scores",
+            "passed": true
+          },
+          {
+            "name": "final_score_equals_raw_after_strictest_overall_cap",
+            "passed": true
+          },
+          {
+            "name": "band_matches_final_score",
+            "passed": true
+          },
+          {
+            "name": "unsupported_labels_earn_zero_for_work_readiness",
+            "passed": true
+          },
+          {
+            "name": "no_forbidden_inference",
+            "passed": true
+          },
+          {
+            "name": "no_unresolved_blocking_review_flag",
+            "passed": true
+          },
+          {
+            "name": "no_secret_in_payload",
+            "passed": true
+          }
+        ],
+        "status": "PASS"
+      },
+      "raw_total": 85,
+      "rubric_version": "V2",
+      "run_id": "run-golden-c09",
+      "source_snapshot": {
+        "cv_hash": "e2524c5c5118d6007bc348f3cd7e9f1934e3b3f163fdbf24e6cac40991e9403b",
+        "link_content_hashes": [
+          "a177a952fb120cd00337c68e897a19d5c18da1599af4b7f49942123853678682"
+        ]
+      },
+      "status": "COMPLETED",
+      "strengths": [
+        {
+          "awarded_points": 9,
+          "criterion_id": "da.tools.bi_visualisation",
+          "max_points": 9
+        },
+        {
+          "awarded_points": 8,
+          "criterion_id": "da.core.spreadsheets",
+          "max_points": 8
+        },
+        {
+          "awarded_points": 7,
+          "criterion_id": "da.alignment.qualification",
+          "max_points": 7
+        },
+        {
+          "awarded_points": 7,
+          "criterion_id": "da.core.analysis_statistics",
+          "max_points": 7
+        },
+        {
+          "awarded_points": 6,
+          "criterion_id": "da.tools.programming",
+          "max_points": 6
+        }
+      ],
+      "track": "data_analytics"
+    }
+  },
+  "fixture_id": "c09.da.database_only",
+  "fixture_kind": "completed_assessment",
+  "rubric_version": "V2",
+  "source_records": [
+    {
+      "access_status": "accessible",
+      "content_hash": "e2524c5c5118d6007bc348f3cd7e9f1934e3b3f163fdbf24e6cac40991e9403b",
+      "extractor_version": "extract.v1.golden",
+      "locator": "page 1",
+      "notes": "Synthetic CV source for a locked golden fixture.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-cv",
+      "source_type": "cv",
+      "submitted_by_candidate": true
+    },
+    {
+      "access_status": "accessible",
+      "content_hash": "a177a952fb120cd00337c68e897a19d5c18da1599af4b7f49942123853678682",
+      "extractor_version": "extract.v1.golden",
+      "locator": "https://example.com/golden/c09/project",
+      "notes": "Synthetic candidate-submitted project link.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-link-01",
+      "source_type": "project",
+      "submitted_by_candidate": true
+    }
+  ],
+  "title": "DA database product is not SQL",
+  "track": "data_analytics"
+}

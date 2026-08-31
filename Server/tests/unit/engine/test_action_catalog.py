@@ -34,7 +34,7 @@ QUALIFICATION_SUFFIXES = (
     "adjacent",
     "none",
 )
-APPROVED_ACTION_CATALOG_SHA256 = "dfe130b508b7baa23c6580a4de89750bbd715444af9797ba9ab21f14c5a44883"
+APPROVED_ACTION_CATALOG_SHA256 = "1aa24229bf85b671fa47841c2d3ece4b98a84ffdc84cd75801fe981ddde10c29"
 FORBIDDEN_ACTION_TEXT = (
     "hiring guarantee",
     "guaranteed job",
@@ -185,7 +185,7 @@ def actions(catalog: Mapping[str, Any]) -> list[Mapping[str, Any]]:
 
 
 def test_action_catalog_metadata_matches_contract(catalog: Mapping[str, Any]) -> None:
-    assert catalog["contract_version"] == "1.1.0"
+    assert catalog["contract_version"] == "1.2.0"
     assert catalog["rubric_version"] == "V2"
     assert catalog["catalog_version"] == "1.0.0"
     assert catalog["status"] == "approved"

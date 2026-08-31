@@ -1,0 +1,731 @@
+{
+  "acceptance_requirement": 18,
+  "assertions": {
+    "canonical_fact_count": 1,
+    "occurrence_count": 2,
+    "one_evidence_id_referenced_by_criterion": true
+  },
+  "assessment_input": {
+    "candidate_ref": "golden-c18",
+    "contract_version": "1.2.0",
+    "cv": {
+      "document_id": "doc-c18",
+      "media_type": "application/pdf",
+      "original_filename": "golden-c18-cv.pdf",
+      "sha256": "7aa7693a1b45a6f9875986eba615d1d4be9786c6e27a7010e2df43d187f3cf34"
+    },
+    "links": [],
+    "rubric_version": "V2",
+    "submitted_at": "2026-08-31T09:00:00Z",
+    "track": "data_analytics"
+  },
+  "contract_version": "1.2.0",
+  "description": "The same explicit Python label appears twice in the CV and normalizes to one evidence fact.",
+  "evidence_facts": [
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-001",
+      "evidence_level": "named_only",
+      "explicit_text": "Python",
+      "fact_type": "skill_application",
+      "locator": "page 1, Skills; page 2, Projects",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.tools.programming.v1",
+      "source_id": "src-cv",
+      "subject": "python"
+    }
+  ],
+  "expected": {
+    "assessment_result": {
+      "applicable_overall_cap": 79,
+      "assessed_at": "2026-08-31T10:00:00Z",
+      "assessment_id": "assessment-golden-c18",
+      "band": "limited_application_evidence",
+      "category_caps": [
+        {
+          "cap": 6,
+          "category_id": "da.projects",
+          "rule_id": "rubric.v2.da.cap.cv_only_projects"
+        }
+      ],
+      "category_results": [
+        {
+          "category_id": "da.core",
+          "final_score": 0,
+          "max_points": 40,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "da.tools",
+          "final_score": 2,
+          "max_points": 25,
+          "pre_cap_score": 2
+        },
+        {
+          "category_id": "da.projects",
+          "final_score": 0,
+          "max_points": 10,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "da.alignment",
+          "final_score": 0,
+          "max_points": 15,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "da.readiness",
+          "final_score": 0,
+          "max_points": 10,
+          "pre_cap_score": 0
+        }
+      ],
+      "contract_version": "1.2.0",
+      "criterion_results": [
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.sql",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for SQL competency.",
+          "flags": [],
+          "max_points": 15,
+          "rule_ids": [
+            "rubric.v2.da.core.sql"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.spreadsheets",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Spreadsheet analysis.",
+          "flags": [],
+          "max_points": 8,
+          "rule_ids": [
+            "rubric.v2.da.core.spreadsheets"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.analysis_statistics",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Analysis, interpretation, and statistics.",
+          "flags": [],
+          "max_points": 7,
+          "rule_ids": [
+            "rubric.v2.da.core.analysis_statistics"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.cleaning",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Data cleaning and preparation.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.da.core.cleaning"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.core",
+          "criterion_id": "da.core.reporting",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Reporting and communication of findings.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.da.core.reporting"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.bi_visualisation",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for BI and visualisation capability.",
+          "flags": [],
+          "max_points": 9,
+          "rule_ids": [
+            "rubric.v2.da.tools.bi_visualisation"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.power_bi_alignment",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Power BI market-alignment point.",
+          "flags": [],
+          "max_points": 1,
+          "rule_ids": [
+            "rubric.v2.da.tools.power_bi_alignment"
+          ]
+        },
+        {
+          "anchor": "named_only",
+          "awarded_points": 2,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.programming",
+          "evidence_ids": [
+            "ev-001"
+          ],
+          "evidence_note": "Python, R, and relevant libraries scored from locked named_only evidence.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.da.tools.programming"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.database_environment",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Database or data environment.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.da.tools.database_environment"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.transformation_cloud",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Transformation, platform, or cloud tools.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.da.tools.transformation_cloud"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.tools",
+          "criterion_id": "da.tools.integration",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Tool breadth and integration.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.tools.integration"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.accessibility",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Proof and accessibility.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.accessibility"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.context",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Question, dataset, or business context.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.context"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.process",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Cleaning, exploration, and analysis process.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.process"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.findings",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Findings and visual communication.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.findings"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.projects",
+          "criterion_id": "da.projects.reproducibility",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Reproducibility and presentation.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.projects.reproducibility"
+          ]
+        },
+        {
+          "anchor": "da.qual.none",
+          "awarded_points": 0,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.qualification",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Qualification and market-access evidence.",
+          "flags": [],
+          "max_points": 7,
+          "rule_ids": [
+            "rubric.v2.da.alignment.qualification"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.target_role",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Target-role alignment.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.target_role"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.claim_specificity",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Specificity of tools and analytical claims.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.claim_specificity"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.description_evidence",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Evidence and outcomes in descriptions.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.description_evidence"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.alignment",
+          "criterion_id": "da.alignment.readability",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Structure and readability.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.alignment.readability"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.problem_solving",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Applied problem-solving.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.problem_solving"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.attention_detail",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Attention to detail.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.attention_detail"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.collaboration",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Collaboration.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.collaboration"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.communication",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Communication or stakeholder interaction.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.communication"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "da.readiness",
+          "criterion_id": "da.readiness.self_management",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Self-management and responsibility.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.da.readiness.self_management"
+          ]
+        }
+      ],
+      "final_score": 2,
+      "flags": [],
+      "material_gaps": [
+        {
+          "criterion_id": "da.core.sql",
+          "gap_ratio": 1.0,
+          "point_gap": 15
+        },
+        {
+          "criterion_id": "da.projects.accessibility",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.projects.context",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.projects.findings",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.projects.process",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.projects.reproducibility",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.tools.bi_visualisation",
+          "gap_ratio": 1.0,
+          "point_gap": 9
+        },
+        {
+          "criterion_id": "da.core.spreadsheets",
+          "gap_ratio": 1.0,
+          "point_gap": 8
+        },
+        {
+          "criterion_id": "da.alignment.qualification",
+          "gap_ratio": 1.0,
+          "point_gap": 7
+        },
+        {
+          "criterion_id": "da.core.analysis_statistics",
+          "gap_ratio": 1.0,
+          "point_gap": 7
+        },
+        {
+          "criterion_id": "da.core.cleaning",
+          "gap_ratio": 1.0,
+          "point_gap": 5
+        },
+        {
+          "criterion_id": "da.core.reporting",
+          "gap_ratio": 1.0,
+          "point_gap": 5
+        },
+        {
+          "criterion_id": "da.tools.programming",
+          "gap_ratio": 0.6666666666666666,
+          "point_gap": 4
+        },
+        {
+          "criterion_id": "da.tools.database_environment",
+          "gap_ratio": 1.0,
+          "point_gap": 4
+        },
+        {
+          "criterion_id": "da.tools.transformation_cloud",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "da.alignment.claim_specificity",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.alignment.description_evidence",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.alignment.readability",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.alignment.target_role",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.readiness.attention_detail",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.readiness.collaboration",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.readiness.communication",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.readiness.problem_solving",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.readiness.self_management",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.tools.integration",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "da.tools.power_bi_alignment",
+          "gap_ratio": 1.0,
+          "point_gap": 1
+        }
+      ],
+      "overall_caps": [
+        {
+          "cap": 79,
+          "rule_id": "rubric.v2.da.cap.no_sql"
+        }
+      ],
+      "priority_actions": [
+        {
+          "action_id": "action.v1.da.core.sql.missing_unverifiable",
+          "completion_check": "Queries run in the documented order and outputs reconcile to a stated check.",
+          "criterion_id": "da.core.sql",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 1,
+          "required_output": "Ordered SQL files plus result or validation evidence.",
+          "target_anchor": "documented"
+        },
+        {
+          "action_id": "action.v1.da.projects.accessibility.missing_unverifiable",
+          "completion_check": "The submitted link opens and leads directly to the claimed analytical evidence.",
+          "criterion_id": "da.projects.accessibility",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 2,
+          "required_output": "Accessible repository, dashboard, workbook, report, or portfolio link.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.da.projects.context.missing_unverifiable",
+          "completion_check": "The question and unit of analysis are clear before the results are presented.",
+          "criterion_id": "da.projects.context",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 3,
+          "required_output": "Project brief and dataset declaration.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.da.projects.findings.missing_unverifiable",
+          "completion_check": "Findings match the calculations and do not turn correlation into an unsupported cause.",
+          "criterion_id": "da.projects.findings",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 4,
+          "required_output": "Insight memo and visual output.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.da.projects.process.missing_unverifiable",
+          "completion_check": "A reviewer can follow how raw records became the analytical result.",
+          "criterion_id": "da.projects.process",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 5,
+          "required_output": "Queries, script, workbook, or transformation log.",
+          "target_anchor": "demonstrated"
+        }
+      ],
+      "project_recommendation": {
+        "catalogue_version": "1.0.0",
+        "project_id": "da.project.02_sla_analysis"
+      },
+      "qa": {
+        "checks": [
+          {
+            "name": "selected_track_valid",
+            "passed": true
+          },
+          {
+            "name": "cv_present_and_readable",
+            "passed": true
+          },
+          {
+            "name": "every_submitted_link_has_source_record",
+            "passed": true
+          },
+          {
+            "name": "nonzero_scores_have_accepted_evidence",
+            "passed": true
+          },
+          {
+            "name": "criterion_scores_match_allowed_anchors",
+            "passed": true
+          },
+          {
+            "name": "no_criterion_exceeds_maximum",
+            "passed": true
+          },
+          {
+            "name": "no_category_exceeds_maximum_or_cap",
+            "passed": true
+          },
+          {
+            "name": "raw_total_equals_sum_of_final_category_scores",
+            "passed": true
+          },
+          {
+            "name": "final_score_equals_raw_after_strictest_overall_cap",
+            "passed": true
+          },
+          {
+            "name": "band_matches_final_score",
+            "passed": true
+          },
+          {
+            "name": "unsupported_labels_earn_zero_for_work_readiness",
+            "passed": true
+          },
+          {
+            "name": "no_forbidden_inference",
+            "passed": true
+          },
+          {
+            "name": "no_unresolved_blocking_review_flag",
+            "passed": true
+          },
+          {
+            "name": "no_secret_in_payload",
+            "passed": true
+          }
+        ],
+        "status": "PASS"
+      },
+      "raw_total": 2,
+      "rubric_version": "V2",
+      "run_id": "run-golden-c18",
+      "source_snapshot": {
+        "cv_hash": "7aa7693a1b45a6f9875986eba615d1d4be9786c6e27a7010e2df43d187f3cf34",
+        "link_content_hashes": []
+      },
+      "status": "COMPLETED",
+      "strengths": [
+        {
+          "awarded_points": 2,
+          "criterion_id": "da.tools.programming",
+          "max_points": 6
+        }
+      ],
+      "track": "data_analytics"
+    }
+  },
+  "fixture_id": "c18.da.duplicate_claim_normalization",
+  "fixture_kind": "normalization_invariant",
+  "provenance": {
+    "canonical_fact_count": 1,
+    "occurrence_count": 2,
+    "source_occurrences": [
+      {
+        "explicit_text": "Python",
+        "locator": "page 1, Skills",
+        "source_id": "src-cv"
+      },
+      {
+        "explicit_text": "Python",
+        "locator": "page 2, Projects",
+        "source_id": "src-cv"
+      }
+    ]
+  },
+  "rubric_version": "V2",
+  "source_records": [
+    {
+      "access_status": "accessible",
+      "content_hash": "7aa7693a1b45a6f9875986eba615d1d4be9786c6e27a7010e2df43d187f3cf34",
+      "extractor_version": "extract.v1.golden",
+      "locator": "page 1",
+      "notes": "Synthetic CV source for a locked golden fixture.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-cv",
+      "source_type": "cv",
+      "submitted_by_candidate": true
+    }
+  ],
+  "title": "Duplicate claim normalization",
+  "track": "data_analytics"
+}

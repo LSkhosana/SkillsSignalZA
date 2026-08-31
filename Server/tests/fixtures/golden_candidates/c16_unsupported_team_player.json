@@ -1,0 +1,704 @@
+{
+  "acceptance_requirement": 16,
+  "assessment_input": {
+    "candidate_ref": "golden-c16",
+    "contract_version": "1.2.0",
+    "cv": {
+      "document_id": "doc-c16",
+      "media_type": "application/pdf",
+      "original_filename": "golden-c16-cv.pdf",
+      "sha256": "44c97d9a8e54e14369405a4b7c90fd1aa83f6d38ea99199600b9682d9f9edd28"
+    },
+    "links": [],
+    "rubric_version": "V2",
+    "submitted_at": "2026-08-31T09:00:00Z",
+    "track": "software_engineering"
+  },
+  "contract_version": "1.2.0",
+  "description": "The only behavioural text is team player, with no attributable example.",
+  "evidence_facts": [
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-001",
+      "evidence_level": "named_only",
+      "explicit_text": "team player",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Profile",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.collaboration.v1",
+      "source_id": "src-cv",
+      "subject": "collaboration"
+    }
+  ],
+  "expected": {
+    "assessment_result": {
+      "applicable_overall_cap": 59,
+      "assessed_at": "2026-08-31T10:00:00Z",
+      "assessment_id": "assessment-golden-c16",
+      "band": "limited_application_evidence",
+      "category_caps": [
+        {
+          "cap": 8,
+          "category_id": "se.projects",
+          "rule_id": "rubric.v2.se.cap.cv_only_projects"
+        }
+      ],
+      "category_results": [
+        {
+          "category_id": "se.core",
+          "final_score": 0,
+          "max_points": 35,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "se.tools",
+          "final_score": 0,
+          "max_points": 20,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "se.projects",
+          "final_score": 0,
+          "max_points": 15,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "se.alignment",
+          "final_score": 0,
+          "max_points": 20,
+          "pre_cap_score": 0
+        },
+        {
+          "category_id": "se.readiness",
+          "final_score": 0,
+          "max_points": 10,
+          "pre_cap_score": 0
+        }
+      ],
+      "contract_version": "1.2.0",
+      "criterion_results": [
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.programming_language",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Programming language evidence.",
+          "flags": [],
+          "max_points": 12,
+          "rule_ids": [
+            "rubric.v2.se.core.programming_language"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.programming_concepts",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Programming concepts and technical problem-solving.",
+          "flags": [],
+          "max_points": 8,
+          "rule_ids": [
+            "rubric.v2.se.core.programming_concepts"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.application_systems",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Application, API, and system fundamentals.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.se.core.application_systems"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.database_fundamentals",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Database fundamentals.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.se.core.database_fundamentals"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.debugging_testing",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Debugging and testing awareness.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.se.core.debugging_testing"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.version_control",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Version-control workflow.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.se.tools.version_control"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.framework_library",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Framework or library.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.se.tools.framework_library"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.database_platform",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Database platform or tool.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.tools.database_platform"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.dev_environment",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Development environment or command line.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.dev_environment"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.repository_platform",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Collaborative repository platform.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.repository_platform"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.deployment_cloud",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Deployment, container, or cloud awareness.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.deployment_cloud"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.accessibility",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Proof and accessibility.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.accessibility"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.problem_relevance",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Problem definition and track relevance.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.problem_relevance"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.depth_ownership",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Technical depth and ownership.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.se.projects.depth_ownership"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.documentation",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Documentation and organisation.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.documentation"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.outcome",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Demonstrability or outcome.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.projects.outcome"
+          ]
+        },
+        {
+          "anchor": "se.qual.none",
+          "awarded_points": 0,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.qualification",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Qualification and market-access evidence.",
+          "flags": [],
+          "max_points": 10,
+          "rule_ids": [
+            "rubric.v2.se.alignment.qualification"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.target_role",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Target-role alignment.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.alignment.target_role"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.claim_specificity",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Specificity of skills and claims.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.alignment.claim_specificity"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.description_evidence",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Evidence and outcomes in descriptions.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.alignment.description_evidence"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.readability",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Structure and readability.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.alignment.readability"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.communication",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Communication or documentation.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.communication"
+          ]
+        },
+        {
+          "anchor": "named_only",
+          "awarded_points": 0,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.collaboration",
+          "evidence_ids": [
+            "ev-001"
+          ],
+          "evidence_note": "Collaboration or teamwork scored from locked named_only evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.collaboration"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.professional_exposure",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Professional exposure or responsibility.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.professional_exposure"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.initiative",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Initiative and continued learning.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.initiative"
+          ]
+        },
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.self_management",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Self-management or applied problem-solving.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.self_management"
+          ]
+        }
+      ],
+      "final_score": 0,
+      "flags": [],
+      "material_gaps": [
+        {
+          "criterion_id": "se.core.programming_language",
+          "gap_ratio": 1.0,
+          "point_gap": 12
+        },
+        {
+          "criterion_id": "se.projects.depth_ownership",
+          "gap_ratio": 1.0,
+          "point_gap": 4
+        },
+        {
+          "criterion_id": "se.projects.accessibility",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.projects.documentation",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.projects.problem_relevance",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.projects.outcome",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.alignment.qualification",
+          "gap_ratio": 1.0,
+          "point_gap": 10
+        },
+        {
+          "criterion_id": "se.core.programming_concepts",
+          "gap_ratio": 1.0,
+          "point_gap": 8
+        },
+        {
+          "criterion_id": "se.core.application_systems",
+          "gap_ratio": 1.0,
+          "point_gap": 6
+        },
+        {
+          "criterion_id": "se.tools.version_control",
+          "gap_ratio": 1.0,
+          "point_gap": 6
+        },
+        {
+          "criterion_id": "se.core.database_fundamentals",
+          "gap_ratio": 1.0,
+          "point_gap": 5
+        },
+        {
+          "criterion_id": "se.tools.framework_library",
+          "gap_ratio": 1.0,
+          "point_gap": 5
+        },
+        {
+          "criterion_id": "se.core.debugging_testing",
+          "gap_ratio": 1.0,
+          "point_gap": 4
+        },
+        {
+          "criterion_id": "se.alignment.claim_specificity",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.alignment.description_evidence",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.tools.database_platform",
+          "gap_ratio": 1.0,
+          "point_gap": 3
+        },
+        {
+          "criterion_id": "se.alignment.readability",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.alignment.target_role",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.readiness.collaboration",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.readiness.communication",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.readiness.initiative",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.readiness.professional_exposure",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.readiness.self_management",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.tools.deployment_cloud",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.tools.dev_environment",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.tools.repository_platform",
+          "gap_ratio": 1.0,
+          "point_gap": 2
+        }
+      ],
+      "overall_caps": [
+        {
+          "cap": 59,
+          "rule_id": "rubric.v2.se.cap.no_language"
+        }
+      ],
+      "priority_actions": [
+        {
+          "action_id": "action.v1.se.core.programming_language.missing_unverifiable",
+          "completion_check": "The language is named explicitly and a reviewer can locate code that implements a working behaviour.",
+          "criterion_id": "se.core.programming_language",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 1,
+          "required_output": "Accessible source code plus a short language-specific implementation note.",
+          "target_anchor": "documented"
+        },
+        {
+          "action_id": "action.v1.se.projects.depth_ownership.missing_unverifiable",
+          "completion_check": "A reviewer can distinguish the candidate's work and reach meaningful implementation detail.",
+          "criterion_id": "se.projects.depth_ownership",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 2,
+          "required_output": "Architecture or decision note linked to working code.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.se.projects.accessibility.missing_unverifiable",
+          "completion_check": "The submitted link opens and leads directly to the claimed project evidence.",
+          "criterion_id": "se.projects.accessibility",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 3,
+          "required_output": "Accessible repository, deployed project, or portfolio link.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.se.projects.documentation.missing_unverifiable",
+          "completion_check": "Another developer can navigate and run or inspect the project from the documentation.",
+          "criterion_id": "se.projects.documentation",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 4,
+          "required_output": "Complete README or equivalent technical guide.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.se.projects.problem_relevance.missing_unverifiable",
+          "completion_check": "The problem and main workflow are clear before reading the implementation.",
+          "criterion_id": "se.projects.problem_relevance",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 5,
+          "required_output": "Project brief or README problem section.",
+          "target_anchor": "demonstrated"
+        }
+      ],
+      "project_recommendation": {
+        "catalogue_version": "1.0.0",
+        "project_id": "se.project.01_operations_workflow"
+      },
+      "qa": {
+        "checks": [
+          {
+            "name": "selected_track_valid",
+            "passed": true
+          },
+          {
+            "name": "cv_present_and_readable",
+            "passed": true
+          },
+          {
+            "name": "every_submitted_link_has_source_record",
+            "passed": true
+          },
+          {
+            "name": "nonzero_scores_have_accepted_evidence",
+            "passed": true
+          },
+          {
+            "name": "criterion_scores_match_allowed_anchors",
+            "passed": true
+          },
+          {
+            "name": "no_criterion_exceeds_maximum",
+            "passed": true
+          },
+          {
+            "name": "no_category_exceeds_maximum_or_cap",
+            "passed": true
+          },
+          {
+            "name": "raw_total_equals_sum_of_final_category_scores",
+            "passed": true
+          },
+          {
+            "name": "final_score_equals_raw_after_strictest_overall_cap",
+            "passed": true
+          },
+          {
+            "name": "band_matches_final_score",
+            "passed": true
+          },
+          {
+            "name": "unsupported_labels_earn_zero_for_work_readiness",
+            "passed": true
+          },
+          {
+            "name": "no_forbidden_inference",
+            "passed": true
+          },
+          {
+            "name": "no_unresolved_blocking_review_flag",
+            "passed": true
+          },
+          {
+            "name": "no_secret_in_payload",
+            "passed": true
+          }
+        ],
+        "status": "PASS"
+      },
+      "raw_total": 0,
+      "rubric_version": "V2",
+      "run_id": "run-golden-c16",
+      "source_snapshot": {
+        "cv_hash": "44c97d9a8e54e14369405a4b7c90fd1aa83f6d38ea99199600b9682d9f9edd28",
+        "link_content_hashes": []
+      },
+      "status": "COMPLETED",
+      "strengths": [],
+      "track": "software_engineering"
+    }
+  },
+  "fixture_id": "c16.se.unsupported_team_player",
+  "fixture_kind": "completed_assessment",
+  "rubric_version": "V2",
+  "source_records": [
+    {
+      "access_status": "accessible",
+      "content_hash": "44c97d9a8e54e14369405a4b7c90fd1aa83f6d38ea99199600b9682d9f9edd28",
+      "extractor_version": "extract.v1.golden",
+      "locator": "page 1",
+      "notes": "Synthetic CV source for a locked golden fixture.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-cv",
+      "source_type": "cv",
+      "submitted_by_candidate": true
+    }
+  ],
+  "title": "Unsupported behaviour label",
+  "track": "software_engineering"
+}

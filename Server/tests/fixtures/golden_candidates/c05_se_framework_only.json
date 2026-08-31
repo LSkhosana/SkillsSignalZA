@@ -1,0 +1,964 @@
+{
+  "acceptance_requirement": 5,
+  "assertions": {
+    "no_language_fact_inferred_from_framework": true
+  },
+  "assessment_input": {
+    "candidate_ref": "golden-c05",
+    "contract_version": "1.2.0",
+    "cv": {
+      "document_id": "doc-c05",
+      "media_type": "application/pdf",
+      "original_filename": "golden-c05-cv.pdf",
+      "sha256": "569377903b072e9a44f0c152950a00bd60539ae2bb4ae194ba434a927dd23327"
+    },
+    "links": [
+      {
+        "declared_type": "project",
+        "link_id": "link-01",
+        "submitted_url": "https://example.com/golden/c05/project"
+      }
+    ],
+    "rubric_version": "V2",
+    "submitted_at": "2026-08-31T09:00:00Z",
+    "track": "software_engineering"
+  },
+  "contract_version": "1.2.0",
+  "description": "Demonstrated Django framework evidence without an explicit programming-language fact.",
+  "evidence_facts": [
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-001",
+      "evidence_level": "documented",
+      "explicit_text": "Synthetic documented evidence for programming concepts.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.core.programming_concepts.v1",
+      "source_id": "src-cv",
+      "subject": "control flow"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-002",
+      "evidence_level": "documented",
+      "explicit_text": "Synthetic documented evidence for application systems.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.core.application_systems.v1",
+      "source_id": "src-cv",
+      "subject": "http api"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-003",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for database fundamentals.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.core.database_fundamentals.v1",
+      "source_id": "src-cv",
+      "subject": "relational model"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-004",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for debugging testing.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.core.debugging_testing.v1",
+      "source_id": "src-cv",
+      "subject": "pytest"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-005",
+      "evidence_level": "documented",
+      "explicit_text": "Synthetic documented evidence for version control.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.version_control.v1",
+      "source_id": "src-cv",
+      "subject": "git"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-006",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Built the service in Django.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.framework_library.v1",
+      "source_id": "src-cv",
+      "subject": "django"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-007",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for database platform.",
+      "fact_type": "tool_name",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.database_platform.v1",
+      "source_id": "src-cv",
+      "subject": "postgresql"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-008",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for dev environment.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.dev_environment.v1",
+      "source_id": "src-cv",
+      "subject": "command line"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-009",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for repository platform.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.repository_platform.v1",
+      "source_id": "src-cv",
+      "subject": "github"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-010",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for deployment cloud.",
+      "fact_type": "tool_application",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.tools.deployment_cloud.v1",
+      "source_id": "src-cv",
+      "subject": "container"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-011",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for accessibility.",
+      "fact_type": "project_proof",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.projects.accessibility.v1",
+      "source_id": "src-cv",
+      "subject": "project link"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-012",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for problem relevance.",
+      "fact_type": "project_context",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.projects.problem_relevance.v1",
+      "source_id": "src-cv",
+      "subject": "operations workflow"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-013",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for depth ownership.",
+      "fact_type": "project_process",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.projects.depth_ownership.v1",
+      "source_id": "src-cv",
+      "subject": "candidate implementation"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-014",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for documentation.",
+      "fact_type": "project_process",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.projects.documentation.v1",
+      "source_id": "src-cv",
+      "subject": "readme"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-015",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for outcome.",
+      "fact_type": "project_outcome",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.projects.outcome.v1",
+      "source_id": "src-cv",
+      "subject": "working result"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-016",
+      "evidence_level": "documented",
+      "explicit_text": "Synthetic documented evidence for qualification.",
+      "fact_type": "qualification",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.alignment.qualification.v1",
+      "source_id": "src-cv",
+      "subject": "bsc computer science"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-017",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for target role.",
+      "fact_type": "role_alignment",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.alignment.target_role.v1",
+      "source_id": "src-cv",
+      "subject": "junior software engineer"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-018",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for claim specificity.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.alignment.claim_specificity.v1",
+      "source_id": "src-cv",
+      "subject": "specific claims"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-019",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for description evidence.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.alignment.description_evidence.v1",
+      "source_id": "src-cv",
+      "subject": "evidence-led bullets"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-020",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for readability.",
+      "fact_type": "document_quality",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.alignment.readability.v1",
+      "source_id": "src-cv",
+      "subject": "structured cv"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-021",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for communication.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.communication.v1",
+      "source_id": "src-cv",
+      "subject": "technical writing"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-022",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for collaboration.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.collaboration.v1",
+      "source_id": "src-cv",
+      "subject": "code review"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-023",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for professional exposure.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.professional_exposure.v1",
+      "source_id": "src-cv",
+      "subject": "internship"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-024",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for initiative.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.initiative.v1",
+      "source_id": "src-cv",
+      "subject": "self-directed improvement"
+    },
+    {
+      "attribution_status": "attributed",
+      "evidence_id": "ev-025",
+      "evidence_level": "demonstrated",
+      "explicit_text": "Synthetic demonstrated evidence for self management.",
+      "fact_type": "professional_behaviour",
+      "locator": "page 1, Evidence",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.se.readiness.self_management.v1",
+      "source_id": "src-cv",
+      "subject": "debugging record"
+    }
+  ],
+  "expected": {
+    "assessment_result": {
+      "applicable_overall_cap": 59,
+      "assessed_at": "2026-08-31T10:00:00Z",
+      "assessment_id": "assessment-golden-c05",
+      "band": "foundation_visible",
+      "category_caps": [],
+      "category_results": [
+        {
+          "category_id": "se.core",
+          "final_score": 19,
+          "max_points": 35,
+          "pre_cap_score": 19
+        },
+        {
+          "category_id": "se.tools",
+          "final_score": 18,
+          "max_points": 20,
+          "pre_cap_score": 18
+        },
+        {
+          "category_id": "se.projects",
+          "final_score": 15,
+          "max_points": 15,
+          "pre_cap_score": 15
+        },
+        {
+          "category_id": "se.alignment",
+          "final_score": 20,
+          "max_points": 20,
+          "pre_cap_score": 20
+        },
+        {
+          "category_id": "se.readiness",
+          "final_score": 10,
+          "max_points": 10,
+          "pre_cap_score": 10
+        }
+      ],
+      "contract_version": "1.2.0",
+      "criterion_results": [
+        {
+          "anchor": "missing_unverifiable",
+          "awarded_points": 0,
+          "category_id": "se.core",
+          "criterion_id": "se.core.programming_language",
+          "evidence_ids": [],
+          "evidence_note": "No accepted evidence was present for Programming language evidence.",
+          "flags": [],
+          "max_points": 12,
+          "rule_ids": [
+            "rubric.v2.se.core.programming_language"
+          ]
+        },
+        {
+          "anchor": "documented",
+          "awarded_points": 6,
+          "category_id": "se.core",
+          "criterion_id": "se.core.programming_concepts",
+          "evidence_ids": [
+            "ev-001"
+          ],
+          "evidence_note": "Programming concepts and technical problem-solving scored from locked documented evidence.",
+          "flags": [],
+          "max_points": 8,
+          "rule_ids": [
+            "rubric.v2.se.core.programming_concepts"
+          ]
+        },
+        {
+          "anchor": "documented",
+          "awarded_points": 4,
+          "category_id": "se.core",
+          "criterion_id": "se.core.application_systems",
+          "evidence_ids": [
+            "ev-002"
+          ],
+          "evidence_note": "Application, API, and system fundamentals scored from locked documented evidence.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.se.core.application_systems"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 5,
+          "category_id": "se.core",
+          "criterion_id": "se.core.database_fundamentals",
+          "evidence_ids": [
+            "ev-003"
+          ],
+          "evidence_note": "Database fundamentals scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.se.core.database_fundamentals"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 4,
+          "category_id": "se.core",
+          "criterion_id": "se.core.debugging_testing",
+          "evidence_ids": [
+            "ev-004"
+          ],
+          "evidence_note": "Debugging and testing awareness scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.se.core.debugging_testing"
+          ]
+        },
+        {
+          "anchor": "documented",
+          "awarded_points": 4,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.version_control",
+          "evidence_ids": [
+            "ev-005"
+          ],
+          "evidence_note": "Version-control workflow scored from locked documented evidence.",
+          "flags": [],
+          "max_points": 6,
+          "rule_ids": [
+            "rubric.v2.se.tools.version_control"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 5,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.framework_library",
+          "evidence_ids": [
+            "ev-006"
+          ],
+          "evidence_note": "Framework or library scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 5,
+          "rule_ids": [
+            "rubric.v2.se.tools.framework_library"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.database_platform",
+          "evidence_ids": [
+            "ev-007"
+          ],
+          "evidence_note": "Database platform or tool scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.tools.database_platform"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.dev_environment",
+          "evidence_ids": [
+            "ev-008"
+          ],
+          "evidence_note": "Development environment or command line scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.dev_environment"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.repository_platform",
+          "evidence_ids": [
+            "ev-009"
+          ],
+          "evidence_note": "Collaborative repository platform scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.repository_platform"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.tools",
+          "criterion_id": "se.tools.deployment_cloud",
+          "evidence_ids": [
+            "ev-010"
+          ],
+          "evidence_note": "Deployment, container, or cloud awareness scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.tools.deployment_cloud"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.accessibility",
+          "evidence_ids": [
+            "ev-011"
+          ],
+          "evidence_note": "Proof and accessibility scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.accessibility"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.problem_relevance",
+          "evidence_ids": [
+            "ev-012"
+          ],
+          "evidence_note": "Problem definition and track relevance scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.problem_relevance"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 4,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.depth_ownership",
+          "evidence_ids": [
+            "ev-013"
+          ],
+          "evidence_note": "Technical depth and ownership scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 4,
+          "rule_ids": [
+            "rubric.v2.se.projects.depth_ownership"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.documentation",
+          "evidence_ids": [
+            "ev-014"
+          ],
+          "evidence_note": "Documentation and organisation scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.projects.documentation"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.projects",
+          "criterion_id": "se.projects.outcome",
+          "evidence_ids": [
+            "ev-015"
+          ],
+          "evidence_note": "Demonstrability or outcome scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.projects.outcome"
+          ]
+        },
+        {
+          "anchor": "se.qual.completed",
+          "awarded_points": 10,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.qualification",
+          "evidence_ids": [
+            "ev-016"
+          ],
+          "evidence_note": "Qualification and market-access evidence scored from locked se.qual.completed evidence.",
+          "flags": [],
+          "max_points": 10,
+          "rule_ids": [
+            "rubric.v2.se.alignment.qualification"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.target_role",
+          "evidence_ids": [
+            "ev-017"
+          ],
+          "evidence_note": "Target-role alignment scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.alignment.target_role"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.claim_specificity",
+          "evidence_ids": [
+            "ev-018"
+          ],
+          "evidence_note": "Specificity of skills and claims scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.alignment.claim_specificity"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 3,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.description_evidence",
+          "evidence_ids": [
+            "ev-019"
+          ],
+          "evidence_note": "Evidence and outcomes in descriptions scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 3,
+          "rule_ids": [
+            "rubric.v2.se.alignment.description_evidence"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.alignment",
+          "criterion_id": "se.alignment.readability",
+          "evidence_ids": [
+            "ev-020"
+          ],
+          "evidence_note": "Structure and readability scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.alignment.readability"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.communication",
+          "evidence_ids": [
+            "ev-021"
+          ],
+          "evidence_note": "Communication or documentation scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.communication"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.collaboration",
+          "evidence_ids": [
+            "ev-022"
+          ],
+          "evidence_note": "Collaboration or teamwork scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.collaboration"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.professional_exposure",
+          "evidence_ids": [
+            "ev-023"
+          ],
+          "evidence_note": "Professional exposure or responsibility scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.professional_exposure"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.initiative",
+          "evidence_ids": [
+            "ev-024"
+          ],
+          "evidence_note": "Initiative and continued learning scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.initiative"
+          ]
+        },
+        {
+          "anchor": "demonstrated",
+          "awarded_points": 2,
+          "category_id": "se.readiness",
+          "criterion_id": "se.readiness.self_management",
+          "evidence_ids": [
+            "ev-025"
+          ],
+          "evidence_note": "Self-management or applied problem-solving scored from locked demonstrated evidence.",
+          "flags": [],
+          "max_points": 2,
+          "rule_ids": [
+            "rubric.v2.se.readiness.self_management"
+          ]
+        }
+      ],
+      "final_score": 59,
+      "flags": [],
+      "material_gaps": [
+        {
+          "criterion_id": "se.core.programming_language",
+          "gap_ratio": 1.0,
+          "point_gap": 12
+        },
+        {
+          "criterion_id": "se.core.programming_concepts",
+          "gap_ratio": 0.25,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.core.application_systems",
+          "gap_ratio": 0.3333333333333333,
+          "point_gap": 2
+        },
+        {
+          "criterion_id": "se.tools.version_control",
+          "gap_ratio": 0.3333333333333333,
+          "point_gap": 2
+        }
+      ],
+      "overall_caps": [
+        {
+          "cap": 59,
+          "rule_id": "rubric.v2.se.cap.no_language"
+        }
+      ],
+      "priority_actions": [
+        {
+          "action_id": "action.v1.se.core.programming_language.missing_unverifiable",
+          "completion_check": "The language is named explicitly and a reviewer can locate code that implements a working behaviour.",
+          "criterion_id": "se.core.programming_language",
+          "current_anchor": "missing_unverifiable",
+          "priority_order": 1,
+          "required_output": "Accessible source code plus a short language-specific implementation note.",
+          "target_anchor": "documented"
+        },
+        {
+          "action_id": "action.v1.se.core.programming_concepts.documented",
+          "completion_check": "The example contains an inspectable implementation and the explanation matches the code.",
+          "criterion_id": "se.core.programming_concepts",
+          "current_anchor": "documented",
+          "priority_order": 2,
+          "required_output": "Focused code example plus a note explaining the problem and chosen approach.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.se.core.application_systems.documented",
+          "completion_check": "A reviewer can follow the normal path and trigger or inspect the failed path.",
+          "criterion_id": "se.core.application_systems",
+          "current_anchor": "documented",
+          "priority_order": 3,
+          "required_output": "Working flow, request or screen evidence, and failure-path evidence.",
+          "target_anchor": "demonstrated"
+        },
+        {
+          "action_id": "action.v1.se.tools.version_control.documented",
+          "completion_check": "Commit history reflects progressive work rather than a single bulk upload.",
+          "criterion_id": "se.tools.version_control",
+          "current_anchor": "documented",
+          "priority_order": 4,
+          "required_output": "Repository history with staged commits and a brief workflow note.",
+          "target_anchor": "demonstrated"
+        }
+      ],
+      "project_recommendation": {
+        "catalogue_version": "1.0.0",
+        "project_id": "se.project.01_operations_workflow"
+      },
+      "qa": {
+        "checks": [
+          {
+            "name": "selected_track_valid",
+            "passed": true
+          },
+          {
+            "name": "cv_present_and_readable",
+            "passed": true
+          },
+          {
+            "name": "every_submitted_link_has_source_record",
+            "passed": true
+          },
+          {
+            "name": "nonzero_scores_have_accepted_evidence",
+            "passed": true
+          },
+          {
+            "name": "criterion_scores_match_allowed_anchors",
+            "passed": true
+          },
+          {
+            "name": "no_criterion_exceeds_maximum",
+            "passed": true
+          },
+          {
+            "name": "no_category_exceeds_maximum_or_cap",
+            "passed": true
+          },
+          {
+            "name": "raw_total_equals_sum_of_final_category_scores",
+            "passed": true
+          },
+          {
+            "name": "final_score_equals_raw_after_strictest_overall_cap",
+            "passed": true
+          },
+          {
+            "name": "band_matches_final_score",
+            "passed": true
+          },
+          {
+            "name": "unsupported_labels_earn_zero_for_work_readiness",
+            "passed": true
+          },
+          {
+            "name": "no_forbidden_inference",
+            "passed": true
+          },
+          {
+            "name": "no_unresolved_blocking_review_flag",
+            "passed": true
+          },
+          {
+            "name": "no_secret_in_payload",
+            "passed": true
+          }
+        ],
+        "status": "PASS"
+      },
+      "raw_total": 82,
+      "rubric_version": "V2",
+      "run_id": "run-golden-c05",
+      "source_snapshot": {
+        "cv_hash": "569377903b072e9a44f0c152950a00bd60539ae2bb4ae194ba434a927dd23327",
+        "link_content_hashes": [
+          "4b3d663ad006b5aca2312291d91a28d343542a49b69af3e231502c8eb4fe3490"
+        ]
+      },
+      "status": "COMPLETED",
+      "strengths": [
+        {
+          "awarded_points": 10,
+          "criterion_id": "se.alignment.qualification",
+          "max_points": 10
+        },
+        {
+          "awarded_points": 5,
+          "criterion_id": "se.core.database_fundamentals",
+          "max_points": 5
+        },
+        {
+          "awarded_points": 5,
+          "criterion_id": "se.tools.framework_library",
+          "max_points": 5
+        },
+        {
+          "awarded_points": 4,
+          "criterion_id": "se.core.debugging_testing",
+          "max_points": 4
+        },
+        {
+          "awarded_points": 4,
+          "criterion_id": "se.projects.depth_ownership",
+          "max_points": 4
+        }
+      ],
+      "track": "software_engineering"
+    }
+  },
+  "fixture_id": "c05.se.framework_only",
+  "fixture_kind": "completed_assessment",
+  "rubric_version": "V2",
+  "source_records": [
+    {
+      "access_status": "accessible",
+      "content_hash": "569377903b072e9a44f0c152950a00bd60539ae2bb4ae194ba434a927dd23327",
+      "extractor_version": "extract.v1.golden",
+      "locator": "page 1",
+      "notes": "Synthetic CV source for a locked golden fixture.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-cv",
+      "source_type": "cv",
+      "submitted_by_candidate": true
+    },
+    {
+      "access_status": "accessible",
+      "content_hash": "4b3d663ad006b5aca2312291d91a28d343542a49b69af3e231502c8eb4fe3490",
+      "extractor_version": "extract.v1.golden",
+      "locator": "https://example.com/golden/c05/project",
+      "notes": "Synthetic candidate-submitted project link.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-link-01",
+      "source_type": "project",
+      "submitted_by_candidate": true
+    }
+  ],
+  "title": "SE framework is not language",
+  "track": "software_engineering"
+}

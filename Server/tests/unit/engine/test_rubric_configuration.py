@@ -1,5 +1,7 @@
 """Configuration-validation tests for Rubric V2 JSON."""
 
+import hashlib
+import json
 from collections.abc import Iterator, Mapping
 from typing import Any
 
@@ -10,6 +12,8 @@ from app.engine.configuration import (
     load_json,
     load_rubric_v2,
 )
+
+APPROVED_RUBRIC_V2_SHA256 = "90dd930ce9f0dfc7f25302bf29291d30654a452028cf919faf50d4c6eb24b844"
 
 SCHEMA_DIR = RUBRIC_V2_PATH.parents[2] / "schemas"
 JSON_DOCUMENTS = (
@@ -308,3 +312,12 @@ def test_load_rubric_v2_rejects_non_object(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr("app.engine.configuration.load_json", lambda path: ["not-an-object"])
     with pytest.raises(TypeError, match="JSON object"):
         load_rubric_v2()
+
+
+def _canonical_sha256(document: Mapping[str, Any]) -> str:
+    payload = json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def test_approved_rubric_v2_canonical_hash_is_locked(rubric: Mapping[str, Any]) -> None:
+    assert _canonical_sha256(rubric) == APPROVED_RUBRIC_V2_SHA256
