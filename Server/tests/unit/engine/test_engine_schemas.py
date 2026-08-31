@@ -23,7 +23,7 @@ DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 VALID_ASSESSMENT_INPUT = {
-    "contract_version": "1.0.0",
+    "contract_version": "1.1.0",
     "rubric_version": "V2",
     "track": "software_engineering",
     "candidate_ref": "opaque-candidate-id",
@@ -78,7 +78,7 @@ APPROVED_RESULT_ANCHORS = (
 VALID_ASSESSMENT_RESULT = {
     "assessment_id": "assessment-id",
     "run_id": "run-id",
-    "contract_version": "1.0.0",
+    "contract_version": "1.1.0",
     "rubric_version": "V2",
     "track": "software_engineering",
     "status": "COMPLETED",

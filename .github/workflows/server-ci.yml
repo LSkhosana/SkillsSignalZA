@@ -7,6 +7,8 @@ on:
     paths:
       - "Server/**"
       - ".github/workflows/server-ci.yml"
+      - "Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1.md"
+      - "Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1_1.md"
 
   pull_request:
     branches:
@@ -14,6 +16,8 @@ on:
     paths:
       - "Server/**"
       - ".github/workflows/server-ci.yml"
+      - "Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1.md"
+      - "Context/SkillSignalZA_Readiness_Report_Engine_Contract_V1_1.md"
 
   workflow_dispatch:
 
