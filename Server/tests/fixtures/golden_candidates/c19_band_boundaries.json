@@ -1,0 +1,50 @@
+{
+  "acceptance_requirement": 19,
+  "assessment_input": null,
+  "contract_version": "1.2.0",
+  "description": "Configuration-level score-band table for every locked boundary value.",
+  "evidence_facts": [],
+  "expected": {
+    "assessment_result": null,
+    "band_table": [
+      {
+        "band": "limited_application_evidence",
+        "final_score": 0
+      },
+      {
+        "band": "limited_application_evidence",
+        "final_score": 39
+      },
+      {
+        "band": "foundation_visible",
+        "final_score": 40
+      },
+      {
+        "band": "foundation_visible",
+        "final_score": 59
+      },
+      {
+        "band": "developing_application_readiness",
+        "final_score": 60
+      },
+      {
+        "band": "developing_application_readiness",
+        "final_score": 79
+      },
+      {
+        "band": "strong_application_evidence",
+        "final_score": 80
+      },
+      {
+        "band": "strong_application_evidence",
+        "final_score": 100
+      }
+    ]
+  },
+  "fixture_id": "c19.band_boundaries",
+  "fixture_kind": "band_table",
+  "rubric_version": "V2",
+  "source_records": [],
+  "title": "Band boundaries",
+  "track": null
+}

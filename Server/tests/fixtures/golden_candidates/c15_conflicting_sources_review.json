@@ -1,0 +1,95 @@
+{
+  "acceptance_requirement": 15,
+  "assertions": {
+    "lower_defensible_classification_frozen": true
+  },
+  "assessment_input": {
+    "candidate_ref": "golden-c15",
+    "contract_version": "1.2.0",
+    "cv": {
+      "document_id": "doc-c15",
+      "media_type": "application/pdf",
+      "original_filename": "golden-c15-cv.pdf",
+      "sha256": "e17407a1c447c7e1d58a6d9b4cdd3dd88ba6c1e79bc9bd064ac69acb71e7c34a"
+    },
+    "links": [
+      {
+        "declared_type": "repository",
+        "link_id": "link-01",
+        "submitted_url": "https://example.com/golden/c15/repo"
+      }
+    ],
+    "rubric_version": "V2",
+    "submitted_at": "2026-08-31T09:00:00Z",
+    "track": "data_analytics"
+  },
+  "contract_version": "1.2.0",
+  "description": "CV and submitted repository materially conflict about SQL use or ownership.",
+  "evidence_facts": [
+    {
+      "attribution_status": "conflicting",
+      "evidence_id": "ev-001",
+      "evidence_level": "documented",
+      "explicit_text": "Wrote SQL queries for monthly reporting.",
+      "fact_type": "skill_application",
+      "locator": "page 1, Experience",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.sql.v1",
+      "source_id": "src-cv",
+      "subject": "sql"
+    },
+    {
+      "attribution_status": "conflicting",
+      "evidence_id": "ev-002",
+      "evidence_level": "missing_unverifiable",
+      "explicit_text": "Repository contains no SQL and does not identify the candidate as author.",
+      "fact_type": "skill_application",
+      "locator": "README.md",
+      "review_status": "accepted",
+      "rule_id": "extract.explicit.da.core.sql.v1",
+      "source_id": "src-link-01",
+      "subject": "sql"
+    }
+  ],
+  "expected": {
+    "assessment_result": null,
+    "band_present": false,
+    "error_code": "REVIEW_REQUIRED",
+    "final_score_present": false,
+    "frozen_sql_evidence_level": "missing_unverifiable",
+    "raw_score_present": false,
+    "review_flag": "MATERIAL_SOURCE_CONTRADICTION",
+    "state": "REVIEW_REQUIRED"
+  },
+  "fixture_id": "c15.da.conflicting_sources_review",
+  "fixture_kind": "review_required",
+  "rubric_version": "V2",
+  "source_records": [
+    {
+      "access_status": "accessible",
+      "content_hash": "e17407a1c447c7e1d58a6d9b4cdd3dd88ba6c1e79bc9bd064ac69acb71e7c34a",
+      "extractor_version": "extract.v1.golden",
+      "locator": "page 1",
+      "notes": "Synthetic CV source for a locked golden fixture.",
+      "ownership_status": "attributed",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-cv",
+      "source_type": "cv",
+      "submitted_by_candidate": true
+    },
+    {
+      "access_status": "accessible",
+      "content_hash": "d67172c64af9f37830dc4b11d1eb9106c3f9011cd24fb28079427b234c17c4a2",
+      "extractor_version": "extract.v1.golden",
+      "locator": "https://example.com/golden/c15/project",
+      "notes": "Repository ownership and SQL use conflict with the CV claim.",
+      "ownership_status": "conflicting",
+      "retrieved_at": "2026-08-31T09:05:00Z",
+      "source_id": "src-link-01",
+      "source_type": "repository",
+      "submitted_by_candidate": true
+    }
+  ],
+  "title": "Conflicting sources",
+  "track": "data_analytics"
+}

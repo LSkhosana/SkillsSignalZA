@@ -46,7 +46,7 @@ FORBIDDEN_PROJECT_TEXT = (
     "complete within",
 )
 SAFE_DATA_MARKERS = ("public", "anonymis", "synthetic")
-APPROVED_PROJECT_CATALOG_SHA256 = "81491e55fb1f106c856bf079bcbcec6db251eb201366041f12a0a6c8ebe8bdf6"
+APPROVED_PROJECT_CATALOG_SHA256 = "4517a58a88d67d4f5eca8af62f74385902144eb780aede3d90b898ab8cec0e2d"
 
 
 def _walk_text(node: object) -> list[str]:
@@ -114,7 +114,7 @@ def test_exactly_eight_projects_four_per_track(projects: list[Mapping[str, Any]]
 
 
 def test_project_catalog_metadata_matches_contract(catalog: Mapping[str, Any]) -> None:
-    assert catalog["contract_version"] == "1.1.0"
+    assert catalog["contract_version"] == "1.2.0"
     assert catalog["rubric_version"] == "V2"
     assert catalog["catalog_version"] == "1.0.0"
     assert catalog["status"] == "approved"

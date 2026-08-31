@@ -1,5 +1,4 @@
 # Test fixtures
 
-Place shared assessment, document and report fixtures here once the
-domain contract is approved. Fixtures must not call a live Supabase
-project or the public internet.
+Shared assessment fixtures live under `golden_candidates/`. They must
+not call a live Supabase project, the public internet, or any model.

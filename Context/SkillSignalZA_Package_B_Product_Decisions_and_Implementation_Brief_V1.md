@@ -2,7 +2,7 @@
 
 **Status:** Approved under delegated product authority  
 **Decision date:** 27 August 2026  
-**Contract:** SkillSignalZA Readiness Report Engine Contract V1.1, version 1.1.0  
+**Contract:** SkillSignalZA Readiness Report Engine Contract V1.2, version 1.2.0  
 **Rubric:** V2 — Launch Candidate  
 **Implementation target:** `Tests` branch in `LSkhosana/SkillsSignalZA`  
 

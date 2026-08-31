@@ -1,0 +1,36 @@
+{
+  "acceptance_requirement": 21,
+  "assessment_input": null,
+  "contract_version": "1.2.0",
+  "description": "Extraction or ruleset failure cannot become a zero-score completed assessment.",
+  "evidence_facts": [],
+  "expected": {
+    "assessment_result": null,
+    "cases": [
+      {
+        "assessment_result": null,
+        "band_present": false,
+        "cannot_become_zero_score_completed_assessment": true,
+        "error_code": "CV_EXTRACTION_FAILED",
+        "final_score_present": false,
+        "raw_score_present": false,
+        "state": "FAILED"
+      },
+      {
+        "assessment_result": null,
+        "band_present": false,
+        "cannot_become_zero_score_completed_assessment": true,
+        "error_code": "RULESET_INVALID",
+        "final_score_present": false,
+        "raw_score_present": false,
+        "state": "FAILED"
+      }
+    ]
+  },
+  "fixture_id": "c21.technical_failure_isolation",
+  "fixture_kind": "technical_failure",
+  "rubric_version": "V2",
+  "source_records": [],
+  "title": "Technical failure isolation",
+  "track": null
+}

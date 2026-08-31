@@ -1,0 +1,208 @@
+{
+  "contract_version": "1.2.0",
+  "coverage_tags": [
+    "se_full_score_configuration",
+    "da_full_score_configuration",
+    "se_no_language_cap",
+    "se_named_language_prevents_cap",
+    "se_framework_is_not_language",
+    "se_cv_only_project_cap",
+    "da_no_sql_cap",
+    "da_named_sql_prevents_cap",
+    "da_database_product_is_not_sql",
+    "da_cv_only_project_cap",
+    "da_google_sheets_ceiling",
+    "da_context_free_dashboard",
+    "da_power_bi_alignment",
+    "inaccessible_link",
+    "conflicting_sources",
+    "unsupported_behaviour_label",
+    "qualification_isolation",
+    "double_counting_prevention",
+    "band_boundaries",
+    "deterministic_output",
+    "technical_failure_isolation",
+    "secret_exclusion"
+  ],
+  "fixtures": [
+    {
+      "acceptance_requirement": 1,
+      "canonical_sha256": "a77f61803b7be77522ffdb3dfc95ac2485e79b8edbd36317c149c0c089de7971",
+      "filename": "c01_se_full_score.json",
+      "fixture_id": "c01.se.full_score",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 2,
+      "canonical_sha256": "dc652a9cb5d00c90c8722cb03e5d50109bac3c291355d5e596a4ad150b3502d2",
+      "filename": "c02_da_full_score.json",
+      "fixture_id": "c02.da.full_score",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 3,
+      "canonical_sha256": "c05533257faef5a1c3b389ca068b98f9b648a6a3b93289f62037ab76292ef552",
+      "filename": "c03_se_no_language_cap.json",
+      "fixture_id": "c03.se.no_language_cap",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 4,
+      "canonical_sha256": "d4edaaf0e985fcd462414d029fdf1945e6d4ff53b6947d426291966950c40ed7",
+      "filename": "c04_se_named_language.json",
+      "fixture_id": "c04.se.named_language",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 5,
+      "canonical_sha256": "d4fd5baedbaf0178773c52777847006eb3044c31b1700c92e324e16fe5c84f0b",
+      "filename": "c05_se_framework_only.json",
+      "fixture_id": "c05.se.framework_only",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 6,
+      "canonical_sha256": "f744179369bb7c6698379829858856022362aae581f4836c8498225dadbc697b",
+      "filename": "c06_se_cv_only_project.json",
+      "fixture_id": "c06.se.cv_only_project",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 7,
+      "canonical_sha256": "e18bce8940841eed6b961b4b471bc21c5a2847a4242de954e40c70f02bdfb970",
+      "filename": "c07_da_no_sql_cap.json",
+      "fixture_id": "c07.da.no_sql_cap",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 8,
+      "canonical_sha256": "f3cf9c48830a4395656fe4c2fa9554956661f99ca539efd9b195d4e067546798",
+      "filename": "c08_da_named_sql.json",
+      "fixture_id": "c08.da.named_sql",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 9,
+      "canonical_sha256": "3b57b073c0e88fa66664b4490ce9790b7aa071cf31a1b4b1b29cd6a8fb96f20a",
+      "filename": "c09_da_database_only.json",
+      "fixture_id": "c09.da.database_only",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 10,
+      "canonical_sha256": "6fdc683934b381294629ef846cf2333d6c5d6546c11eb4fe47b2644d8693f96f",
+      "filename": "c10_da_cv_only_project.json",
+      "fixture_id": "c10.da.cv_only_project",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 11,
+      "canonical_sha256": "5dbf467f8a5ad5448e6f2a667be05954531029f7a707db416ccb8363f895d7b1",
+      "filename": "c11_da_google_sheets_ceiling.json",
+      "fixture_id": "c11.da.google_sheets_ceiling",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 12,
+      "canonical_sha256": "038b515cefc24ad83dcbab214d42f1a17eb2ad0dbac3716f6190be24c12cd980",
+      "filename": "c12_da_context_free_dashboard.json",
+      "fixture_id": "c12.da.context_free_dashboard",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 13,
+      "canonical_sha256": "48ce337ee8729b66c2ab5b0dcf5921161f907cf697da807a0c654999cfd57487",
+      "filename": "c13_da_power_bi_alignment.json",
+      "fixture_id": "c13.da.power_bi_alignment",
+      "fixture_kind": "completed_assessment",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 14,
+      "canonical_sha256": "9e066b0a0d475fb428b0362ad90872bc5a0a32fb9db9ae33470bcbe3ebe0262e",
+      "filename": "c14_inaccessible_link.json",
+      "fixture_id": "c14.se.inaccessible_link",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 15,
+      "canonical_sha256": "352b7b0be51c2bd22b38d7d8aae0cf7669ebf933c9d0b0960c83bf2d9ef84f06",
+      "filename": "c15_conflicting_sources_review.json",
+      "fixture_id": "c15.da.conflicting_sources_review",
+      "fixture_kind": "review_required",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 16,
+      "canonical_sha256": "6fbfe91a7856daf27145c09d8b01379c80e5daa055f4da640b235eda185d5cbc",
+      "filename": "c16_unsupported_team_player.json",
+      "fixture_id": "c16.se.unsupported_team_player",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 17,
+      "canonical_sha256": "f36fa4367c25441da2380e2c5afada953d317a4161fa3b40dc6736179162f802",
+      "filename": "c17_qualification_isolation.json",
+      "fixture_id": "c17.se.qualification_isolation",
+      "fixture_kind": "completed_assessment",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 18,
+      "canonical_sha256": "c2a2e5d29bbddf272d948294b264efbac8921c9791a6a5a4433e6653fd20afb2",
+      "filename": "c18_duplicate_claim_normalization.json",
+      "fixture_id": "c18.da.duplicate_claim_normalization",
+      "fixture_kind": "normalization_invariant",
+      "track": "data_analytics"
+    },
+    {
+      "acceptance_requirement": 19,
+      "canonical_sha256": "1aba1a1c9d03fabfb22db3754636f0019d4c6da698df80d2acb759b29489152f",
+      "filename": "c19_band_boundaries.json",
+      "fixture_id": "c19.band_boundaries",
+      "fixture_kind": "band_table",
+      "track": null
+    },
+    {
+      "acceptance_requirement": 20,
+      "canonical_sha256": "979c254b37029043800392224c1230050640eaab8556caf6096cd3617074b441",
+      "filename": "c20_determinism.json",
+      "fixture_id": "c20.se.determinism",
+      "fixture_kind": "determinism_invariant",
+      "track": "software_engineering"
+    },
+    {
+      "acceptance_requirement": 21,
+      "canonical_sha256": "f62f2f17c13103e8ba3d70359306090e9ee3f0f4012c1f20f43a8ec015c60525",
+      "filename": "c21_technical_failure_isolation.json",
+      "fixture_id": "c21.technical_failure_isolation",
+      "fixture_kind": "technical_failure",
+      "track": null
+    },
+    {
+      "acceptance_requirement": 22,
+      "canonical_sha256": "75792c78f180c2fe89628946044d0d3d0a2b12d3471d3dd5b525bf53d56d66e8",
+      "filename": "c22_secret_exclusion.json",
+      "fixture_id": "c22.da.secret_exclusion",
+      "fixture_kind": "security_invariant",
+      "track": "data_analytics"
+    }
+  ],
+  "package_version": "1.0.0",
+  "rubric_version": "V2",
+  "status": "approved"
+}
