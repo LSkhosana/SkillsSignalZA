@@ -13,7 +13,7 @@
 
 Contract 1.2.0 corrects the impossible raw-score value in minimum acceptance fixture 7. Under the frozen DA rubric, SQL is worth 15 points; when no explicit SQL is evidenced, that criterion awards zero, so the highest possible raw total is 85 rather than 90. The fixture therefore requires raw score 85, final score 79, and band `developing_application_readiness`.
 
-This correction changes no Rubric V2 points, anchors, qualification values, category weights, caps, score bands, evidence rules, action content, project content, or assessment semantics. Contract 1.1.0's qualification-action clarification remains in force.
+This correction changes no Rubric V2 points, anchors, qualification values, category weights, caps, score bands, evidence rules, action content, project content, or assessment semantics. Contract 1.1.0's qualification-action clarification remains in force. Version 1.2.0 also closes the previously unspecified selection counts required for byte-reproducible golden results: at most five strengths, every positive point gap as a material gap, and at most five priority actions.
 
 The active implementation must use contract version `1.2.0` consistently across the rubric, action catalogue, project catalogue, canonical assessment inputs, canonical assessment results, and Package C fixtures. This is a metadata migration plus an acceptance-fixture arithmetic correction; approved catalogue and scoring configuration content remain unchanged.
 
@@ -481,11 +481,14 @@ The engine must generate structured recommendation data, not unconstrained prose
 
 ### 17.1 Strength selection
 
-Candidate strengths are criteria with accepted evidence and the highest awarded-to-maximum ratios. Ties are resolved by:
+Candidate strengths are criteria with accepted evidence and awarded points greater than zero. Return at most five strengths. Order them by:
 
-1. Higher awarded points.
-2. Higher criterion maximum.
-3. Stable criterion ID order.
+1. Higher awarded-to-maximum ratio.
+2. Higher awarded points.
+3. Higher criterion maximum.
+4. Stable criterion ID order.
+
+If fewer than five criteria have accepted non-zero evidence, return all qualifying criteria.
 
 ### 17.2 Gap selection
 
@@ -495,6 +498,8 @@ For each criterion:
 point_gap = max_points - awarded_points
 gap_ratio = point_gap / max_points
 ```
+
+Every criterion with `point_gap > 0` is a material gap. Return the complete ordered material-gap list; do not apply an unstated significance threshold or truncate it for report layout.
 
 Material gaps are ordered by:
 
@@ -515,7 +520,7 @@ Every non-qualification criterion must have a versioned action mapping for all f
 
 Qualification criteria do not use those four mappings. Each qualification criterion must instead have exactly one versioned action for every approved track-specific qualification route. The current and target anchors for a qualification packaging action must both equal the selected qualification route; packaging must not imply that the scored route changed.
 
-The engine selects actions only from the mapping applicable to the criterion type. It must not invent courses, qualifications, technologies, experience, metrics, or candidate achievements.
+The engine selects actions only from the mapping applicable to the criterion type. Select one mapped action for each of the first five ordered material gaps, or fewer when fewer than five material gaps exist. `priority_order` is the one-based position in that selected list. Project selection still uses the complete material-gap list, not only the five action-bearing gaps. The engine must not invent courses, qualifications, technologies, experience, metrics, or candidate achievements.
 
 ### 17.4 Project recommendation
 
