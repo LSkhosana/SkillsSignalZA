@@ -14,10 +14,12 @@ SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 ASSESSMENT_INPUT_SCHEMA_PATH = SCHEMA_DIR / "assessment_input.schema.json"
 EVIDENCE_FACT_SCHEMA_PATH = SCHEMA_DIR / "evidence_fact.schema.json"
 ASSESSMENT_RESULT_SCHEMA_PATH = SCHEMA_DIR / "assessment_result.schema.json"
+SCORING_CONTEXT_SCHEMA_PATH = SCHEMA_DIR / "scoring_context.schema.json"
 SCHEMA_PATHS = (
     ASSESSMENT_INPUT_SCHEMA_PATH,
     EVIDENCE_FACT_SCHEMA_PATH,
     ASSESSMENT_RESULT_SCHEMA_PATH,
+    SCORING_CONTEXT_SCHEMA_PATH,
 )
 DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -140,6 +142,22 @@ VALID_EVIDENCE_PRIORITY_ACTION = {
     "priority_order": 1,
 }
 
+VALID_SCORING_CONTEXT = {
+    "contract_version": "1.2.0",
+    "rubric_version": "V2",
+    "track": "software_engineering",
+    "criterion_bindings": [
+        {
+            "criterion_id": "se.alignment.qualification",
+            "anchor": "se.qual.none",
+            "evidence_ids": [],
+        }
+    ],
+    "rule_triggers": [],
+    "review_flags": [],
+    "project_exclusion_ids": [],
+}
+
 VALID_QUALIFICATION_PRIORITY_ACTION = {
     "action_id": "action.v1.se.alignment.qualification.completed",
     "criterion_id": "se.alignment.qualification",
@@ -177,6 +195,11 @@ def evidence_fact_schema() -> dict[str, Any]:
 @pytest.fixture(scope="module")
 def assessment_result_schema() -> dict[str, Any]:
     return load_json(ASSESSMENT_RESULT_SCHEMA_PATH)
+
+
+@pytest.fixture(scope="module")
+def scoring_context_schema() -> dict[str, Any]:
+    return load_json(SCORING_CONTEXT_SCHEMA_PATH)
 
 
 def test_engine_json_files_parse() -> None:
@@ -337,10 +360,37 @@ def test_non_integer_score_fails(assessment_result_schema: dict[str, Any]) -> No
     _assert_invalid(assessment_result_schema, payload)
 
 
+def test_valid_scoring_context_passes(scoring_context_schema: dict[str, Any]) -> None:
+    _assert_valid(scoring_context_schema, VALID_SCORING_CONTEXT)
+
+
+def test_unknown_scoring_context_property_fails(scoring_context_schema: dict[str, Any]) -> None:
+    payload = deepcopy(VALID_SCORING_CONTEXT)
+    payload["inferred_from_expected"] = True
+    _assert_invalid(scoring_context_schema, payload)
+
+
+def test_unknown_scoring_context_binding_property_fails(
+    scoring_context_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_SCORING_CONTEXT)
+    payload["criterion_bindings"][0]["awarded_points"] = 10
+    _assert_invalid(scoring_context_schema, payload)
+
+
+def test_wrong_scoring_context_contract_version_fails(
+    scoring_context_schema: dict[str, Any],
+) -> None:
+    payload = deepcopy(VALID_SCORING_CONTEXT)
+    payload["contract_version"] = "1.1.0"
+    _assert_invalid(scoring_context_schema, payload)
+
+
 def test_unexpected_closed_object_properties_fail(
     assessment_input_schema: dict[str, Any],
     evidence_fact_schema: dict[str, Any],
     assessment_result_schema: dict[str, Any],
+    scoring_context_schema: dict[str, Any],
 ) -> None:
     extra_input = deepcopy(VALID_ASSESSMENT_INPUT)
     extra_input["age"] = 21
@@ -350,7 +400,10 @@ def test_unexpected_closed_object_properties_fail(
     extra_fact["inferred_parent_skill"] = "python"
     extra_result = deepcopy(VALID_ASSESSMENT_RESULT)
     extra_result["hiring_probability"] = 0.8
+    extra_context = deepcopy(VALID_SCORING_CONTEXT)
+    extra_context["filename"] = "c01_se_full_score.json"
     _assert_invalid(assessment_input_schema, extra_input)
     _assert_invalid(assessment_input_schema, extra_cv)
     _assert_invalid(evidence_fact_schema, extra_fact)
     _assert_invalid(assessment_result_schema, extra_result)
+    _assert_invalid(scoring_context_schema, extra_context)

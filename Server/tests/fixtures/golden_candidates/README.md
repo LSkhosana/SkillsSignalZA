@@ -9,9 +9,25 @@ or any model. They contain no production scoring or selection code.
 
 ## Contents
 
-- `manifest.json` — package `1.0.0`, approved, contract `1.2.0`, rubric `V2`, exactly 22 entries.
+- `manifest.json` — package `1.0.1`, approved, contract `1.2.0`, rubric `V2`, exactly 22 entries.
 - `golden_fixture.schema.json` — fixture-only schema; unknown top-level properties are rejected.
 - `c01_...json` through `c22_...json` — one fixture per minimum acceptance requirement.
+
+## Scoring context
+
+Package `1.0.1` adds a top-level `scoring_context` input beside
+`assessment_input`, `source_records`, and `evidence_facts`. It records
+the frozen upstream classifications the pure scoring layer must consume:
+criterion bindings, special-rule triggers, review flags, and project
+exclusions.
+
+The scorer must not recover those values from `expected`, titles,
+descriptions, filenames, prose, or hard-coded fixture IDs. `scoring_context`
+is absent from C19 (band table) and C21 (technical failure). C20 stores
+one shared context at the top level for both run envelopes.
+
+Package C `1.0.0` still froze the expected outcomes. This patch does not
+change those outcomes.
 
 ## Integrity
 

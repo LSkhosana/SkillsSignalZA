@@ -773,6 +773,56 @@
   "fixture_id": "c14.se.inaccessible_link",
   "fixture_kind": "completed_assessment",
   "rubric_version": "V2",
+  "scoring_context": {
+    "contract_version": "1.2.0",
+    "criterion_bindings": [
+      {
+        "anchor": "documented",
+        "criterion_id": "se.core.programming_language",
+        "evidence_ids": [
+          "ev-001"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.projects.problem_relevance",
+        "evidence_ids": [
+          "ev-002"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.projects.depth_ownership",
+        "evidence_ids": [
+          "ev-003"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.projects.documentation",
+        "evidence_ids": [
+          "ev-004"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.projects.outcome",
+        "evidence_ids": [
+          "ev-005"
+        ]
+      },
+      {
+        "anchor": "se.qual.none",
+        "criterion_id": "se.alignment.qualification",
+        "evidence_ids": []
+      }
+    ],
+    "project_exclusion_ids": [],
+    "review_flags": [],
+    "rubric_version": "V2",
+    "rule_triggers": [],
+    "track": "software_engineering"
+  },
   "source_records": [
     {
       "access_status": "accessible",

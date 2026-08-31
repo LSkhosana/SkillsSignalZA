@@ -690,6 +690,23 @@
   "fixture_id": "c17.se.qualification_isolation",
   "fixture_kind": "completed_assessment",
   "rubric_version": "V2",
+  "scoring_context": {
+    "contract_version": "1.2.0",
+    "criterion_bindings": [
+      {
+        "anchor": "se.qual.completed",
+        "criterion_id": "se.alignment.qualification",
+        "evidence_ids": [
+          "ev-001"
+        ]
+      }
+    ],
+    "project_exclusion_ids": [],
+    "review_flags": [],
+    "rubric_version": "V2",
+    "rule_triggers": [],
+    "track": "software_engineering"
+  },
   "source_records": [
     {
       "access_status": "accessible",

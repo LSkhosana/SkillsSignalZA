@@ -685,6 +685,28 @@
   "fixture_id": "c16.se.unsupported_team_player",
   "fixture_kind": "completed_assessment",
   "rubric_version": "V2",
+  "scoring_context": {
+    "contract_version": "1.2.0",
+    "criterion_bindings": [
+      {
+        "anchor": "se.qual.none",
+        "criterion_id": "se.alignment.qualification",
+        "evidence_ids": []
+      },
+      {
+        "anchor": "named_only",
+        "criterion_id": "se.readiness.collaboration",
+        "evidence_ids": [
+          "ev-001"
+        ]
+      }
+    ],
+    "project_exclusion_ids": [],
+    "review_flags": [],
+    "rubric_version": "V2",
+    "rule_triggers": [],
+    "track": "software_engineering"
+  },
   "source_records": [
     {
       "access_status": "accessible",

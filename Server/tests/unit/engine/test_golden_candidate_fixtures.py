@@ -1,4 +1,4 @@
-"""Package C golden candidate fixture validation and invariant tests."""
+"""Package C and C.1 golden candidate fixture validation and invariant tests."""
 
 from __future__ import annotations
 
@@ -25,9 +25,118 @@ FIXTURE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "golden_candida
 SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 FIXTURE_SCHEMA_PATH = FIXTURE_DIR / "golden_fixture.schema.json"
 MANIFEST_PATH = FIXTURE_DIR / "manifest.json"
-LOCKED_MANIFEST_SHA256 = "b953d0ba670d5daf606a084a0fa74bc65655be3a5bf0896ead19ca8870712289"
+LOCKED_MANIFEST_SHA256 = "3b254c00f87e774cb74f04f1abc64479504d17f6ec8a126be6f106a2809bacd9"
 LOCKED_CONTRACT_VERSION = "1.2.0"
 LOCKED_RUBRIC_VERSION = "V2"
+LOCKED_PACKAGE_VERSION = "1.0.1"
+NON_SCORING_KINDS = frozenset({"band_table", "technical_failure"})
+ORDINARY_ANCHORS = frozenset({"demonstrated", "documented", "named_only", "missing_unverifiable"})
+QUALIFICATION_CRITERIA = {
+    "software_engineering": "se.alignment.qualification",
+    "data_analytics": "da.alignment.qualification",
+}
+QUALIFICATION_ROUTES = {
+    "software_engineering": frozenset(
+        {
+            "se.qual.completed",
+            "se.qual.in_progress",
+            "se.qual.experience",
+            "se.qual.bootcamp",
+            "se.qual.adjacent",
+            "se.qual.none",
+        }
+    ),
+    "data_analytics": frozenset(
+        {
+            "da.qual.completed",
+            "da.qual.in_progress",
+            "da.qual.experience",
+            "da.qual.bootcamp",
+            "da.qual.adjacent",
+            "da.qual.none",
+        }
+    ),
+}
+DERIVED_CAP_RULE_IDS = frozenset(
+    {
+        "rubric.v2.se.cap.cv_only_projects",
+        "rubric.v2.da.cap.cv_only_projects",
+        "rubric.v2.se.cap.no_language",
+        "rubric.v2.da.cap.no_sql",
+    }
+)
+OUTCOME_FIELD_NAMES = frozenset(
+    {
+        "awarded_points",
+        "raw_total",
+        "final_score",
+        "band",
+        "strengths",
+        "material_gaps",
+        "priority_actions",
+        "project_recommendation",
+        "applicable_overall_cap",
+        "assessment_result",
+    }
+)
+LOCKED_PACKAGE_C_EXPECTED_SHA256 = {
+    "c01_se_full_score.json": ("b1cf3aff623e006693ba1531d26c53a26ab726895b483c9031ca3dbf1a05fed5"),
+    "c02_da_full_score.json": ("76b55d3bb7bd3fda64d0e32a88d04cb5904f2b5dbc2183e5562771af6600ae59"),
+    "c03_se_no_language_cap.json": (
+        "9e86839e38a2909f51b825927f4bcf36da0143d0a308a33eac2554161e512edb"
+    ),
+    "c04_se_named_language.json": (
+        "00ab60da15d3b3dfd4bafe016eebe083009820dce1bb4820511fb083886e34e5"
+    ),
+    "c05_se_framework_only.json": (
+        "cb1fa11143527da4a7d602107a765386c3876ce1260e17024ebc1490bf3f3c93"
+    ),
+    "c06_se_cv_only_project.json": (
+        "ade923744f401bfb9ebd3c9e7435ac97483621c818858882de5ba088ada347cc"
+    ),
+    "c07_da_no_sql_cap.json": ("9f3f52141ca9b148b5d2c9cff049b72dcb39b369fb8043a3c99c4e5d277f6f11"),
+    "c08_da_named_sql.json": ("02d8ee0f16756ea3c4c91508e9b2127737f4a859bfbca3d0d27df8e5f594c215"),
+    "c09_da_database_only.json": (
+        "95f4b37e5d0225fe587972ef248545bb585f6aab23e5dd31791db096f8f3174e"
+    ),
+    "c10_da_cv_only_project.json": (
+        "b7b71b8fe7cfb40bf119110be215a3f775c0d8afb0c134571d3c51ca7c94cde2"
+    ),
+    "c11_da_google_sheets_ceiling.json": (
+        "2d82424c847a49e25cb26bbf5735a8cf09e7753aaef9aa77788f77e9a0f83096"
+    ),
+    "c12_da_context_free_dashboard.json": (
+        "78421b4506649bb742b0457a3fd7a7f3548affcbac2eac873838ea693d00befa"
+    ),
+    "c13_da_power_bi_alignment.json": (
+        "1a34a277024998f4932753c8e38bb124c7ea6c5bed8573b1585e162873ab457f"
+    ),
+    "c14_inaccessible_link.json": (
+        "9f27623a9ebb3affa2e3289819ad2d1dc39d055a38569dfcbcf3a45767c495f4"
+    ),
+    "c15_conflicting_sources_review.json": (
+        "49073f286a51793d5e612d0216116936179f0a0a749bcc67bd9d953bae1b2a45"
+    ),
+    "c16_unsupported_team_player.json": (
+        "43e3f892d473fe793bac0a6ac8179bb663868ed6cc250650b3801d70263a1fce"
+    ),
+    "c17_qualification_isolation.json": (
+        "988a1c7161087c9692ac8b54e9deab16a152b2120284df1090108218c47916dd"
+    ),
+    "c18_duplicate_claim_normalization.json": (
+        "70649f3b7c7cdfced7d15f29cfc9756683297d80cc5634e9e79aa4ddd27c4a23"
+    ),
+    "c19_band_boundaries.json": (
+        "9bcdd0144df942c13cb2da61406a56dda9488e5c3792187e128bcc2d4bf0554c"
+    ),
+    "c20_determinism.json": ("37d07aa74f108ea2822c61a10643b1ac2ce0453dd27a18b9e013faab15ead865"),
+    "c21_technical_failure_isolation.json": (
+        "da62e682bc19198ae3145868d7016591cb343184c081eb7e03a4f546a8c26364"
+    ),
+    "c22_secret_exclusion.json": (
+        "8715395a05c7df1856926097cc4e65942c7e6fd5ced03740b03a8613d467f206"
+    ),
+}
 SECRET_SENTINEL = "SKILLSIGNALZA_GOLDEN_SECRET_DO_NOT_LEAK_7f9c2e"
 REVIEW_SENTINEL = "PROJECT_RECOMMENDATION_REVIEW_REQUIRED"
 IDENTITY_FIELDS = {"assessment_id", "run_id", "submitted_at", "assessed_at"}
@@ -313,6 +422,11 @@ def result_schema() -> dict[str, Any]:
 
 
 @pytest.fixture(scope="module")
+def scoring_context_schema() -> dict[str, Any]:
+    return load_json(SCHEMA_DIR / "scoring_context.schema.json")
+
+
+@pytest.fixture(scope="module")
 def rubric() -> dict[str, Any]:
     return load_rubric_v2()
 
@@ -346,7 +460,7 @@ def test_manifest_and_all_22_fixtures_parse_and_validate_against_fixture_schema(
     manifest: Mapping[str, Any],
     fixtures: list[tuple[Path, dict[str, Any]]],
 ) -> None:
-    assert manifest["package_version"] == "1.0.0"
+    assert manifest["package_version"] == LOCKED_PACKAGE_VERSION
     assert manifest["status"] == "approved"
     assert manifest["contract_version"] == LOCKED_CONTRACT_VERSION
     assert manifest["rubric_version"] == LOCKED_RUBRIC_VERSION
@@ -849,6 +963,138 @@ def test_strength_gap_action_and_project_ordering_matches_contract_without_produ
             else:
                 known_ids = {project["project_id"] for project in project_catalog["projects"]}
                 assert recommendation["project_id"] in known_ids
+
+
+def test_scoring_context_is_executable_independent_of_expected_and_locks_package_c_outcomes(
+    scoring_context_schema: dict[str, Any],
+    rubric: Mapping[str, Any],
+    fixtures: list[tuple[Path, dict[str, Any]]],
+) -> None:
+    validator = _validator(scoring_context_schema)
+    scoring_fixtures = [
+        (path, document)
+        for path, document in fixtures
+        if document["fixture_kind"] not in NON_SCORING_KINDS
+    ]
+    non_scoring = [
+        (path, document)
+        for path, document in fixtures
+        if document["fixture_kind"] in NON_SCORING_KINDS
+    ]
+    assert len(scoring_fixtures) == 20
+    assert {path.name for path, _document in non_scoring} == {
+        "c19_band_boundaries.json",
+        "c21_technical_failure_isolation.json",
+    }
+
+    approved_rule_ids: set[str] = set()
+    for track in rubric["tracks"].values():
+        for criterion in track["criteria"]:
+            approved_rule_ids.add(criterion["rule_id"])
+        for cap in track.get("overall_caps", []):
+            approved_rule_ids.add(cap["rule_id"])
+        for cap in track.get("category_caps", []):
+            approved_rule_ids.add(cap["rule_id"])
+        for cap in track.get("criterion_caps", []):
+            approved_rule_ids.add(cap["rule_id"])
+        for rule in track.get("special_rules", []):
+            approved_rule_ids.add(rule["rule_id"])
+
+    for path, document in non_scoring:
+        assert "scoring_context" not in document
+        assert "scoring_context" not in document["expected"]
+        assert (
+            _canonical_sha256(document["expected"]) == LOCKED_PACKAGE_C_EXPECTED_SHA256[path.name]
+        )
+
+    for path, document in scoring_fixtures:
+        context = document["scoring_context"]
+        validator.validate(context)
+        assert context["contract_version"] == LOCKED_CONTRACT_VERSION
+        assert context["rubric_version"] == LOCKED_RUBRIC_VERSION
+        assert context["track"] == document["track"]
+        assert "scoring_context" not in document["expected"]
+        for run in document["expected"].get("runs", []):
+            assert "scoring_context" not in run
+        for node in _walk(document["expected"]):
+            if isinstance(node, Mapping):
+                assert "scoring_context" not in node
+                assert not (OUTCOME_FIELD_NAMES & set(context) - {"track"})
+        for node in _walk(context):
+            if isinstance(node, Mapping):
+                assert not (OUTCOME_FIELD_NAMES & set(node.keys()))
+                assert "filename" not in node
+                assert "fixture_id" not in node
+                assert "title" not in node
+                assert "acceptance_requirement" not in node
+
+        track_criteria = rubric["tracks"][context["track"]]["criteria"]
+        track_ids = [item["id"] for item in track_criteria]
+        qualification_id = QUALIFICATION_CRITERIA[context["track"]]
+        bindings = context["criterion_bindings"]
+        bound_ids = [item["criterion_id"] for item in bindings]
+        assert len(bound_ids) == len(set(bound_ids))
+        assert all(criterion_id in track_ids for criterion_id in bound_ids)
+        assert [
+            criterion_id for criterion_id in track_ids if criterion_id in bound_ids
+        ] == bound_ids
+
+        qualification_bindings = [
+            item for item in bindings if item["criterion_id"] == qualification_id
+        ]
+        assert len(qualification_bindings) == 1
+        qualification = qualification_bindings[0]
+        assert qualification["anchor"] in QUALIFICATION_ROUTES[context["track"]]
+
+        facts = {fact["evidence_id"]: fact for fact in document["evidence_facts"]}
+        for binding in bindings:
+            for evidence_id in binding["evidence_ids"]:
+                assert evidence_id in facts
+                assert facts[evidence_id]["review_status"] == "accepted"
+            if binding["criterion_id"] == qualification_id:
+                if binding["anchor"] != (
+                    "se.qual.none" if context["track"] == "software_engineering" else "da.qual.none"
+                ):
+                    assert binding["evidence_ids"]
+                continue
+            assert binding["anchor"] in ORDINARY_ANCHORS
+            if binding["anchor"] != "missing_unverifiable":
+                assert binding["evidence_ids"]
+
+        omitted = [criterion_id for criterion_id in track_ids if criterion_id not in bound_ids]
+        assert qualification_id not in omitted
+        for result in _completed_results(document):
+            by_id = {item["criterion_id"]: item for item in result["criterion_results"]}
+            for criterion_id in omitted:
+                assert by_id[criterion_id]["anchor"] == "missing_unverifiable"
+                assert by_id[criterion_id]["evidence_ids"] == []
+
+        triggers = context["rule_triggers"]
+        flags = context["review_flags"]
+        exclusions = context["project_exclusion_ids"]
+        assert len(triggers) == len(set(triggers))
+        assert len(flags) == len(set(flags))
+        assert len(exclusions) == len(set(exclusions))
+        assert all(rule_id in approved_rule_ids for rule_id in triggers)
+        assert not (DERIVED_CAP_RULE_IDS & set(triggers))
+        assert all(flag == "MATERIAL_SOURCE_CONTRADICTION" for flag in flags)
+        assert exclusions == []
+        assert (
+            _canonical_sha256(document["expected"]) == LOCKED_PACKAGE_C_EXPECTED_SHA256[path.name]
+        )
+
+    by_id = {document["fixture_id"]: document for _path, document in fixtures}
+    c11 = by_id["c11.da.google_sheets_ceiling"]["scoring_context"]
+    assert "rubric.v2.da.cap.google_sheets_ceiling" in c11["rule_triggers"]
+    c12 = by_id["c12.da.context_free_dashboard"]["scoring_context"]
+    assert "rubric.v2.da.rule.context_free_dashboard" in c12["rule_triggers"]
+    assert all(item["criterion_id"] != "da.projects.context" for item in c12["criterion_bindings"])
+    c15 = by_id["c15.da.conflicting_sources_review"]
+    assert "MATERIAL_SOURCE_CONTRADICTION" in c15["scoring_context"]["review_flags"]
+    assert c15["expected"]["assessment_result"] is None
+    c20 = by_id["c20.se.determinism"]
+    assert "scoring_context" in c20
+    assert all("scoring_context" not in run for run in c20["expected"]["runs"])
 
 
 def test_canonical_hashes_and_determinism_are_newline_and_platform_independent(
