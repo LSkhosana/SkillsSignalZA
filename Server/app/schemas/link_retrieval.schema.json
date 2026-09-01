@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/link-retrieval.json",
+  "title": "SkillSignalZA link retrieval outcome",
+  "description": "Canonical deterministic retrieval of one candidate-submitted web link. Failures never include a candidate score or response body text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "extractor_version",
+    "link",
+    "source_record",
+    "content_blocks"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["COMPLETED", "LINK_RETRIEVAL_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "extractor_version": {
+      "type": "string",
+      "const": "extract.link.v1"
+    },
+    "link": {
+      "$ref": "#/$defs/link"
+    },
+    "source_record": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/source_record"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "content_blocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/content_block"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "null"
+          },
+          "source_record": {
+            "$ref": "#/$defs/source_record"
+          },
+          "content_blocks": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "LINK_RETRIEVAL_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content_blocks": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "link_id",
+        "submitted_url",
+        "normalized_url",
+        "final_url",
+        "declared_type",
+        "verified_content_type",
+        "http_status",
+        "byte_size",
+        "sha256"
+      ],
+      "properties": {
+        "link_id": {
+          "type": "string"
+        },
+        "submitted_url": {
+          "type": "string"
+        },
+        "normalized_url": {
+          "type": ["string", "null"]
+        },
+        "final_url": {
+          "type": ["string", "null"]
+        },
+        "declared_type": {
+          "type": "string"
+        },
+        "verified_content_type": {
+          "type": ["string", "null"]
+        },
+        "http_status": {
+          "type": ["integer", "null"]
+        },
+        "byte_size": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "source_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_type",
+        "submitted_by_candidate",
+        "access_status",
+        "ownership_status",
+        "retrieved_at",
+        "content_hash",
+        "extractor_version",
+        "locator",
+        "notes"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "repository",
+            "portfolio",
+            "project",
+            "deployed_project",
+            "kaggle",
+            "dashboard",
+            "other_professional"
+          ]
+        },
+        "submitted_by_candidate": {
+          "type": "boolean",
+          "const": true
+        },
+        "access_status": {
+          "type": "string",
+          "enum": [
+            "accessible",
+            "inaccessible",
+            "unsafe",
+            "unsupported",
+            "not_attempted"
+          ]
+        },
+        "ownership_status": {
+          "type": "string",
+          "const": "unclear"
+        },
+        "retrieved_at": {
+          "type": "string"
+        },
+        "content_hash": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "extractor_version": {
+          "type": "string",
+          "const": "extract.link.v1"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "content_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["block_id", "locator", "text"],
+      "properties": {
+        "block_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
