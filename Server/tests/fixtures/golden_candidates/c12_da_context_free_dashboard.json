@@ -884,6 +884,193 @@
   "fixture_id": "c12.da.context_free_dashboard",
   "fixture_kind": "completed_assessment",
   "rubric_version": "V2",
+  "scoring_context": {
+    "contract_version": "1.2.0",
+    "criterion_bindings": [
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.core.sql",
+        "evidence_ids": [
+          "ev-001"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.core.spreadsheets",
+        "evidence_ids": [
+          "ev-002"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.core.analysis_statistics",
+        "evidence_ids": [
+          "ev-003"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.core.cleaning",
+        "evidence_ids": [
+          "ev-004"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.core.reporting",
+        "evidence_ids": [
+          "ev-005"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.bi_visualisation",
+        "evidence_ids": [
+          "ev-006"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.power_bi_alignment",
+        "evidence_ids": [
+          "ev-007"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.programming",
+        "evidence_ids": [
+          "ev-008"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.database_environment",
+        "evidence_ids": [
+          "ev-009"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.transformation_cloud",
+        "evidence_ids": [
+          "ev-010"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.tools.integration",
+        "evidence_ids": [
+          "ev-011"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.projects.accessibility",
+        "evidence_ids": [
+          "ev-012"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.projects.process",
+        "evidence_ids": [
+          "ev-013"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.projects.findings",
+        "evidence_ids": [
+          "ev-014"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.projects.reproducibility",
+        "evidence_ids": [
+          "ev-015"
+        ]
+      },
+      {
+        "anchor": "da.qual.completed",
+        "criterion_id": "da.alignment.qualification",
+        "evidence_ids": [
+          "ev-016"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.alignment.target_role",
+        "evidence_ids": [
+          "ev-017"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.alignment.claim_specificity",
+        "evidence_ids": [
+          "ev-018"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.alignment.description_evidence",
+        "evidence_ids": [
+          "ev-019"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.alignment.readability",
+        "evidence_ids": [
+          "ev-020"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.readiness.problem_solving",
+        "evidence_ids": [
+          "ev-021"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.readiness.attention_detail",
+        "evidence_ids": [
+          "ev-022"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.readiness.collaboration",
+        "evidence_ids": [
+          "ev-023"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.readiness.communication",
+        "evidence_ids": [
+          "ev-024"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "da.readiness.self_management",
+        "evidence_ids": [
+          "ev-025"
+        ]
+      }
+    ],
+    "project_exclusion_ids": [],
+    "review_flags": [],
+    "rubric_version": "V2",
+    "rule_triggers": [
+      "rubric.v2.da.rule.context_free_dashboard"
+    ],
+    "track": "data_analytics"
+  },
   "source_records": [
     {
       "access_status": "accessible",

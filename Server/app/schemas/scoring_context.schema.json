@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/scoring-context.json",
+  "title": "SkillSignalZA scoring context",
+  "description": "Frozen upstream classification decisions consumed by the pure scoring layer. Unknown properties are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "rubric_version",
+    "track",
+    "criterion_bindings",
+    "rule_triggers",
+    "review_flags",
+    "project_exclusion_ids"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string",
+      "enum": ["software_engineering", "data_analytics"]
+    },
+    "criterion_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion_id", "anchor", "evidence_ids"],
+        "properties": {
+          "criterion_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "anchor": {
+            "type": "string",
+            "enum": [
+              "demonstrated",
+              "documented",
+              "named_only",
+              "missing_unverifiable",
+              "se.qual.completed",
+              "se.qual.in_progress",
+              "se.qual.experience",
+              "se.qual.bootcamp",
+              "se.qual.adjacent",
+              "se.qual.none",
+              "da.qual.completed",
+              "da.qual.in_progress",
+              "da.qual.experience",
+              "da.qual.bootcamp",
+              "da.qual.adjacent",
+              "da.qual.none"
+            ]
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "rule_triggers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "review_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "project_exclusion_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

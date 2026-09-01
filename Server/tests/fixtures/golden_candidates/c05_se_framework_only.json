@@ -933,6 +933,191 @@
   "fixture_id": "c05.se.framework_only",
   "fixture_kind": "completed_assessment",
   "rubric_version": "V2",
+  "scoring_context": {
+    "contract_version": "1.2.0",
+    "criterion_bindings": [
+      {
+        "anchor": "documented",
+        "criterion_id": "se.core.programming_concepts",
+        "evidence_ids": [
+          "ev-001"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.core.application_systems",
+        "evidence_ids": [
+          "ev-002"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.core.database_fundamentals",
+        "evidence_ids": [
+          "ev-003"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.core.debugging_testing",
+        "evidence_ids": [
+          "ev-004"
+        ]
+      },
+      {
+        "anchor": "documented",
+        "criterion_id": "se.tools.version_control",
+        "evidence_ids": [
+          "ev-005"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.tools.framework_library",
+        "evidence_ids": [
+          "ev-006"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.tools.database_platform",
+        "evidence_ids": [
+          "ev-007"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.tools.dev_environment",
+        "evidence_ids": [
+          "ev-008"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.tools.repository_platform",
+        "evidence_ids": [
+          "ev-009"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.tools.deployment_cloud",
+        "evidence_ids": [
+          "ev-010"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.projects.accessibility",
+        "evidence_ids": [
+          "ev-011"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.projects.problem_relevance",
+        "evidence_ids": [
+          "ev-012"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.projects.depth_ownership",
+        "evidence_ids": [
+          "ev-013"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.projects.documentation",
+        "evidence_ids": [
+          "ev-014"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.projects.outcome",
+        "evidence_ids": [
+          "ev-015"
+        ]
+      },
+      {
+        "anchor": "se.qual.completed",
+        "criterion_id": "se.alignment.qualification",
+        "evidence_ids": [
+          "ev-016"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.alignment.target_role",
+        "evidence_ids": [
+          "ev-017"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.alignment.claim_specificity",
+        "evidence_ids": [
+          "ev-018"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.alignment.description_evidence",
+        "evidence_ids": [
+          "ev-019"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.alignment.readability",
+        "evidence_ids": [
+          "ev-020"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.readiness.communication",
+        "evidence_ids": [
+          "ev-021"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.readiness.collaboration",
+        "evidence_ids": [
+          "ev-022"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.readiness.professional_exposure",
+        "evidence_ids": [
+          "ev-023"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.readiness.initiative",
+        "evidence_ids": [
+          "ev-024"
+        ]
+      },
+      {
+        "anchor": "demonstrated",
+        "criterion_id": "se.readiness.self_management",
+        "evidence_ids": [
+          "ev-025"
+        ]
+      }
+    ],
+    "project_exclusion_ids": [],
+    "review_flags": [],
+    "rubric_version": "V2",
+    "rule_triggers": [],
+    "track": "software_engineering"
+  },
   "source_records": [
     {
       "access_status": "accessible",

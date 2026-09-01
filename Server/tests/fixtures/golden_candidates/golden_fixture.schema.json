@@ -158,6 +158,9 @@
         "type": "object"
       }
     },
+    "scoring_context": {
+      "type": "object"
+    },
     "expected": {
       "type": "object",
       "minProperties": 1
@@ -178,5 +181,40 @@
     "provenance": {
       "type": "object"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "fixture_kind": {
+            "not": {
+              "enum": ["band_table", "technical_failure"]
+            }
+          },
+          "track": {
+            "type": "string"
+          }
+        },
+        "required": ["fixture_kind", "track"]
+      },
+      "then": {
+        "required": ["scoring_context"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture_kind": {
+            "enum": ["band_table", "technical_failure"]
+          }
+        },
+        "required": ["fixture_kind"]
+      },
+      "then": {
+        "not": {
+          "required": ["scoring_context"]
+        }
+      }
+    }
+  ]
 }

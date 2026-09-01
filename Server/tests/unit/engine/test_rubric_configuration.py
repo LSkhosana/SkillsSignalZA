@@ -21,6 +21,7 @@ JSON_DOCUMENTS = (
     SCHEMA_DIR / "assessment_input.schema.json",
     SCHEMA_DIR / "evidence_fact.schema.json",
     SCHEMA_DIR / "assessment_result.schema.json",
+    SCHEMA_DIR / "scoring_context.schema.json",
 )
 APPROVED_TRACKS = ("software_engineering", "data_analytics")
 EVIDENCE_ORDER = ("named_only", "documented", "demonstrated")
