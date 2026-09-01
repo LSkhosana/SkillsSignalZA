@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/cv-extraction.json",
+  "title": "SkillSignalZA CV extraction outcome",
+  "description": "Canonical deterministic CV extraction result. Failures never include a candidate score or extracted candidate text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "extractor_version",
+    "document",
+    "source_record",
+    "content_blocks"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["COMPLETED", "CV_EXTRACTION_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "extractor_version": {
+      "type": "string",
+      "const": "extract.cv.v1"
+    },
+    "document": {
+      "$ref": "#/$defs/document"
+    },
+    "source_record": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/source_record"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "content_blocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/content_block"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "null"
+          },
+          "source_record": {
+            "$ref": "#/$defs/source_record"
+          },
+          "content_blocks": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "CV_EXTRACTION_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_record": {
+            "type": "null"
+          },
+          "content_blocks": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "original_filename",
+        "declared_media_type",
+        "verified_media_type",
+        "byte_size",
+        "sha256"
+      ],
+      "properties": {
+        "document_id": {
+          "type": "string"
+        },
+        "original_filename": {
+          "type": "string"
+        },
+        "declared_media_type": {
+          "type": "string"
+        },
+        "verified_media_type": {
+          "type": ["string", "null"],
+          "enum": [
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            null
+          ]
+        },
+        "byte_size": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "source_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_type",
+        "submitted_by_candidate",
+        "access_status",
+        "ownership_status",
+        "retrieved_at",
+        "content_hash",
+        "extractor_version",
+        "locator",
+        "notes"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_type": {
+          "type": "string",
+          "const": "cv"
+        },
+        "submitted_by_candidate": {
+          "type": "boolean",
+          "const": true
+        },
+        "access_status": {
+          "type": "string",
+          "const": "accessible"
+        },
+        "ownership_status": {
+          "type": "string",
+          "const": "attributed"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_hash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "extractor_version": {
+          "type": "string",
+          "const": "extract.cv.v1"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "content_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["block_id", "locator", "text"],
+      "properties": {
+        "block_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
