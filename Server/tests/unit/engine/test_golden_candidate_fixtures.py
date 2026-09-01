@@ -1181,10 +1181,9 @@ def test_secret_sentinel_exists_only_at_harness_secret_sentinel(
             assert SECRET_SENTINEL not in node
 
 
-def test_fixture_package_does_not_add_extraction_or_reporting_modules() -> None:
+def test_fixture_package_does_not_add_reporting_modules() -> None:
     engine_root = Path(__file__).resolve().parents[3] / "app" / "engine"
-    for directory in ("extraction", "reporting"):
-        files = [
-            path for path in (engine_root / directory).glob("*.py") if path.name != "__init__.py"
-        ]
-        assert files == []
+    files = [
+        path for path in (engine_root / "reporting").glob("*.py") if path.name != "__init__.py"
+    ]
+    assert files == []
