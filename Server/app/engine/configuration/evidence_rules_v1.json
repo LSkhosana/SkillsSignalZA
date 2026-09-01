@@ -1,0 +1,670 @@
+{
+  "registry_version": "1.0.0",
+  "normalizer_version": "normalize.evidence.v1",
+  "contract_version": "1.2.0",
+  "action_cues": [
+    "build",
+    "built",
+    "develop",
+    "developed",
+    "implement",
+    "implemented",
+    "create",
+    "created",
+    "use",
+    "used",
+    "using",
+    "design",
+    "designed",
+    "integrate",
+    "integrated",
+    "analyse",
+    "analyzed",
+    "analysed",
+    "automate",
+    "automated",
+    "query",
+    "queried",
+    "clean",
+    "cleaned",
+    "transform",
+    "transformed",
+    "visualise",
+    "visualize",
+    "visualised",
+    "visualized",
+    "debug",
+    "debugged",
+    "test",
+    "tested",
+    "deploy",
+    "deployed",
+    "configure",
+    "configured",
+    "maintain",
+    "maintained",
+    "support",
+    "supported",
+    "optimise",
+    "optimize",
+    "optimised",
+    "optimized",
+    "migrate",
+    "migrated",
+    "model",
+    "modelled",
+    "modeled",
+    "write",
+    "wrote",
+    "written"
+  ],
+  "subjects": [
+    {
+      "subject": "python",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.python",
+      "aliases": [{ "text": "Python", "case_sensitive": false }]
+    },
+    {
+      "subject": "java",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.java",
+      "aliases": [{ "text": "Java", "case_sensitive": false }]
+    },
+    {
+      "subject": "javascript",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.javascript",
+      "aliases": [{ "text": "JavaScript", "case_sensitive": false }]
+    },
+    {
+      "subject": "typescript",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.typescript",
+      "aliases": [{ "text": "TypeScript", "case_sensitive": false }]
+    },
+    {
+      "subject": "csharp",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.csharp",
+      "aliases": [
+        { "text": "C#", "case_sensitive": false },
+        { "text": "C Sharp", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "php",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.php",
+      "aliases": [{ "text": "PHP", "case_sensitive": false }]
+    },
+    {
+      "subject": "r",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.r",
+      "aliases": [
+        { "text": "R", "case_sensitive": true },
+        { "text": "R language", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "sql",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.sql",
+      "aliases": [{ "text": "SQL", "case_sensitive": false }]
+    },
+    {
+      "subject": "html",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.html",
+      "aliases": [{ "text": "HTML", "case_sensitive": false }]
+    },
+    {
+      "subject": "css",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.css",
+      "aliases": [{ "text": "CSS", "case_sensitive": false }]
+    },
+    {
+      "subject": "object_oriented_programming",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.object_oriented_programming",
+      "aliases": [
+        { "text": "object-oriented programming", "case_sensitive": false },
+        { "text": "object oriented programming", "case_sensitive": false },
+        { "text": "OOP", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_structures",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_structures",
+      "aliases": [{ "text": "data structures", "case_sensitive": false }]
+    },
+    {
+      "subject": "algorithms",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.algorithms",
+      "aliases": [{ "text": "algorithms", "case_sensitive": false }]
+    },
+    {
+      "subject": "control_flow",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.control_flow",
+      "aliases": [{ "text": "control flow", "case_sensitive": false }]
+    },
+    {
+      "subject": "api",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.api",
+      "aliases": [
+        { "text": "API", "case_sensitive": false },
+        { "text": "APIs", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "rest_api",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.rest_api",
+      "aliases": [
+        { "text": "REST API", "case_sensitive": false },
+        { "text": "REST APIs", "case_sensitive": false },
+        { "text": "RESTful API", "case_sensitive": false },
+        { "text": "RESTful APIs", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "http",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.http",
+      "aliases": [{ "text": "HTTP", "case_sensitive": false }]
+    },
+    {
+      "subject": "relational_database",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.relational_database",
+      "aliases": [
+        { "text": "relational database", "case_sensitive": false },
+        { "text": "relational databases", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "database_schema",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.database_schema",
+      "aliases": [
+        { "text": "database schema", "case_sensitive": false },
+        { "text": "database schemas", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "database_normalization",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.database_normalization",
+      "aliases": [
+        { "text": "database normalization", "case_sensitive": false },
+        { "text": "database normalisation", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "database_joins",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.database_joins",
+      "aliases": [
+        { "text": "database joins", "case_sensitive": false },
+        { "text": "table joins", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "debugging",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.debugging",
+      "aliases": [
+        { "text": "debugging", "case_sensitive": false },
+        { "text": "debugged", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "unit_testing",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.unit_testing",
+      "aliases": [
+        { "text": "unit testing", "case_sensitive": false },
+        { "text": "unit tests", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "integration_testing",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.integration_testing",
+      "aliases": [
+        { "text": "integration testing", "case_sensitive": false },
+        { "text": "integration tests", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "automated_testing",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.automated_testing",
+      "aliases": [
+        { "text": "automated testing", "case_sensitive": false },
+        { "text": "automated tests", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_analysis",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_analysis",
+      "aliases": [
+        { "text": "data analysis", "case_sensitive": false },
+        { "text": "data analytics", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_cleaning",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_cleaning",
+      "aliases": [
+        { "text": "data cleaning", "case_sensitive": false },
+        { "text": "data cleansing", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_transformation",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_transformation",
+      "aliases": [
+        { "text": "data transformation", "case_sensitive": false },
+        { "text": "data transformations", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "statistics",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.statistics",
+      "aliases": [
+        { "text": "statistics", "case_sensitive": false },
+        { "text": "statistical analysis", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_visualization",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_visualization",
+      "aliases": [
+        { "text": "data visualization", "case_sensitive": false },
+        { "text": "data visualisation", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "data_modelling",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.data_modelling",
+      "aliases": [
+        { "text": "data modelling", "case_sensitive": false },
+        { "text": "data modeling", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "reporting",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.reporting",
+      "aliases": [{ "text": "reporting", "case_sensitive": false }]
+    },
+    {
+      "subject": "dashboarding",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.dashboarding",
+      "aliases": [
+        { "text": "dashboard", "case_sensitive": false },
+        { "text": "dashboards", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "dotnet",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.dotnet",
+      "aliases": [
+        { "text": ".NET", "case_sensitive": false },
+        { "text": "dotnet", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "aspnet",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.aspnet",
+      "aliases": [
+        { "text": "ASP.NET", "case_sensitive": false },
+        { "text": "ASP NET", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "react",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.react",
+      "aliases": [
+        { "text": "React", "case_sensitive": false },
+        { "text": "React.js", "case_sensitive": false },
+        { "text": "ReactJS", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "angular",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.angular",
+      "aliases": [{ "text": "Angular", "case_sensitive": false }]
+    },
+    {
+      "subject": "vue",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.vue",
+      "aliases": [
+        { "text": "Vue", "case_sensitive": false },
+        { "text": "Vue.js", "case_sensitive": false },
+        { "text": "VueJS", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "nodejs",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.nodejs",
+      "aliases": [
+        { "text": "Node.js", "case_sensitive": false },
+        { "text": "NodeJS", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "express",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.express",
+      "aliases": [
+        { "text": "Express", "case_sensitive": false },
+        { "text": "Express.js", "case_sensitive": false },
+        { "text": "ExpressJS", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "spring",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.spring",
+      "aliases": [
+        { "text": "Spring", "case_sensitive": false },
+        { "text": "Spring Boot", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "django",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.django",
+      "aliases": [{ "text": "Django", "case_sensitive": false }]
+    },
+    {
+      "subject": "flask",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.flask",
+      "aliases": [{ "text": "Flask", "case_sensitive": false }]
+    },
+    {
+      "subject": "fastapi",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.fastapi",
+      "aliases": [{ "text": "FastAPI", "case_sensitive": false }]
+    },
+    {
+      "subject": "postgresql",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.postgresql",
+      "aliases": [
+        { "text": "PostgreSQL", "case_sensitive": false },
+        { "text": "Postgres", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "mysql",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.mysql",
+      "aliases": [{ "text": "MySQL", "case_sensitive": false }]
+    },
+    {
+      "subject": "sqlite",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.sqlite",
+      "aliases": [{ "text": "SQLite", "case_sensitive": false }]
+    },
+    {
+      "subject": "sql_server",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.sql_server",
+      "aliases": [
+        { "text": "Microsoft SQL Server", "case_sensitive": false },
+        { "text": "SQL Server", "case_sensitive": false },
+        { "text": "MSSQL", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "mongodb",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.mongodb",
+      "aliases": [{ "text": "MongoDB", "case_sensitive": false }]
+    },
+    {
+      "subject": "supabase",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.supabase",
+      "aliases": [{ "text": "Supabase", "case_sensitive": false }]
+    },
+    {
+      "subject": "git",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.git",
+      "aliases": [{ "text": "Git", "case_sensitive": false }]
+    },
+    {
+      "subject": "github",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.github",
+      "aliases": [{ "text": "GitHub", "case_sensitive": false }]
+    },
+    {
+      "subject": "gitlab",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.gitlab",
+      "aliases": [{ "text": "GitLab", "case_sensitive": false }]
+    },
+    {
+      "subject": "bitbucket",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.bitbucket",
+      "aliases": [{ "text": "Bitbucket", "case_sensitive": false }]
+    },
+    {
+      "subject": "docker",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.docker",
+      "aliases": [{ "text": "Docker", "case_sensitive": false }]
+    },
+    {
+      "subject": "kubernetes",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.kubernetes",
+      "aliases": [
+        { "text": "Kubernetes", "case_sensitive": false },
+        { "text": "K8s", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "azure",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.azure",
+      "aliases": [
+        { "text": "Microsoft Azure", "case_sensitive": false },
+        { "text": "Azure", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "aws",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.aws",
+      "aliases": [
+        { "text": "Amazon Web Services", "case_sensitive": false },
+        { "text": "AWS", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "gcp",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.gcp",
+      "aliases": [
+        { "text": "Google Cloud Platform", "case_sensitive": false },
+        { "text": "GCP", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "excel",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.excel",
+      "aliases": [
+        { "text": "Microsoft Excel", "case_sensitive": false },
+        { "text": "Excel", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "google_sheets",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.google_sheets",
+      "aliases": [{ "text": "Google Sheets", "case_sensitive": false }]
+    },
+    {
+      "subject": "power_bi",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.power_bi",
+      "aliases": [
+        { "text": "Power BI", "case_sensitive": false },
+        { "text": "PowerBI", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "tableau",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.tableau",
+      "aliases": [{ "text": "Tableau", "case_sensitive": false }]
+    },
+    {
+      "subject": "looker_studio",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.looker_studio",
+      "aliases": [
+        { "text": "Looker Studio", "case_sensitive": false },
+        { "text": "Google Data Studio", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "power_query",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.power_query",
+      "aliases": [{ "text": "Power Query", "case_sensitive": false }]
+    },
+    {
+      "subject": "dax",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.dax",
+      "aliases": [{ "text": "DAX", "case_sensitive": false }]
+    },
+    {
+      "subject": "pandas",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.pandas",
+      "aliases": [{ "text": "pandas", "case_sensitive": false }]
+    },
+    {
+      "subject": "numpy",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.numpy",
+      "aliases": [{ "text": "NumPy", "case_sensitive": false }]
+    },
+    {
+      "subject": "pytest",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.pytest",
+      "aliases": [{ "text": "pytest", "case_sensitive": false }]
+    },
+    {
+      "subject": "jest",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.jest",
+      "aliases": [{ "text": "Jest", "case_sensitive": false }]
+    },
+    {
+      "subject": "vitest",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.vitest",
+      "aliases": [{ "text": "Vitest", "case_sensitive": false }]
+    },
+    {
+      "subject": "playwright",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.playwright",
+      "aliases": [{ "text": "Playwright", "case_sensitive": false }]
+    },
+    {
+      "subject": "cypress",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.cypress",
+      "aliases": [{ "text": "Cypress", "case_sensitive": false }]
+    }
+  ],
+  "qualifications": [
+    {
+      "subject": "bachelor_degree",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.bachelor_degree",
+      "aliases": [
+        { "text": "Bachelor's", "case_sensitive": false },
+        { "text": "Bachelor", "case_sensitive": false },
+        { "text": "B.Sc", "case_sensitive": false },
+        { "text": "BSc", "case_sensitive": false },
+        { "text": "B.Com", "case_sensitive": false },
+        { "text": "BCom", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "diploma",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.diploma",
+      "aliases": [
+        { "text": "National Diploma", "case_sensitive": false },
+        { "text": "Diploma", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "higher_certificate",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.higher_certificate",
+      "aliases": [{ "text": "Higher Certificate", "case_sensitive": false }]
+    },
+    {
+      "subject": "certificate",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.certificate",
+      "aliases": [
+        { "text": "Certification", "case_sensitive": false },
+        { "text": "Certificate", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "bootcamp",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.bootcamp",
+      "aliases": [
+        { "text": "Boot Camp", "case_sensitive": false },
+        { "text": "Bootcamp", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "nqf",
+      "kind": "qualification",
+      "rule_id": "normalize.v1.qualification.nqf",
+      "aliases": [{ "text": "NQF", "case_sensitive": false }]
+    }
+  ]
+}
