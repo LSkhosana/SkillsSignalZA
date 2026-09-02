@@ -13,6 +13,7 @@ CONFIGURATION_DIR = Path(__file__).resolve().parent
 RUBRIC_V2_PATH = CONFIGURATION_DIR / "rubric_v2.json"
 ACTION_CATALOG_V1_PATH = CONFIGURATION_DIR / "action_catalog_v1.json"
 PROJECT_CATALOG_V1_PATH = CONFIGURATION_DIR / "project_catalog_v1.json"
+EVIDENCE_RULES_V1_PATH = CONFIGURATION_DIR / "evidence_rules_v1.json"
 
 
 def load_json(path: Path) -> Any:
@@ -44,5 +45,14 @@ def load_project_catalog_v1() -> dict[str, Any]:
     document = load_json(PROJECT_CATALOG_V1_PATH)
     if not isinstance(document, dict):
         msg = "project_catalog_v1.json must contain a JSON object"
+        raise TypeError(msg)
+    return document
+
+
+def load_evidence_rules_v1() -> dict[str, Any]:
+    """Return the canonical Package H explicit-evidence rule registry."""
+    document = load_json(EVIDENCE_RULES_V1_PATH)
+    if not isinstance(document, dict):
+        msg = "evidence_rules_v1.json must contain a JSON object"
         raise TypeError(msg)
     return document

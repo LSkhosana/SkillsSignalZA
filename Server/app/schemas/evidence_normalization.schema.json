@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/evidence-normalization.json",
+  "title": "SkillSignalZA explicit evidence normalization outcome",
+  "description": "Canonical deterministic Package H result. Failures never include a candidate score, criterion bindings, or candidate text in error metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "normalizer_version",
+    "contract_version",
+    "rubric_version",
+    "track",
+    "source_records",
+    "evidence_facts",
+    "review_flags"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["COMPLETED", "REVIEW_REQUIRED", "EVIDENCE_NORMALIZATION_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "normalizer_version": {
+      "type": "string",
+      "const": "normalize.evidence.v1"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string"
+    },
+    "source_records": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence_fact"
+      }
+    },
+    "review_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "EVIDENCE_NORMALIZATION_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_facts": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "evidence_fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "source_id",
+        "locator",
+        "fact_type",
+        "subject",
+        "explicit_text",
+        "evidence_level",
+        "attribution_status",
+        "rule_id",
+        "review_status"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fact_type": {
+          "type": "string",
+          "enum": [
+            "skill_name",
+            "skill_application",
+            "tool_name",
+            "tool_application",
+            "project_proof",
+            "project_context",
+            "project_process",
+            "project_outcome",
+            "qualification",
+            "professional_behaviour",
+            "role_alignment",
+            "document_quality"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "explicit_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_level": {
+          "type": "string",
+          "enum": ["demonstrated", "documented", "named_only", "missing_unverifiable"]
+        },
+        "attribution_status": {
+          "type": "string",
+          "enum": ["attributed", "unclear", "conflicting"]
+        },
+        "rule_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "review_status": {
+          "type": "string",
+          "const": "accepted"
+        }
+      }
+    }
+  }
+}
