@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/higher-order-classification.json",
+  "title": "SkillSignalZA higher-order evidence classification outcome",
+  "description": "Package I appends project/work/role/document-quality facts without scoring.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "classifier_version",
+    "contract_version",
+    "rubric_version",
+    "track",
+    "source_records",
+    "evidence_facts",
+    "review_flags"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["COMPLETED", "REVIEW_REQUIRED", "HIGHER_ORDER_CLASSIFICATION_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "classifier_version": {
+      "type": "string",
+      "const": "classify.higher.v1"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string"
+    },
+    "source_records": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_facts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "review_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "HIGHER_ORDER_CLASSIFICATION_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_facts": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

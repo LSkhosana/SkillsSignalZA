@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/scoring-context-assembly.json",
+  "title": "SkillSignalZA scoring-context assembly outcome",
+  "description": "Package J selects criterion anchors without awarding points.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "assembler_version",
+    "contract_version",
+    "rubric_version",
+    "track",
+    "scoring_context",
+    "review_flags"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["COMPLETED", "REVIEW_REQUIRED", "SCORING_CONTEXT_ASSEMBLY_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "assembler_version": {
+      "type": "string",
+      "const": "assemble.context.v1"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string"
+    },
+    "scoring_context": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "review_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "SCORING_CONTEXT_ASSEMBLY_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scoring_context": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}
