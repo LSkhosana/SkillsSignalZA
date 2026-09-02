@@ -324,13 +324,13 @@ def test_idempotency_conflict_immutability_and_cascade() -> None:
 
         assert DATABASE_URL is not None
         async with await AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as connection:
-            with pytest.raises(errors.RaiseException):
+            with pytest.raises(errors.RestrictViolation):
                 await connection.execute("UPDATE assessment_runs SET state = state")
             await connection.rollback()
-            with pytest.raises(errors.RaiseException):
+            with pytest.raises(errors.RestrictViolation):
                 await connection.execute("UPDATE assessment_sources SET locator = locator")
             await connection.rollback()
-            with pytest.raises(errors.RaiseException):
+            with pytest.raises(errors.RestrictViolation):
                 await connection.execute("UPDATE assessment_evidence SET subject = subject")
             await connection.rollback()
             await connection.execute(
