@@ -6,9 +6,9 @@ or returned by endpoints.
 """
 
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Self
 
-from pydantic import AliasChoices, Field, SecretStr, field_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -51,6 +51,13 @@ class Settings(BaseSettings):
         default=None,
         validation_alias="SUPABASE_SECRET_KEY",
     )
+    database_url: SecretStr | None = Field(default=None, validation_alias="DATABASE_URL")
+    db_pool_min_size: int = Field(default=0, validation_alias="DB_POOL_MIN_SIZE")
+    db_pool_max_size: int = Field(default=5, validation_alias="DB_POOL_MAX_SIZE")
+    supabase_storage_bucket: str = Field(
+        default="candidate-evidence",
+        validation_alias="SUPABASE_STORAGE_BUCKET",
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -61,6 +68,7 @@ class Settings(BaseSettings):
         "supabase_url",
         "supabase_publishable_key",
         "supabase_secret_key",
+        "database_url",
         mode="before",
     )
     @classmethod
@@ -68,6 +76,14 @@ class Settings(BaseSettings):
         if isinstance(value, str) and value.strip() == "":
             return None
         return value
+
+    @model_validator(mode="after")
+    def _validate_pool_bounds(self) -> Self:
+        if self.db_pool_min_size < 0 or self.db_pool_min_size > self.db_pool_max_size:
+            raise ValueError("DB_POOL_MIN_SIZE must satisfy 0 <= min_size <= max_size")
+        if self.db_pool_max_size < 1:
+            raise ValueError("DB_POOL_MAX_SIZE must be >= 1")
+        return self
 
     @property
     def allow_credentials(self) -> bool:

@@ -51,6 +51,7 @@ def test_app_starts_without_supabase_environment_variables(
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
     monkeypatch.delenv("SUPABASE_SECRET_KEY", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     get_settings.cache_clear()
     with TestClient(create_app()) as test_client:
         response = test_client.get("/api/v1/health")
