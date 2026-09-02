@@ -22,7 +22,6 @@ from app.engine.evidence.outcomes import (
     ERROR_INVALID_CV_EXTRACTION,
     ERROR_INVALID_LINK_RETRIEVAL,
     ERROR_INVALID_TRACK,
-    ERROR_MALFORMED_SOURCE_STRUCTURE,
     ERROR_RULESET_INVALID,
     REVIEW_FLAG_OWNERSHIP_UNCLEAR,
 )
@@ -322,18 +321,17 @@ def test_cv_application_is_never_demonstrated() -> None:
         assert fact["evidence_level"] != "demonstrated"
 
 
-def test_attributed_non_cv_application_is_demonstrated() -> None:
+@pytest.mark.parametrize("ownership", ["attributed", "conflicting"])
+def test_non_unclear_package_g_ownership_is_invalid_link_retrieval(ownership: str) -> None:
     outcome = _normalize(
         _cv_completed("Junior Software Engineer"),
-        [_link_completed("Built a Flask API in Python", ownership="attributed")],
+        [_link_completed("Built a Flask API in Python", ownership=ownership)],
     )
     _assert_valid_outcome(outcome)
-    python = _facts(outcome, subject="python", fact_type="skill_application")
-    flask = _facts(outcome, subject="flask", fact_type="tool_application")
-    assert python[0]["evidence_level"] == "demonstrated"
-    assert flask[0]["evidence_level"] == "demonstrated"
-    assert python[0]["attribution_status"] == "attributed"
-    assert outcome["state"] == "COMPLETED"
+    assert outcome["state"] == "EVIDENCE_NORMALIZATION_FAILED"
+    assert outcome["error_code"] == ERROR_INVALID_LINK_RETRIEVAL
+    assert outcome["evidence_facts"] == []
+    assert outcome["source_records"] == []
 
 
 def test_unclear_link_application_is_documented_and_review_required() -> None:
@@ -374,18 +372,6 @@ def test_repeated_wording_deduplicates_with_precedence() -> None:
     assert python[0]["evidence_level"] == "documented"
     assert outcome["state"] == "COMPLETED"
     assert outcome["review_flags"] == []
-
-
-def test_later_demonstrated_replaces_earlier_documented_duplicate() -> None:
-    cv = _cv_completed("Built a Flask API in Python")
-    link = _link_completed("Built a Flask API in Python", ownership="attributed")
-    outcome = _normalize(cv, [link])
-    _assert_valid_outcome(outcome)
-    python = _facts(outcome, subject="python", fact_type="skill_application")
-    assert len(python) == 1
-    assert python[0]["evidence_level"] == "demonstrated"
-    assert python[0]["source_id"] == "src-link-1"
-    assert python[0]["attribution_status"] == "attributed"
 
 
 def test_different_wording_for_same_subject_stays_separate() -> None:
@@ -514,11 +500,12 @@ def test_duplicate_source_ids_fail_safely() -> None:
     assert outcome["error_code"] == ERROR_DUPLICATE_SOURCE_ID
 
 
-def test_malformed_ownership_fails_safely() -> None:
+def test_invented_link_ownership_is_invalid_link_retrieval() -> None:
     link = _link_completed("Python", ownership="invented")
     outcome = _normalize(_cv_completed("Junior Software Engineer"), [link])
     _assert_valid_outcome(outcome)
-    assert outcome["error_code"] == ERROR_MALFORMED_SOURCE_STRUCTURE
+    assert outcome["state"] == "EVIDENCE_NORMALIZATION_FAILED"
+    assert outcome["error_code"] == ERROR_INVALID_LINK_RETRIEVAL
 
 
 def test_ruleset_invalid_fails_safely(monkeypatch: pytest.MonkeyPatch) -> None:

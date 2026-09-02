@@ -140,12 +140,8 @@ def _validated_links(link_retrievals: object, track: str) -> list[dict[str, Any]
     for outcome in link_retrievals:
         if not isinstance(outcome, dict):
             raise NormalizationFailure(ERROR_INVALID_LINK_RETRIEVAL, track)
-        candidate = deepcopy(outcome)
-        record = candidate.get("source_record")
-        if isinstance(record, dict) and "ownership_status" in record:
-            record["ownership_status"] = "unclear"
         try:
-            validator.validate(candidate)
+            validator.validate(outcome)
         except (ValidationError, TypeError, ValueError):
             raise NormalizationFailure(ERROR_INVALID_LINK_RETRIEVAL, track) from None
         validated.append(outcome)
