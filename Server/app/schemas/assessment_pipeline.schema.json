@@ -59,7 +59,7 @@
     "assessment_result": {
       "oneOf": [
         {
-          "type": "object"
+          "$ref": "https://skillsignalza.invalid/schemas/assessment-result.json"
         },
         {
           "type": "null"
@@ -75,13 +75,13 @@
     "evidence_facts": {
       "type": "array",
       "items": {
-        "type": "object"
+        "$ref": "https://skillsignalza.invalid/schemas/evidence-fact.json"
       }
     },
     "scoring_context": {
       "oneOf": [
         {
-          "type": "object"
+          "$ref": "https://skillsignalza.invalid/schemas/scoring-context.json"
         },
         {
           "type": "null"
@@ -90,6 +90,7 @@
     },
     "review_flags": {
       "type": "array",
+      "uniqueItems": true,
       "items": {
         "type": "string",
         "minLength": 1
@@ -110,12 +111,55 @@
           "state": {
             "const": "COMPLETED"
           }
-        }
+        },
+        "required": ["state"]
       },
       "then": {
         "properties": {
           "error_code": {
             "type": "null"
+          },
+          "assessment_result": {
+            "$ref": "https://skillsignalza.invalid/schemas/assessment-result.json"
+          },
+          "scoring_context": {
+            "$ref": "https://skillsignalza.invalid/schemas/scoring-context.json"
+          },
+          "review_flags": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "REVIEW_REQUIRED"
+          }
+        },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assessment_result": {
+            "type": "null"
+          },
+          "review_flags": {
+            "minItems": 1,
+            "items": {
+              "enum": [
+                "TRACK_MISMATCH",
+                "MATERIAL_SOURCE_CONTRADICTION",
+                "OWNERSHIP_UNCLEAR",
+                "AUTHENTICITY_UNCLEAR",
+                "MATERIAL_CLASSIFICATION_AMBIGUITY"
+              ]
+            }
           }
         }
       }
@@ -126,10 +170,15 @@
           "state": {
             "enum": ["NOT_SCORABLE", "ASSESSMENT_PIPELINE_FAILED"]
           }
-        }
+        },
+        "required": ["state"]
       },
       "then": {
         "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
           "assessment_result": {
             "type": "null"
           }

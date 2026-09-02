@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 from app.engine.classification.context import (
@@ -29,12 +27,16 @@ from app.engine.classification.outcomes import (
     CLASSIFIER_VERSION,
     ERROR_CLASSIFIER_EXCEPTION,
     ERROR_DUPLICATE_EVIDENCE_ID,
+    ERROR_DUPLICATE_SOURCE_ID,
     ERROR_INVALID_CV_EXTRACTION,
+    ERROR_INVALID_EVIDENCE_FACT,
     ERROR_INVALID_LINK_RETRIEVAL,
     ERROR_INVALID_NORMALIZATION,
     ERROR_INVALID_TRACK,
     ERROR_NORMALIZATION_FAILED,
     ERROR_RULESET_INVALID,
+    ERROR_SOURCE_MISMATCH,
+    ERROR_UNKNOWN_SOURCE,
     SOURCE_TYPE_CV,
     ClassificationFailure,
     canonical_outcome,
@@ -42,12 +44,12 @@ from app.engine.classification.outcomes import (
     ordered_unique_flags,
     review_state,
 )
-from app.engine.configuration import load_higher_order_rules_v1, load_json
+from app.engine.configuration import load_higher_order_rules_v1
 from app.engine.evidence.matching import split_sentences
 from app.engine.evidence.outcomes import NAMED_ONLY_BOUNDED_CHARS
 from app.engine.extraction.text import normalize_extracted_text
+from app.engine.schema_registry import draft_validator
 
-SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
 LEVEL_RANK = {"demonstrated": 3, "documented": 2, "named_only": 1}
 ATTR_RANK = {"attributed": 3, "unclear": 2, "conflicting": 1}
 
@@ -62,16 +64,18 @@ def classify_higher_order_evidence(
     """Append deterministic higher-order facts to a Package H bundle."""
     safe_track = track if isinstance(track, str) else ""
     try:
-        return _classify(
+        outcome = _classify(
             track=track,
             normalization=normalization,
             cv_extraction=cv_extraction,
             link_retrievals=link_retrievals,
         )
     except ClassificationFailure as exc:
-        return failed_outcome(exc.error_code, track=exc.track)
+        outcome = failed_outcome(exc.error_code, track=exc.track)
     except Exception:
-        return failed_outcome(ERROR_CLASSIFIER_EXCEPTION, track=safe_track)
+        outcome = failed_outcome(ERROR_CLASSIFIER_EXCEPTION, track=safe_track)
+    draft_validator("higher_order_classification.schema.json").validate(outcome)
+    return outcome
 
 
 def _classify(
@@ -94,6 +98,9 @@ def _classify(
     links = _validated_links(link_retrievals, safe_track)
     preserved = [deepcopy(fact) for fact in bundle["evidence_facts"]]
     source_records = deepcopy(list(bundle["source_records"]))
+    _assert_source_integrity(source_records, cv_outcome, links, safe_track)
+    _assert_facts_reference_sources(preserved, source_records, safe_track)
+    _validate_facts(preserved, safe_track)
     flags = list(bundle.get("review_flags") or [])
     next_index = _next_evidence_index(preserved)
     appended: list[dict[str, Any]] = []
@@ -135,8 +142,11 @@ def _classify(
         flags[:] = [flag for flag in flags if flag != "TRACK_MISMATCH"]
     deduped = _deduplicate_new(appended)
     assigned, next_index = _assign_ids(deduped, next_index)
+    _validate_facts(assigned, safe_track)
     combined = preserved + assigned
     _assert_unique_ids(combined, safe_track)
+    _assert_facts_reference_sources(combined, source_records, safe_track)
+    _validate_facts(combined, safe_track)
     if any(fact["attribution_status"] == "unclear" for fact in assigned):
         flags.append("OWNERSHIP_UNCLEAR")
     unique_flags = ordered_unique_flags(flags)
@@ -151,7 +161,7 @@ def _classify(
         evidence_facts=combined,
         review_flags=unique_flags,
     )
-    _validator("higher_order_classification.schema.json").validate(outcome)
+    draft_validator("higher_order_classification.schema.json").validate(outcome)
     return outcome
 
 
@@ -546,7 +556,7 @@ def _validated_normalization(normalization: object, track: str) -> dict[str, Any
     if not isinstance(normalization, dict):
         raise ClassificationFailure(ERROR_INVALID_NORMALIZATION, track)
     try:
-        _validator("evidence_normalization.schema.json").validate(normalization)
+        draft_validator("evidence_normalization.schema.json").validate(normalization)
     except (ValidationError, TypeError, ValueError):
         raise ClassificationFailure(ERROR_INVALID_NORMALIZATION, track) from None
     if normalization.get("state") == "EVIDENCE_NORMALIZATION_FAILED":
@@ -560,9 +570,13 @@ def _validated_cv(cv_extraction: object, track: str) -> dict[str, Any]:
     if not isinstance(cv_extraction, dict):
         raise ClassificationFailure(ERROR_INVALID_CV_EXTRACTION, track)
     try:
-        _validator("cv_extraction.schema.json").validate(cv_extraction)
+        draft_validator("cv_extraction.schema.json").validate(cv_extraction)
     except (ValidationError, TypeError, ValueError):
         raise ClassificationFailure(ERROR_INVALID_CV_EXTRACTION, track) from None
+    if cv_extraction.get("state") != "COMPLETED":
+        raise ClassificationFailure(ERROR_INVALID_CV_EXTRACTION, track)
+    if not isinstance(cv_extraction.get("source_record"), dict):
+        raise ClassificationFailure(ERROR_INVALID_CV_EXTRACTION, track)
     return cv_extraction
 
 
@@ -571,7 +585,7 @@ def _validated_links(link_retrievals: object, track: str) -> list[dict[str, Any]
         return []
     if not isinstance(link_retrievals, (list, tuple)):
         raise ClassificationFailure(ERROR_INVALID_LINK_RETRIEVAL, track)
-    validator = _validator("link_retrieval.schema.json")
+    validator = draft_validator("link_retrieval.schema.json")
     validated: list[dict[str, Any]] = []
     for outcome in link_retrievals:
         if not isinstance(outcome, dict):
@@ -584,9 +598,45 @@ def _validated_links(link_retrievals: object, track: str) -> list[dict[str, Any]
     return validated
 
 
-def _validator(filename: str) -> Draft202012Validator:
-    schema = load_json(SCHEMA_DIR / filename)
-    if not isinstance(schema, dict):
-        msg = f"{filename} must contain a JSON object"
-        raise TypeError(msg)
-    return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
+def _assert_source_integrity(
+    source_records: list[dict[str, Any]],
+    cv_outcome: dict[str, Any],
+    links: list[dict[str, Any]],
+    track: str,
+) -> None:
+    expected: list[dict[str, Any]] = [cv_outcome["source_record"]]
+    for outcome in links:
+        record = outcome.get("source_record")
+        if record is None:
+            continue
+        if not isinstance(record, dict):
+            raise ClassificationFailure(ERROR_INVALID_LINK_RETRIEVAL, track)
+        expected.append(record)
+    seen: set[str] = set()
+    for record in expected:
+        source_id = str(record.get("source_id") or "")
+        if not source_id:
+            raise ClassificationFailure(ERROR_SOURCE_MISMATCH, track)
+        if source_id in seen:
+            raise ClassificationFailure(ERROR_DUPLICATE_SOURCE_ID, track)
+        seen.add(source_id)
+    if source_records != expected:
+        raise ClassificationFailure(ERROR_SOURCE_MISMATCH, track)
+
+
+def _assert_facts_reference_sources(
+    facts: list[dict[str, Any]], source_records: list[dict[str, Any]], track: str
+) -> None:
+    known = {str(record["source_id"]) for record in source_records}
+    for fact in facts:
+        if str(fact.get("source_id") or "") not in known:
+            raise ClassificationFailure(ERROR_UNKNOWN_SOURCE, track)
+
+
+def _validate_facts(facts: list[dict[str, Any]], track: str) -> None:
+    validator = draft_validator("evidence_fact.schema.json")
+    for fact in facts:
+        try:
+            validator.validate(fact)
+        except (ValidationError, TypeError, ValueError):
+            raise ClassificationFailure(ERROR_INVALID_EVIDENCE_FACT, track) from None

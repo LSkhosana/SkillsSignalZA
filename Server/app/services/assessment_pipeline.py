@@ -3,27 +3,23 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from collections.abc import Callable
 from copy import deepcopy
-from pathlib import Path
+from datetime import datetime
 from typing import Any
 
-from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 from app.engine.classification import classify_higher_order_evidence
-from app.engine.configuration import load_json
 from app.engine.context import assemble_scoring_context
 from app.engine.evidence import normalize_evidence
 from app.engine.extraction import extract_cv, normalize_submitted_url, retrieve_candidate_link
+from app.engine.schema_registry import draft_validator
 from app.engine.scoring import score_assessment
 
-SCHEMA_DIR = Path(__file__).resolve().parents[1] / "schemas"
 PIPELINE_VERSION = "assessment.pipeline.v1"
 CONTRACT_VERSION = "1.2.0"
 RUBRIC_VERSION = "V2"
-DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 ERROR_INVALID_ASSESSMENT_INPUT = "INVALID_ASSESSMENT_INPUT"
 ERROR_CV_MISSING = "CV_MISSING"
 ERROR_CV_HASH_MISMATCH = "CV_HASH_MISMATCH"
@@ -45,7 +41,6 @@ def run_assessment_pipeline(
     retrieve_link: Callable[..., dict[str, Any]] = retrieve_candidate_link,
 ) -> dict[str, Any]:
     """Run F -> G -> H -> I -> J -> scoring in memory without persistence."""
-    track = assessment_input["track"] if isinstance(assessment_input, dict) else ""
     try:
         return _run(
             assessment_input=assessment_input,
@@ -61,7 +56,7 @@ def run_assessment_pipeline(
             error_code=exc.error_code,
             assessment_id=assessment_id if isinstance(assessment_id, str) else "",
             run_id=run_id if isinstance(run_id, str) else "",
-            track=track if isinstance(track, str) else "",
+            track=exc.track,
             assessment_result=None,
             source_records=exc.source_records,
             evidence_facts=exc.evidence_facts,
@@ -75,7 +70,7 @@ def run_assessment_pipeline(
             error_code=ERROR_ORCHESTRATION_EXCEPTION,
             assessment_id=assessment_id if isinstance(assessment_id, str) else "",
             run_id=run_id if isinstance(run_id, str) else "",
-            track=track if isinstance(track, str) else "",
+            track="",
             assessment_result=None,
             source_records=[],
             evidence_facts=[],
@@ -93,6 +88,7 @@ class PipelineHalt(Exception):
         state: str,
         error_code: str,
         *,
+        track: str = "",
         source_records: list[dict[str, Any]] | None = None,
         evidence_facts: list[dict[str, Any]] | None = None,
         scoring_context: dict[str, Any] | None = None,
@@ -101,6 +97,7 @@ class PipelineHalt(Exception):
     ) -> None:
         self.state = state
         self.error_code = error_code
+        self.track = track
         self.source_records = source_records or []
         self.evidence_facts = evidence_facts or []
         self.scoring_context = scoring_context
@@ -124,17 +121,19 @@ def _run(
     if not isinstance(assessment_input, dict):
         raise PipelineHalt("ASSESSMENT_PIPELINE_FAILED", ERROR_INVALID_ASSESSMENT_INPUT)
     try:
-        _validator("assessment_input.schema.json").validate(assessment_input)
+        draft_validator("assessment_input.schema.json").validate(assessment_input)
     except (ValidationError, TypeError, ValueError):
         raise PipelineHalt("ASSESSMENT_PIPELINE_FAILED", ERROR_INVALID_ASSESSMENT_INPUT) from None
     stages.append("validate_input")
     track = str(assessment_input["track"])
     if not isinstance(cv_file_bytes, (bytes, bytearray)):
-        raise PipelineHalt("NOT_SCORABLE", ERROR_CV_MISSING, stages=stages)
+        raise PipelineHalt("NOT_SCORABLE", ERROR_CV_MISSING, track=track, stages=stages)
     digest = hashlib.sha256(bytes(cv_file_bytes)).hexdigest()
     declared = str(assessment_input["cv"]["sha256"]).lower()
     if digest != declared:
-        raise PipelineHalt("ASSESSMENT_PIPELINE_FAILED", ERROR_CV_HASH_MISMATCH, stages=stages)
+        raise PipelineHalt(
+            "ASSESSMENT_PIPELINE_FAILED", ERROR_CV_HASH_MISMATCH, track=track, stages=stages
+        )
     stages.append("verify_cv_hash")
     cv_outcome = extract_cv(
         bytes(cv_file_bytes),
@@ -145,15 +144,18 @@ def _run(
     )
     stages.append("extract_cv")
     if cv_outcome.get("state") != "COMPLETED":
-        raise PipelineHalt("NOT_SCORABLE", ERROR_CV_UNREADABLE, stages=stages)
+        raise PipelineHalt("NOT_SCORABLE", ERROR_CV_UNREADABLE, track=track, stages=stages)
     if str(cv_outcome["document"].get("sha256") or "").lower() != declared:
-        raise PipelineHalt("ASSESSMENT_PIPELINE_FAILED", ERROR_CV_HASH_MISMATCH, stages=stages)
+        raise PipelineHalt(
+            "ASSESSMENT_PIPELINE_FAILED", ERROR_CV_HASH_MISMATCH, track=track, stages=stages
+        )
     links, ambiguity = _canonical_links(list(assessment_input.get("links") or []))
     if ambiguity:
         source = [cv_outcome["source_record"]] if cv_outcome.get("source_record") else []
         raise PipelineHalt(
             "REVIEW_REQUIRED",
             ERROR_LINK_TYPE_AMBIGUITY,
+            track=track,
             source_records=source,
             review_flags=["MATERIAL_CLASSIFICATION_AMBIGUITY"],
             stages=stages,
@@ -179,6 +181,7 @@ def _run(
         raise PipelineHalt(
             "ASSESSMENT_PIPELINE_FAILED",
             ERROR_NORMALIZATION_FAILED,
+            track=track,
             stages=stages,
         )
     classified = classify_higher_order_evidence(
@@ -192,6 +195,7 @@ def _run(
         raise PipelineHalt(
             "ASSESSMENT_PIPELINE_FAILED",
             ERROR_CLASSIFICATION_FAILED,
+            track=track,
             stages=stages,
         )
     assembly = assemble_scoring_context(
@@ -205,6 +209,7 @@ def _run(
         raise PipelineHalt(
             "ASSESSMENT_PIPELINE_FAILED",
             ERROR_CONTEXT_ASSEMBLY_FAILED,
+            track=track,
             stages=stages,
         )
     scoring_input = deepcopy(assessment_input)
@@ -238,6 +243,7 @@ def _run(
         raise PipelineHalt(
             "ASSESSMENT_PIPELINE_FAILED",
             str(scoring.get("error_code") or scoring_state),
+            track=track,
             source_records=list(classified["source_records"]),
             evidence_facts=list(classified["evidence_facts"]),
             scoring_context=assembly["scoring_context"],
@@ -247,6 +253,7 @@ def _run(
         raise PipelineHalt(
             "ASSESSMENT_PIPELINE_FAILED",
             str(scoring.get("error_code") or "SCORING_FAILED"),
+            track=track,
             stages=stages,
         )
     outcome = _pipeline_outcome(
@@ -262,7 +269,7 @@ def _run(
         review_flags=[],
         stages=stages,
     )
-    _validator("assessment_pipeline.schema.json").validate(outcome)
+    draft_validator("assessment_pipeline.schema.json").validate(outcome)
     return outcome
 
 
@@ -291,9 +298,28 @@ def _valid_identity(assessment_id: object, run_id: object, assessed_at: object) 
         return False
     if not isinstance(run_id, str) or not run_id.strip():
         return False
-    if not isinstance(assessed_at, str) or DATETIME_RE.match(assessed_at) is None:
+    try:
+        _parse_rfc3339(assessed_at)
+    except (TypeError, ValueError):
         return False
     return True
+
+
+def _parse_rfc3339(value: object) -> datetime:
+    """Parse timezone-aware RFC 3339 before any Package F call."""
+    if not isinstance(value, str):
+        msg = "assessed_at must be a string"
+        raise TypeError(msg)
+    text = value.strip()
+    if not text or "T" not in text:
+        msg = "assessed_at must be RFC 3339"
+        raise ValueError(msg)
+    normalized = text[:-1] + "+00:00" if text.endswith("Z") else text
+    parsed = datetime.fromisoformat(normalized)
+    if parsed.tzinfo is None:
+        msg = "assessed_at must be timezone-aware"
+        raise ValueError(msg)
+    return parsed
 
 
 def _pipeline_outcome(
@@ -326,13 +352,5 @@ def _pipeline_outcome(
         "review_flags": review_flags,
         "stages": stages,
     }
-    _validator("assessment_pipeline.schema.json").validate(outcome)
+    draft_validator("assessment_pipeline.schema.json").validate(outcome)
     return outcome
-
-
-def _validator(filename: str) -> Draft202012Validator:
-    schema = load_json(SCHEMA_DIR / filename)
-    if not isinstance(schema, dict):
-        msg = f"{filename} must contain a JSON object"
-        raise TypeError(msg)
-    return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)

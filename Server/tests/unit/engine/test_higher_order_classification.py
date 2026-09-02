@@ -12,10 +12,10 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from app.engine.classification import CLASSIFIER_VERSION, classify_higher_order_evidence
-from app.engine.configuration import load_higher_order_rules_v1, load_json
+from app.engine.configuration import load_higher_order_rules_v1
 from app.engine.evidence import normalize_evidence
+from app.engine.schema_registry import draft_validator
 
-SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 CLASSIFICATION_DIR = Path(__file__).resolve().parents[3] / "app" / "engine" / "classification"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 EXTRACTED_AT = "2026-09-01T12:00:00Z"
@@ -119,10 +119,7 @@ def _classify(
         cv_extraction=cv,
         link_retrievals=links,
     )
-    Draft202012Validator(
-        load_json(SCHEMA_DIR / "higher_order_classification.schema.json"),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    ).validate(outcome)
+    draft_validator("higher_order_classification.schema.json").validate(outcome)
     return normalization, outcome
 
 
@@ -349,3 +346,42 @@ def test_invalid_track_and_envelopes_fail_safely() -> None:
     assert not [
         fact for fact in inaccessible["evidence_facts"] if fact["source_id"] == "src-link-1"
     ]
+
+
+def test_source_integrity_rejects_mismatched_cv_extraction() -> None:
+    cv_one = _cv("Built a Flask API in Python")
+    cv_two = _cv("Built a Flask API in Python", source_id="src-cv-two")
+    normalization = normalize_evidence(
+        track="software_engineering", cv_extraction=cv_one, link_retrievals=()
+    )
+    outcome = classify_higher_order_evidence(
+        track="software_engineering",
+        normalization=normalization,
+        cv_extraction=cv_two,
+    )
+    assert outcome["state"] == "HIGHER_ORDER_CLASSIFICATION_FAILED"
+    assert outcome["error_code"] == "SOURCE_MISMATCH"
+    assert outcome["evidence_facts"] == []
+    assert outcome["source_records"] == []
+
+
+def test_higher_order_registry_structure_and_uniqueness() -> None:
+    rules = load_higher_order_rules_v1()
+    assert rules["classifier_version"] == CLASSIFIER_VERSION
+    assert rules["contract_version"] == "1.2.0"
+    subjects = list(rules["rules"])
+    assert subjects == list(dict.fromkeys(subjects))
+    rule_ids = [spec["rule_id"] for spec in rules["rules"].values()]
+    assert len(rule_ids) == len(set(rule_ids))
+    fact_types = {spec["fact_type"] for spec in rules["rules"].values()}
+    assert fact_types == {
+        "project_proof",
+        "project_context",
+        "project_process",
+        "project_outcome",
+        "professional_behaviour",
+        "role_alignment",
+        "document_quality",
+    }
+    for spec in rules["rules"].values():
+        assert spec["rule_id"].startswith("classify.v1.")

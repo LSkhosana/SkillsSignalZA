@@ -11,7 +11,6 @@ from typing import Any
 import pytest
 from jsonschema import Draft202012Validator
 
-from app.engine.configuration import load_json
 from app.engine.context import assemble_scoring_context
 from app.engine.extraction.links.outcomes import (
     completed_link_outcome,
@@ -19,11 +18,11 @@ from app.engine.extraction.links.outcomes import (
     link_metadata,
     link_source_record,
 )
+from app.engine.schema_registry import draft_validator
 from app.engine.scoring import score_assessment
 from app.services.assessment_pipeline import run_assessment_pipeline
 from tests.fixtures.cv_extraction.documents import build_text_pdf
 
-SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 PIPELINE_PATH = Path(__file__).resolve().parents[3] / "app" / "services" / "assessment_pipeline.py"
 SECRET = "C:\\secret\\path traceback must not leak"
 ASSESSED_AT = "2026-09-02T08:00:00Z"
@@ -124,10 +123,7 @@ def _run(
         assessed_at=ASSESSED_AT,
         retrieve_link=retrieve_link,
     )
-    Draft202012Validator(
-        load_json(SCHEMA_DIR / "assessment_pipeline.schema.json"),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    ).validate(outcome)
+    draft_validator("assessment_pipeline.schema.json").validate(outcome)
     return outcome
 
 
@@ -490,6 +486,76 @@ def test_invalid_identity_fails() -> None:
         retrieve_link=_blocked_retrieve,
     )
     assert outcome["error_code"] == "INVALID_ASSESSMENT_INPUT"
+
+
+def test_missing_track_and_empty_input_fail_without_raising() -> None:
+    file_bytes = _pdf(["Python"])
+    empty = run_assessment_pipeline(
+        assessment_input={},
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at=ASSESSED_AT,
+        retrieve_link=_blocked_retrieve,
+    )
+    assert empty["state"] == "ASSESSMENT_PIPELINE_FAILED"
+    assert empty["error_code"] == "INVALID_ASSESSMENT_INPUT"
+    payload = _input("software_engineering", file_bytes)
+    del payload["track"]
+    missing = run_assessment_pipeline(
+        assessment_input=payload,
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at=ASSESSED_AT,
+        retrieve_link=_blocked_retrieve,
+    )
+    assert missing["state"] == "ASSESSMENT_PIPELINE_FAILED"
+    assert missing["error_code"] == "INVALID_ASSESSMENT_INPUT"
+
+
+def test_assessed_at_rfc3339_variants() -> None:
+    lines = ["Junior Software Engineer"]
+    file_bytes = _pdf(lines)
+    payload = _input("software_engineering", file_bytes)
+    zulu = run_assessment_pipeline(
+        assessment_input=payload,
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at="2026-09-02T08:00:00Z",
+        retrieve_link=_blocked_retrieve,
+    )
+    assert zulu["state"] == "COMPLETED"
+    fractional = run_assessment_pipeline(
+        assessment_input=payload,
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at="2026-09-02T08:00:00.123Z",
+        retrieve_link=_blocked_retrieve,
+    )
+    assert fractional["state"] == "COMPLETED"
+    offset = run_assessment_pipeline(
+        assessment_input=payload,
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at="2026-09-02T10:00:00+02:00",
+        retrieve_link=_blocked_retrieve,
+    )
+    assert offset["state"] == "COMPLETED"
+    impossible = run_assessment_pipeline(
+        assessment_input=payload,
+        cv_file_bytes=file_bytes,
+        assessment_id="assessment-1",
+        run_id="run-1",
+        assessed_at="2026-02-30T08:00:00Z",
+        retrieve_link=_blocked_retrieve,
+    )
+    assert impossible["state"] == "ASSESSMENT_PIPELINE_FAILED"
+    assert impossible["error_code"] == "INVALID_ASSESSMENT_INPUT"
+    assert impossible["error_code"] != "CV_UNREADABLE"
 
 
 def test_normalization_failure_maps_to_pipeline_failed(monkeypatch: pytest.MonkeyPatch) -> None:

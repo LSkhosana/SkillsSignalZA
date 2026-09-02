@@ -3,16 +3,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 from app.engine.classification.cues import has_cue, token_pattern
 from app.engine.configuration import (
     load_criterion_binding_rules_v1,
-    load_json,
     load_project_catalog_v1,
     load_rubric_v2,
 )
@@ -27,21 +24,25 @@ from app.engine.context.outcomes import (
     ERROR_IMPOSSIBLE_QUALIFICATION,
     ERROR_INVALID_EVIDENCE_FACT,
     ERROR_INVALID_TRACK,
+    ERROR_MISMATCHED_EVIDENCE_FACT,
     ERROR_RULESET_INVALID,
     ERROR_UNKNOWN_FACT_TYPE,
+    ERROR_UNKNOWN_RULE_ID,
     ERROR_UNKNOWN_SOURCE,
+    ERROR_UNKNOWN_SUBJECT,
     ERROR_UNRECOGNIZED_REVIEW_FLAG,
     LEVEL_RANK,
-    QUAL_RANK,
     RUBRIC_VERSION,
     AssemblyFailure,
     canonical_outcome,
     failed_outcome,
     review_state,
 )
+from app.engine.context.provenance import ProvenanceAllowlist, load_provenance_allowlist
 from app.engine.outcomes import BLOCKING_REVIEW_FLAGS, NONE_ROUTES, QUALIFICATION_CRITERIA
+from app.engine.schema_registry import draft_validator
 
-SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
+BOOTCAMP_SUBJECTS = frozenset({"bootcamp", "certificate", "certification", "higher_certificate"})
 FACT_TYPES = {
     "skill_name",
     "skill_application",
@@ -73,16 +74,18 @@ def assemble_scoring_context(
     """Bind accepted evidence facts into the frozen scoring-context contract."""
     safe_track = track if isinstance(track, str) else ""
     try:
-        return _assemble(
+        outcome = _assemble(
             track=track,
             evidence_facts=evidence_facts,
             source_records=source_records,
             review_flags=review_flags,
         )
     except AssemblyFailure as exc:
-        return failed_outcome(exc.error_code, track=exc.track)
+        outcome = failed_outcome(exc.error_code, track=exc.track)
     except Exception:
-        return failed_outcome(ERROR_ASSEMBLER_EXCEPTION, track=safe_track)
+        outcome = failed_outcome(ERROR_ASSEMBLER_EXCEPTION, track=safe_track)
+    draft_validator("scoring_context_assembly.schema.json").validate(outcome)
+    return outcome
 
 
 def _assemble(
@@ -103,7 +106,11 @@ def _assemble(
         raise AssemblyFailure(ERROR_RULESET_INVALID, safe_track) from None
     if registry.get("assembler_version") != ASSEMBLER_VERSION:
         raise AssemblyFailure(ERROR_RULESET_INVALID, safe_track)
-    facts = _validated_facts(evidence_facts, safe_track)
+    try:
+        allowlist = load_provenance_allowlist()
+    except (OSError, TypeError, ValueError, KeyError):
+        raise AssemblyFailure(ERROR_RULESET_INVALID, safe_track) from None
+    facts = _validated_facts(evidence_facts, allowlist, safe_track)
     sources = _validated_sources(source_records, safe_track)
     source_by_id = {str(item["source_id"]): item for item in sources}
     _assert_fact_sources(facts, source_by_id, safe_track)
@@ -116,10 +123,10 @@ def _assemble(
         if source.get("source_type") != CV_SOURCE and fact.get("attribution_status") == "unclear":
             flags.append("OWNERSHIP_UNCLEAR")
     track_spec = registry["tracks"][safe_track]
-    bindings: list[dict[str, Any]] = []
-    qualification_anchor = _qualification_route(
-        safe_track, eligible, flags, registry, track_spec, safe_track
+    qualification_anchor, qualification_ids = _qualification_route(
+        safe_track, eligible, flags, registry
     )
+    bindings: list[dict[str, Any]] = []
     for spec in track_spec["criteria"]:
         criterion_id = spec["criterion_id"]
         if spec.get("kind") == "qualification":
@@ -127,15 +134,11 @@ def _assemble(
                 {
                     "criterion_id": criterion_id,
                     "anchor": qualification_anchor,
-                    "evidence_ids": [
-                        fact["evidence_id"]
-                        for fact in eligible
-                        if fact["fact_type"] == "qualification"
-                    ],
+                    "evidence_ids": qualification_ids,
                 }
             )
             continue
-        chosen = _bind_ordinary(spec, eligible)
+        chosen = _bind_ordinary(spec, eligible, allowlist)
         bindings.append(chosen)
     unique_flags = _ordered_flags(flags, registry)
     triggers = _rule_triggers(safe_track, eligible, registry)
@@ -151,7 +154,7 @@ def _assemble(
     }
     _assert_binding_coverage(bindings, rubric, safe_track)
     try:
-        _validator("scoring_context.schema.json").validate(scoring_context)
+        draft_validator("scoring_context.schema.json").validate(scoring_context)
     except (ValidationError, TypeError, ValueError):
         raise AssemblyFailure(ERROR_CONTEXT_INVALID, safe_track) from None
     state, error_code = review_state(unique_flags)
@@ -162,15 +165,17 @@ def _assemble(
         scoring_context=scoring_context,
         review_flags=unique_flags,
     )
-    _validator("scoring_context_assembly.schema.json").validate(outcome)
+    draft_validator("scoring_context_assembly.schema.json").validate(outcome)
     return outcome
 
 
-def _bind_ordinary(spec: dict[str, Any], facts: list[dict[str, Any]]) -> dict[str, Any]:
-    primary = _eligible_facts(spec.get("subjects") or [], spec, facts)
+def _bind_ordinary(
+    spec: dict[str, Any], facts: list[dict[str, Any]], allowlist: ProvenanceAllowlist
+) -> dict[str, Any]:
+    primary = _eligible_facts(spec.get("subjects") or [], spec, facts, allowlist)
     selected = primary
     if not selected:
-        selected = _eligible_facts(spec.get("fallback_subjects") or [], spec, facts)
+        selected = _eligible_facts(spec.get("fallback_subjects") or [], spec, facts, allowlist)
     if not selected:
         return {
             "criterion_id": spec["criterion_id"],
@@ -198,12 +203,20 @@ def _bind_ordinary(spec: dict[str, Any], facts: list[dict[str, Any]]) -> dict[st
 
 
 def _eligible_facts(
-    subjects: list[str], spec: dict[str, Any], facts: list[dict[str, Any]]
+    subjects: list[str],
+    spec: dict[str, Any],
+    facts: list[dict[str, Any]],
+    allowlist: ProvenanceAllowlist,
 ) -> list[dict[str, Any]]:
     wanted = set(subjects)
     found: list[dict[str, Any]] = []
     for fact in facts:
         if fact["subject"] not in wanted:
+            continue
+        allowed_types = allowlist.fact_types_by_subject.get(fact["subject"], frozenset())
+        if fact["fact_type"] not in allowed_types:
+            continue
+        if (fact["subject"], fact["fact_type"], fact["rule_id"]) not in allowlist.triples:
             continue
         if (
             spec["criterion_id"] == "da.projects.findings"
@@ -220,9 +233,7 @@ def _qualification_route(
     facts: list[dict[str, Any]],
     flags: list[str],
     registry: dict[str, Any],
-    track_spec: dict[str, Any],
-    safe_track: str,
-) -> str:
+) -> tuple[str, list[str]]:
     prefix = "se" if track == "software_engineering" else "da"
     none_route = NONE_ROUTES[track]
     quals = [fact for fact in facts if fact["fact_type"] == "qualification"]
@@ -235,33 +246,67 @@ def _qualification_route(
             else registry["da_relevant_fields"]
         )
     )
-    application = [
-        fact for fact in facts if fact["fact_type"] in {"skill_application", "tool_application"}
-    ]
-    text = " ".join(str(fact["explicit_text"]) for fact in quals)
-    routes: list[str] = []
-    relevant = has_cue(text, fields)
-    if quals and relevant and has_cue(text, completed):
-        routes.append("completed")
-    if quals and relevant and has_cue(text, in_progress):
-        routes.append("in_progress")
-    bootcampish = any(
-        fact["subject"] in {"bootcamp", "certificate", "certification", "higher_certificate"}
-        for fact in quals
+    application_present = any(
+        fact["fact_type"] in {"skill_application", "tool_application"} for fact in facts
     )
-    if bootcampish and application:
-        routes.append("bootcamp")
     years = any("year" in str(fact["explicit_text"]).casefold() for fact in facts) and not quals
     if years:
         flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-        return none_route
-    if quals and not routes:
+        return none_route, []
+    contributing: dict[str, list[str]] = {}
+    for fact in quals:
+        route = _route_for_qualification_fact(
+            fact,
+            fields=fields,
+            completed=completed,
+            in_progress=in_progress,
+            application_present=application_present,
+        )
+        if route == "ambiguous":
+            flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
+            return none_route, []
+        if route is None:
+            continue
+        contributing.setdefault(route, []).append(str(fact["evidence_id"]))
+    if quals and not contributing:
         flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-        return none_route
-    if not routes:
-        return none_route
-    best = max(routes, key=lambda item: QUAL_RANK[item])
-    return f"{prefix}.qual.{best}"
+        return none_route, []
+    if not contributing:
+        return none_route, []
+    if len(contributing) > 1:
+        flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
+        return none_route, []
+    route, evidence_ids = next(iter(contributing.items()))
+    return f"{prefix}.qual.{route}", evidence_ids
+
+
+def _route_for_qualification_fact(
+    fact: dict[str, Any],
+    *,
+    fields: Any,
+    completed: Any,
+    in_progress: Any,
+    application_present: bool,
+) -> str | None:
+    text = str(fact["explicit_text"])
+    relevant = has_cue(text, fields)
+    has_completed = has_cue(text, completed)
+    has_in_progress = has_cue(text, in_progress)
+    bootcampish = fact["subject"] in BOOTCAMP_SUBJECTS
+    if relevant and has_completed and has_in_progress:
+        return "ambiguous"
+    routes: list[str] = []
+    if relevant and has_completed:
+        routes.append("completed")
+    if relevant and has_in_progress:
+        routes.append("in_progress")
+    if bootcampish and application_present:
+        routes.append("bootcamp")
+    if len(routes) > 1:
+        return "ambiguous"
+    if len(routes) == 1:
+        return routes[0]
+    return None
 
 
 def _rule_triggers(track: str, facts: list[dict[str, Any]], registry: dict[str, Any]) -> list[str]:
@@ -321,10 +366,12 @@ def _source_is_scoreable(source: dict[str, Any] | None) -> bool:
     return source.get("access_status") in SCOREABLE_ACCESS
 
 
-def _validated_facts(evidence_facts: object, track: str) -> list[dict[str, Any]]:
+def _validated_facts(
+    evidence_facts: object, allowlist: ProvenanceAllowlist, track: str
+) -> list[dict[str, Any]]:
     if not isinstance(evidence_facts, list):
         raise AssemblyFailure(ERROR_INVALID_EVIDENCE_FACT, track)
-    validator = _validator("evidence_fact.schema.json")
+    validator = draft_validator("evidence_fact.schema.json")
     seen: set[str] = set()
     validated: list[dict[str, Any]] = []
     for fact in evidence_facts:
@@ -336,12 +383,27 @@ def _validated_facts(evidence_facts: object, track: str) -> list[dict[str, Any]]
             raise AssemblyFailure(ERROR_INVALID_EVIDENCE_FACT, track) from None
         if fact["fact_type"] not in FACT_TYPES:
             raise AssemblyFailure(ERROR_UNKNOWN_FACT_TYPE, track)
+        _assert_fact_provenance(fact, allowlist, track)
         evidence_id = fact["evidence_id"]
         if evidence_id in seen:
             raise AssemblyFailure(ERROR_DUPLICATE_EVIDENCE_ID, track)
         seen.add(evidence_id)
         validated.append(deepcopy(fact))
     return validated
+
+
+def _assert_fact_provenance(
+    fact: dict[str, Any], allowlist: ProvenanceAllowlist, track: str
+) -> None:
+    subject = str(fact["subject"])
+    fact_type = str(fact["fact_type"])
+    rule_id = str(fact["rule_id"])
+    if subject not in allowlist.subjects:
+        raise AssemblyFailure(ERROR_UNKNOWN_SUBJECT, track)
+    if rule_id not in allowlist.rule_ids:
+        raise AssemblyFailure(ERROR_UNKNOWN_RULE_ID, track)
+    if (subject, fact_type, rule_id) not in allowlist.triples:
+        raise AssemblyFailure(ERROR_MISMATCHED_EVIDENCE_FACT, track)
 
 
 def _validated_sources(source_records: object, track: str) -> list[dict[str, Any]]:
@@ -397,11 +459,3 @@ def _assert_binding_coverage(
         raise AssemblyFailure(ERROR_CONTEXT_INVALID, track)
     if QUALIFICATION_CRITERIA[track] not in got:
         raise AssemblyFailure(ERROR_IMPOSSIBLE_QUALIFICATION, track)
-
-
-def _validator(filename: str) -> Draft202012Validator:
-    schema = load_json(SCHEMA_DIR / filename)
-    if not isinstance(schema, dict):
-        msg = f"{filename} must contain a JSON object"
-        raise TypeError(msg)
-    return Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)

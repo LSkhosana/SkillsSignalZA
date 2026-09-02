@@ -9,12 +9,15 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
-
-from app.engine.configuration import load_criterion_binding_rules_v1, load_json, load_rubric_v2
+from app.engine.configuration import (
+    load_criterion_binding_rules_v1,
+    load_evidence_rules_v1,
+    load_rubric_v2,
+)
 from app.engine.context import ASSEMBLER_VERSION, assemble_scoring_context
+from app.engine.context.provenance import load_provenance_allowlist, rule_id_for
+from app.engine.schema_registry import draft_validator
 
-SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 CONTEXT_DIR = Path(__file__).resolve().parents[3] / "app" / "engine" / "context"
 APPROVED_BINDING_RULES_SHA256 = "5d93ee05fa8c8dcff7b331eee04356ed085360bd1c0de93267c1ec307ffe1de3"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -44,6 +47,7 @@ def _fact(
     explicit_text: str = "explicit",
     source_id: str = "src-cv",
     attribution_status: str = "attributed",
+    rule_id: str | None = None,
 ) -> dict[str, Any]:
     return {
         "evidence_id": evidence_id,
@@ -54,7 +58,7 @@ def _fact(
         "explicit_text": explicit_text,
         "evidence_level": evidence_level,
         "attribution_status": attribution_status,
-        "rule_id": "normalize.v1.test",
+        "rule_id": rule_id if rule_id is not None else rule_id_for(subject, fact_type),
         "review_status": "accepted",
     }
 
@@ -71,10 +75,7 @@ def _assemble(
         source_records=sources or [_cv_source()],
         review_flags=flags,
     )
-    Draft202012Validator(
-        load_json(SCHEMA_DIR / "scoring_context_assembly.schema.json"),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    ).validate(outcome)
+    draft_validator("scoring_context_assembly.schema.json").validate(outcome)
     return outcome
 
 
@@ -104,14 +105,8 @@ def test_exactly_26_bindings_in_rubric_order() -> None:
         got = [item["criterion_id"] for item in outcome["scoring_context"]["criterion_bindings"]]
         assert got == expected
         assert len(got) == 26
-        Draft202012Validator(
-            load_json(SCHEMA_DIR / "scoring_context.schema.json"),
-            format_checker=Draft202012Validator.FORMAT_CHECKER,
-        ).validate(outcome["scoring_context"])
-    Draft202012Validator(
-        load_json(SCHEMA_DIR / "scoring_context.schema.json"),
-        format_checker=Draft202012Validator.FORMAT_CHECKER,
-    ).validate(outcome["scoring_context"])
+        draft_validator("scoring_context.schema.json").validate(outcome["scoring_context"])
+    draft_validator("scoring_context.schema.json").validate(outcome["scoring_context"])
 
 
 def test_missing_ordinary_criteria_are_missing_unverifiable() -> None:
@@ -354,3 +349,146 @@ def test_invalid_inputs_fail_without_scoring_context() -> None:
         ]
     )
     assert _binding(bootcamp, "se.alignment.qualification")["anchor"] == "se.qual.bootcamp"
+    assert _binding(bootcamp, "se.alignment.qualification")["evidence_ids"] == ["ev-0001"]
+
+
+def test_provenance_allowlist_rejects_unknown_and_mismatched_facts() -> None:
+    language_subjects = {"python", "java", "javascript", "typescript", "csharp", "php", "r"}
+    mismatched = assemble_scoring_context(
+        track="software_engineering",
+        evidence_facts=[
+            _fact(
+                "ev-0001",
+                subject="python",
+                fact_type="professional_behaviour",
+                rule_id="not.a.checked.in.rule",
+            )
+        ],
+        source_records=[_cv_source()],
+    )
+    assert mismatched["state"] == "SCORING_CONTEXT_ASSEMBLY_FAILED"
+    assert mismatched["error_code"] == "UNKNOWN_RULE_ID"
+    assert mismatched["scoring_context"] is None
+    wrong_combo = assemble_scoring_context(
+        track="software_engineering",
+        evidence_facts=[
+            _fact(
+                "ev-0001",
+                subject="python",
+                fact_type="professional_behaviour",
+                rule_id=rule_id_for("collaboration", "professional_behaviour"),
+            )
+        ],
+        source_records=[_cv_source()],
+    )
+    assert wrong_combo["error_code"] == "MISMATCHED_EVIDENCE_FACT"
+    unknown_subject = assemble_scoring_context(
+        track="software_engineering",
+        evidence_facts=[
+            _fact(
+                "ev-0001",
+                subject="not_a_subject",
+                fact_type="skill_name",
+                rule_id="normalize.v1.skill.python",
+            )
+        ],
+        source_records=[_cv_source()],
+    )
+    assert unknown_subject["error_code"] == "UNKNOWN_SUBJECT"
+    valid = _assemble(
+        [
+            _fact(
+                "ev-0001",
+                subject="python",
+                fact_type="skill_application",
+                evidence_level="documented",
+            )
+        ]
+    )
+    language = _binding(valid, "se.core.programming_language")
+    assert language["anchor"] == "documented"
+    assert language["evidence_ids"] == ["ev-0001"]
+    assert language_subjects == {"python", "java", "javascript", "typescript", "csharp", "php", "r"}
+
+
+def test_qualification_is_evaluated_per_fact_without_concatenation() -> None:
+    outcome = _assemble(
+        [
+            _fact(
+                "ev-0001",
+                subject="bachelor_degree",
+                fact_type="qualification",
+                explicit_text="Completed Bachelor of Arts",
+            ),
+            _fact(
+                "ev-0002",
+                subject="bachelor_degree",
+                fact_type="qualification",
+                explicit_text="BSc Computer Science in progress",
+            ),
+        ]
+    )
+    qualification = _binding(outcome, "se.alignment.qualification")
+    assert qualification["anchor"] == "se.qual.in_progress"
+    assert qualification["evidence_ids"] == ["ev-0002"]
+    assert "MATERIAL_CLASSIFICATION_AMBIGUITY" not in outcome["review_flags"]
+
+
+def test_conflicting_qualification_status_is_review_required() -> None:
+    outcome = _assemble(
+        [
+            _fact(
+                "ev-0001",
+                subject="bachelor_degree",
+                fact_type="qualification",
+                explicit_text="Completed BSc Computer Science in progress",
+            )
+        ]
+    )
+    assert "MATERIAL_CLASSIFICATION_AMBIGUITY" in outcome["review_flags"]
+    assert _binding(outcome, "se.alignment.qualification")["anchor"] == "se.qual.none"
+    assert _binding(outcome, "se.alignment.qualification")["evidence_ids"] == []
+
+
+def test_binding_registry_structure_and_h1_dev_environment_gap() -> None:
+    rules = load_criterion_binding_rules_v1()
+    rubric = load_rubric_v2()
+    allowlist = load_provenance_allowlist()
+    assert rules["assembler_version"] == "assemble.context.v1"
+    assert rules["flag_order"] == list(dict.fromkeys(rules["flag_order"]))
+    assert set(rules["flag_order"]) == set(rules["recognized_flags"])
+    for track, spec in rules["tracks"].items():
+        ids = [item["criterion_id"] for item in spec["criteria"]]
+        expected = [item["id"] for item in rubric["tracks"][track]["criteria"]]
+        assert ids == expected
+        assert len(ids) == len(set(ids)) == 26
+        for item in spec["criteria"]:
+            for subject in item.get("subjects") or []:
+                assert subject in allowlist.subjects
+            for subject in item.get("fallback_subjects") or []:
+                assert subject in allowlist.subjects
+    se_dev = next(
+        item
+        for item in rules["tracks"]["software_engineering"]["criteria"]
+        if item["criterion_id"] == "se.tools.dev_environment"
+    )
+    assert se_dev["subjects"] == []
+    assert _binding(_assemble([]), "se.tools.dev_environment")["anchor"] == "missing_unverifiable"
+
+
+def test_provenance_allowlist_is_unique() -> None:
+    allowlist = load_provenance_allowlist()
+    assert len(allowlist.triples) == len(set(allowlist.triples))
+    assert allowlist.subjects
+    assert allowlist.rule_ids
+    assert ("python", "skill_application", "normalize.v1.skill.python") in allowlist.triples
+    assert (
+        "python",
+        "professional_behaviour",
+        "normalize.v1.skill.python",
+    ) not in allowlist.triples
+    evidence = load_evidence_rules_v1()
+    subjects = [item["subject"] for item in (*evidence["subjects"], *evidence["qualifications"])]
+    rule_ids = [item["rule_id"] for item in (*evidence["subjects"], *evidence["qualifications"])]
+    assert len(subjects) == len(set(subjects))
+    assert len(rule_ids) == len(set(rule_ids))

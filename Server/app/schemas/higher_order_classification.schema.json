@@ -49,11 +49,12 @@
     "evidence_facts": {
       "type": "array",
       "items": {
-        "type": "object"
+        "$ref": "https://skillsignalza.invalid/schemas/evidence-fact.json"
       }
     },
     "review_flags": {
       "type": "array",
+      "uniqueItems": true,
       "items": {
         "type": "string",
         "minLength": 1
@@ -67,7 +68,8 @@
           "state": {
             "const": "COMPLETED"
           }
-        }
+        },
+        "required": ["state"]
       },
       "then": {
         "properties": {
@@ -81,9 +83,31 @@
       "if": {
         "properties": {
           "state": {
-            "const": "HIGHER_ORDER_CLASSIFICATION_FAILED"
+            "const": "REVIEW_REQUIRED"
+          }
+        },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "review_flags": {
+            "minItems": 1
           }
         }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "HIGHER_ORDER_CLASSIFICATION_FAILED"
+          }
+        },
+        "required": ["state"]
       },
       "then": {
         "properties": {
@@ -92,6 +116,9 @@
             "minLength": 1
           },
           "evidence_facts": {
+            "maxItems": 0
+          },
+          "source_records": {
             "maxItems": 0
           }
         }
