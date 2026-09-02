@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-pipeline.json",
+  "title": "SkillSignalZA in-memory assessment pipeline outcome",
+  "description": "Package K orchestrates F-G-H-I-J-scoring without persistence. Failures never leak candidate text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "pipeline_version",
+    "assessment_id",
+    "run_id",
+    "contract_version",
+    "rubric_version",
+    "track",
+    "assessment_result",
+    "source_records",
+    "evidence_facts",
+    "scoring_context",
+    "review_flags",
+    "stages"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": [
+        "COMPLETED",
+        "REVIEW_REQUIRED",
+        "NOT_SCORABLE",
+        "ASSESSMENT_PIPELINE_FAILED"
+      ]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "pipeline_version": {
+      "type": "string",
+      "const": "assessment.pipeline.v1"
+    },
+    "assessment_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "rubric_version": {
+      "type": "string",
+      "const": "V2"
+    },
+    "track": {
+      "type": "string"
+    },
+    "assessment_result": {
+      "oneOf": [
+        {
+          "$ref": "https://skillsignalza.invalid/schemas/assessment-result.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_records": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_facts": {
+      "type": "array",
+      "items": {
+        "$ref": "https://skillsignalza.invalid/schemas/evidence-fact.json"
+      }
+    },
+    "scoring_context": {
+      "oneOf": [
+        {
+          "$ref": "https://skillsignalza.invalid/schemas/scoring-context.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "review_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "COMPLETED"
+          }
+        },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "null"
+          },
+          "assessment_result": {
+            "$ref": "https://skillsignalza.invalid/schemas/assessment-result.json"
+          },
+          "scoring_context": {
+            "$ref": "https://skillsignalza.invalid/schemas/scoring-context.json"
+          },
+          "review_flags": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "REVIEW_REQUIRED"
+          }
+        },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assessment_result": {
+            "type": "null"
+          },
+          "review_flags": {
+            "minItems": 1,
+            "items": {
+              "enum": [
+                "TRACK_MISMATCH",
+                "MATERIAL_SOURCE_CONTRADICTION",
+                "OWNERSHIP_UNCLEAR",
+                "AUTHENTICITY_UNCLEAR",
+                "MATERIAL_CLASSIFICATION_AMBIGUITY"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": ["NOT_SCORABLE", "ASSESSMENT_PIPELINE_FAILED"]
+          }
+        },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assessment_result": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

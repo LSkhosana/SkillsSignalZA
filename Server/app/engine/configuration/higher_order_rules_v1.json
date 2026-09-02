@@ -1,0 +1,380 @@
+{
+  "registry_version": "1.0.0",
+  "classifier_version": "classify.higher.v1",
+  "contract_version": "1.2.0",
+  "project_source_types": [
+    "repository",
+    "portfolio",
+    "project",
+    "deployed_project",
+    "kaggle",
+    "dashboard",
+    "other_professional"
+  ],
+  "artifact_markers": [
+    "project",
+    "portfolio",
+    "repository",
+    "repo",
+    "application",
+    "app",
+    "API",
+    "service",
+    "website",
+    "system",
+    "dashboard",
+    "analysis",
+    "report",
+    "notebook",
+    "pipeline",
+    "workflow"
+  ],
+  "url_prefixes": ["https://", "http://"],
+  "repository_markers": ["GitHub", "GitLab", "Bitbucket", "portfolio"],
+  "context_markers": [
+    "problem",
+    "purpose",
+    "requirement",
+    "business",
+    "user",
+    "customer",
+    "client",
+    "patient",
+    "operations",
+    "workflow",
+    "sales",
+    "support",
+    "dataset",
+    "question",
+    "KPI",
+    "SLA",
+    "to solve",
+    "to address",
+    "to improve",
+    "to manage",
+    "to track",
+    "to investigate",
+    "to analyse",
+    "to analyze"
+  ],
+  "architecture_cues": ["architecture", "API", "database", "testing", "deployment"],
+  "integration_cues": ["integrate", "integrated", "combined", "with", "into"],
+  "documentation_cues": [
+    "README",
+    "documentation",
+    "documented",
+    "setup",
+    "installation",
+    "instructions",
+    "requirements",
+    "dependencies",
+    "how to run",
+    "run the",
+    "tests",
+    "sample request",
+    "notebook",
+    "data dictionary",
+    "source code",
+    "repository structure",
+    "reproducible",
+    "reproduce"
+  ],
+  "outcome_markers": [
+    "deployed",
+    "launched",
+    "shipped",
+    "released",
+    "production",
+    "delivered",
+    "result",
+    "outcome",
+    "reduced",
+    "increased",
+    "improved",
+    "saved",
+    "automated",
+    "resolved",
+    "enabled",
+    "generated",
+    "identified",
+    "found",
+    "finding",
+    "insight",
+    "recommendation",
+    "accuracy",
+    "working"
+  ],
+  "findings_cues": ["finding", "findings", "insight", "insights", "recommendation", "recommendations"],
+  "visual_cues": ["report", "chart", "visual", "dashboard", "visualisation", "visualization"],
+  "forbidden_labels": [
+    "team player",
+    "good communicator",
+    "excellent communication",
+    "detail-oriented",
+    "detail oriented",
+    "hard worker",
+    "problem solver",
+    "self-starter",
+    "fast learner"
+  ],
+  "collaboration_cues": [
+    "collaborated",
+    "partnered",
+    "coordinated with",
+    "worked with",
+    "worked alongside",
+    "cross-functional",
+    "pair programmed",
+    "code review",
+    "peer review",
+    "reviewed with"
+  ],
+  "communication_cues": [
+    "presented",
+    "documented",
+    "wrote documentation",
+    "explained",
+    "trained",
+    "liaised",
+    "communicated with",
+    "reported to",
+    "gathered requirements",
+    "stakeholder",
+    "user training",
+    "client communication"
+  ],
+  "professional_context_markers": [
+    "client",
+    "customer",
+    "production",
+    "SLA",
+    "incident",
+    "ticket",
+    "on-call",
+    "standby",
+    "stakeholder",
+    "manager",
+    "internship",
+    "intern",
+    "responsible for"
+  ],
+  "initiative_cues": [
+    "initiated",
+    "proposed",
+    "introduced",
+    "proactively",
+    "volunteered",
+    "self-directed",
+    "self-taught",
+    "independently built",
+    "personal project",
+    "took ownership",
+    "led implementation"
+  ],
+  "self_management_cues": [
+    "prioritised",
+    "prioritized",
+    "managed workload",
+    "deadline",
+    "owned",
+    "responsible for",
+    "tracked",
+    "maintained"
+  ],
+  "problem_solving_cues": [
+    "troubleshot",
+    "debugged",
+    "diagnosed",
+    "root cause",
+    "investigated",
+    "resolved"
+  ],
+  "attention_cues": [
+    "validated",
+    "verified",
+    "reconciled",
+    "quality check",
+    "data quality",
+    "accuracy",
+    "duplicates",
+    "missing values",
+    "audited"
+  ],
+  "se_target_phrases": [
+    "software engineer",
+    "software developer",
+    "junior software engineer",
+    "junior software developer",
+    "frontend developer",
+    "front-end developer",
+    "backend developer",
+    "back-end developer",
+    "full-stack developer",
+    "full stack developer",
+    "web developer",
+    "application developer"
+  ],
+  "da_target_phrases": [
+    "data analyst",
+    "junior data analyst",
+    "BI analyst",
+    "business intelligence analyst",
+    "reporting analyst"
+  ],
+  "target_cues": [
+    "target role",
+    "seeking",
+    "applying for",
+    "aspiring",
+    "career objective",
+    "career goal"
+  ],
+  "heading_cues": [
+    "summary",
+    "profile",
+    "skills",
+    "technical skills",
+    "experience",
+    "work experience",
+    "education",
+    "projects",
+    "certifications",
+    "qualifications"
+  ],
+  "employment_history_cues": [" at ", "employed", "experience as", "work history"],
+  "da_analysis_subjects": [
+    "sql",
+    "excel",
+    "google_sheets",
+    "data_analysis",
+    "statistics",
+    "data_cleaning",
+    "data_transformation",
+    "data_visualization",
+    "dashboarding",
+    "power_bi",
+    "tableau",
+    "looker_studio",
+    "python",
+    "r",
+    "pandas",
+    "numpy",
+    "postgresql",
+    "mysql",
+    "sqlite",
+    "sql_server",
+    "mongodb",
+    "supabase",
+    "relational_database"
+  ],
+  "rules": {
+    "accessible_submitted_work": {
+      "fact_type": "project_proof",
+      "rule_id": "classify.v1.project_proof.accessible_submitted_work"
+    },
+    "cv_project_reference": {
+      "fact_type": "project_proof",
+      "rule_id": "classify.v1.project_proof.cv_project_reference"
+    },
+    "software_project_context": {
+      "fact_type": "project_context",
+      "rule_id": "classify.v1.project_context.software_project_context"
+    },
+    "analytics_project_context": {
+      "fact_type": "project_context",
+      "rule_id": "classify.v1.project_context.analytics_project_context"
+    },
+    "context_free_dashboard_screenshot": {
+      "fact_type": "project_context",
+      "rule_id": "classify.v1.project_context.context_free_dashboard_screenshot"
+    },
+    "se_technical_process": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.se_technical_process"
+    },
+    "se_technical_depth_ownership": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.se_technical_depth_ownership"
+    },
+    "da_analysis_process": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.da_analysis_process"
+    },
+    "da_tool_integration": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.da_tool_integration"
+    },
+    "project_documentation": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.project_documentation"
+    },
+    "project_reproducibility": {
+      "fact_type": "project_process",
+      "rule_id": "classify.v1.project_process.project_reproducibility"
+    },
+    "software_project_outcome": {
+      "fact_type": "project_outcome",
+      "rule_id": "classify.v1.project_outcome.software_project_outcome"
+    },
+    "analytics_project_outcome": {
+      "fact_type": "project_outcome",
+      "rule_id": "classify.v1.project_outcome.analytics_project_outcome"
+    },
+    "analytics_findings_visual_communication": {
+      "fact_type": "project_outcome",
+      "rule_id": "classify.v1.project_outcome.analytics_findings_visual_communication"
+    },
+    "collaboration": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.collaboration"
+    },
+    "communication": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.communication"
+    },
+    "professional_exposure": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.professional_exposure"
+    },
+    "initiative": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.initiative"
+    },
+    "self_management_problem_solving": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.self_management_problem_solving"
+    },
+    "problem_solving": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.problem_solving"
+    },
+    "self_management": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.self_management"
+    },
+    "attention_to_detail": {
+      "fact_type": "professional_behaviour",
+      "rule_id": "classify.v1.professional_behaviour.attention_to_detail"
+    },
+    "software_engineering_target": {
+      "fact_type": "role_alignment",
+      "rule_id": "classify.v1.role_alignment.software_engineering_target"
+    },
+    "data_analytics_target": {
+      "fact_type": "role_alignment",
+      "rule_id": "classify.v1.role_alignment.data_analytics_target"
+    },
+    "structured_readability": {
+      "fact_type": "document_quality",
+      "rule_id": "classify.v1.document_quality.structured_readability"
+    },
+    "claim_specificity": {
+      "fact_type": "document_quality",
+      "rule_id": "classify.v1.document_quality.claim_specificity"
+    },
+    "description_evidence": {
+      "fact_type": "document_quality",
+      "rule_id": "classify.v1.document_quality.description_evidence"
+    }
+  }
+}

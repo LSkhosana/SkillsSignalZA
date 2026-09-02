@@ -1,0 +1,310 @@
+{
+  "registry_version": "1.0.0",
+  "assembler_version": "assemble.context.v1",
+  "contract_version": "1.2.0",
+  "google_sheets_ceiling_rule_id": "rubric.v2.da.cap.google_sheets_ceiling",
+  "context_free_dashboard_rule_id": "rubric.v2.da.rule.context_free_dashboard",
+  "flag_order": [
+    "TRACK_MISMATCH",
+    "MATERIAL_SOURCE_CONTRADICTION",
+    "OWNERSHIP_UNCLEAR",
+    "AUTHENTICITY_UNCLEAR",
+    "MATERIAL_CLASSIFICATION_AMBIGUITY"
+  ],
+  "recognized_flags": [
+    "TRACK_MISMATCH",
+    "MATERIAL_SOURCE_CONTRADICTION",
+    "OWNERSHIP_UNCLEAR",
+    "AUTHENTICITY_UNCLEAR",
+    "MATERIAL_CLASSIFICATION_AMBIGUITY"
+  ],
+  "completed_cues": ["completed", "graduated", "obtained", "earned", "awarded", "conferred"],
+  "in_progress_cues": [
+    "in progress",
+    "currently studying",
+    "currently enrolled",
+    "pursuing",
+    "expected",
+    "final year",
+    "student"
+  ],
+  "se_relevant_fields": [
+    "computer science",
+    "software engineering",
+    "information technology",
+    "computer engineering",
+    "informatics",
+    "information systems"
+  ],
+  "da_relevant_fields": [
+    "data analytics",
+    "data analysis",
+    "data science",
+    "statistics",
+    "business analytics",
+    "information systems",
+    "computer science",
+    "information technology"
+  ],
+  "tracks": {
+    "software_engineering": {
+      "qualification_criterion_id": "se.alignment.qualification",
+      "criteria": [
+        {
+          "criterion_id": "se.core.programming_language",
+          "subjects": ["python", "java", "javascript", "typescript", "csharp", "php", "r"]
+        },
+        {
+          "criterion_id": "se.core.programming_concepts",
+          "subjects": ["object_oriented_programming", "data_structures", "algorithms", "control_flow"]
+        },
+        {
+          "criterion_id": "se.core.application_systems",
+          "subjects": ["api", "rest_api", "http"]
+        },
+        {
+          "criterion_id": "se.core.database_fundamentals",
+          "subjects": [
+            "sql",
+            "relational_database",
+            "database_schema",
+            "database_normalization",
+            "database_joins"
+          ]
+        },
+        {
+          "criterion_id": "se.core.debugging_testing",
+          "subjects": [
+            "debugging",
+            "unit_testing",
+            "integration_testing",
+            "automated_testing",
+            "pytest",
+            "jest",
+            "vitest",
+            "playwright",
+            "cypress"
+          ]
+        },
+        {
+          "criterion_id": "se.tools.version_control",
+          "subjects": ["git"]
+        },
+        {
+          "criterion_id": "se.tools.framework_library",
+          "subjects": [
+            "dotnet",
+            "aspnet",
+            "react",
+            "angular",
+            "vue",
+            "nodejs",
+            "express",
+            "spring",
+            "django",
+            "flask",
+            "fastapi",
+            "pandas",
+            "numpy"
+          ]
+        },
+        {
+          "criterion_id": "se.tools.database_platform",
+          "subjects": ["postgresql", "mysql", "sqlite", "sql_server", "mongodb", "supabase"]
+        },
+        {
+          "criterion_id": "se.tools.dev_environment",
+          "subjects": []
+        },
+        {
+          "criterion_id": "se.tools.repository_platform",
+          "subjects": ["github", "gitlab", "bitbucket"]
+        },
+        {
+          "criterion_id": "se.tools.deployment_cloud",
+          "subjects": ["docker", "kubernetes", "azure", "aws", "gcp"]
+        },
+        {
+          "criterion_id": "se.projects.accessibility",
+          "subjects": ["accessible_submitted_work", "cv_project_reference"]
+        },
+        {
+          "criterion_id": "se.projects.problem_relevance",
+          "subjects": ["software_project_context"]
+        },
+        {
+          "criterion_id": "se.projects.depth_ownership",
+          "subjects": ["se_technical_depth_ownership"],
+          "fallback_subjects": ["se_technical_process"]
+        },
+        {
+          "criterion_id": "se.projects.documentation",
+          "subjects": ["project_documentation"]
+        },
+        {
+          "criterion_id": "se.projects.outcome",
+          "subjects": ["software_project_outcome"]
+        },
+        {
+          "criterion_id": "se.alignment.qualification",
+          "kind": "qualification"
+        },
+        {
+          "criterion_id": "se.alignment.target_role",
+          "subjects": ["software_engineering_target"]
+        },
+        {
+          "criterion_id": "se.alignment.claim_specificity",
+          "subjects": ["claim_specificity"]
+        },
+        {
+          "criterion_id": "se.alignment.description_evidence",
+          "subjects": ["description_evidence"]
+        },
+        {
+          "criterion_id": "se.alignment.readability",
+          "subjects": ["structured_readability"]
+        },
+        {
+          "criterion_id": "se.readiness.communication",
+          "subjects": ["communication"]
+        },
+        {
+          "criterion_id": "se.readiness.collaboration",
+          "subjects": ["collaboration"]
+        },
+        {
+          "criterion_id": "se.readiness.professional_exposure",
+          "subjects": ["professional_exposure"]
+        },
+        {
+          "criterion_id": "se.readiness.initiative",
+          "subjects": ["initiative"]
+        },
+        {
+          "criterion_id": "se.readiness.self_management",
+          "subjects": ["self_management_problem_solving"]
+        }
+      ]
+    },
+    "data_analytics": {
+      "qualification_criterion_id": "da.alignment.qualification",
+      "criteria": [
+        {
+          "criterion_id": "da.core.sql",
+          "subjects": ["sql"]
+        },
+        {
+          "criterion_id": "da.core.spreadsheets",
+          "subjects": ["excel", "google_sheets"]
+        },
+        {
+          "criterion_id": "da.core.analysis_statistics",
+          "subjects": ["data_analysis", "statistics"]
+        },
+        {
+          "criterion_id": "da.core.cleaning",
+          "subjects": ["data_cleaning", "data_transformation"]
+        },
+        {
+          "criterion_id": "da.core.reporting",
+          "subjects": ["reporting", "analytics_findings_visual_communication"]
+        },
+        {
+          "criterion_id": "da.tools.bi_visualisation",
+          "subjects": ["power_bi", "tableau", "looker_studio", "data_visualization", "dashboarding"]
+        },
+        {
+          "criterion_id": "da.tools.power_bi_alignment",
+          "subjects": ["power_bi"]
+        },
+        {
+          "criterion_id": "da.tools.programming",
+          "subjects": ["python", "r", "pandas", "numpy"]
+        },
+        {
+          "criterion_id": "da.tools.database_environment",
+          "subjects": [
+            "postgresql",
+            "mysql",
+            "sqlite",
+            "sql_server",
+            "mongodb",
+            "supabase",
+            "relational_database",
+            "database_schema",
+            "database_joins"
+          ]
+        },
+        {
+          "criterion_id": "da.tools.transformation_cloud",
+          "subjects": ["power_query", "data_transformation", "azure", "aws", "gcp"]
+        },
+        {
+          "criterion_id": "da.tools.integration",
+          "subjects": ["da_tool_integration"]
+        },
+        {
+          "criterion_id": "da.projects.accessibility",
+          "subjects": ["accessible_submitted_work", "cv_project_reference"]
+        },
+        {
+          "criterion_id": "da.projects.context",
+          "subjects": ["analytics_project_context"]
+        },
+        {
+          "criterion_id": "da.projects.process",
+          "subjects": ["da_analysis_process"]
+        },
+        {
+          "criterion_id": "da.projects.findings",
+          "subjects": ["analytics_findings_visual_communication", "analytics_project_outcome"]
+        },
+        {
+          "criterion_id": "da.projects.reproducibility",
+          "subjects": ["project_reproducibility"]
+        },
+        {
+          "criterion_id": "da.alignment.qualification",
+          "kind": "qualification"
+        },
+        {
+          "criterion_id": "da.alignment.target_role",
+          "subjects": ["data_analytics_target"]
+        },
+        {
+          "criterion_id": "da.alignment.claim_specificity",
+          "subjects": ["claim_specificity"]
+        },
+        {
+          "criterion_id": "da.alignment.description_evidence",
+          "subjects": ["description_evidence"]
+        },
+        {
+          "criterion_id": "da.alignment.readability",
+          "subjects": ["structured_readability"]
+        },
+        {
+          "criterion_id": "da.readiness.problem_solving",
+          "subjects": ["problem_solving"]
+        },
+        {
+          "criterion_id": "da.readiness.attention_detail",
+          "subjects": ["attention_to_detail"]
+        },
+        {
+          "criterion_id": "da.readiness.collaboration",
+          "subjects": ["collaboration"]
+        },
+        {
+          "criterion_id": "da.readiness.communication",
+          "subjects": ["communication"]
+        },
+        {
+          "criterion_id": "da.readiness.self_management",
+          "subjects": ["self_management"]
+        }
+      ]
+    }
+  }
+}
