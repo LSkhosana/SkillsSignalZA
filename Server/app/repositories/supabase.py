@@ -54,10 +54,7 @@ class SupabaseDocumentStorage:
         self._owns_client = client is None
 
     def _headers(self, media_type: str | None = None) -> dict[str, str]:
-        headers = {
-            "Authorization": f"Bearer {self._secret_key}",
-            "apikey": self._secret_key,
-        }
+        headers = {"apikey": self._secret_key}
         if media_type is not None:
             headers["Content-Type"] = media_type
         return headers
@@ -92,7 +89,7 @@ class SupabaseDocumentStorage:
         client = await self._client_for_call()
         close = self._owns_client
         try:
-            response = await client.put(
+            response = await client.post(
                 self._object_url(storage_path),
                 content=file_bytes,
                 headers=self._headers(media_type),

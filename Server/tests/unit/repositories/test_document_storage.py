@@ -13,9 +13,10 @@ from app.repositories.supabase import (
     opaque_storage_path,
 )
 
-SECRET = "super-secret-storage-key"
+SECRET = "sb_secret_test-storage-key"
 PDF = b"%PDF-1.4 test-cv"
 DOCX = b"PK\x03\x04 test-docx"
+OBJECT_URL_PREFIX = "https://example.supabase.co/storage/v1/object/candidate-evidence/"
 
 
 class FakeResponse:
@@ -27,15 +28,21 @@ class FakeResponse:
 class FakeAsyncClient:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str, bytes | None, dict[str, str] | None]] = []
-        self.put_response = FakeResponse()
+        self.post_response = FakeResponse()
         self.get_response = FakeResponse(content=PDF)
         self.delete_response = FakeResponse()
+
+    async def post(
+        self, url: str, content: bytes | None = None, headers: dict[str, str] | None = None
+    ):
+        self.calls.append(("POST", url, content, headers))
+        return self.post_response
 
     async def put(
         self, url: str, content: bytes | None = None, headers: dict[str, str] | None = None
     ):
         self.calls.append(("PUT", url, content, headers))
-        return self.put_response
+        return FakeResponse()
 
     async def get(self, url: str, headers: dict[str, str] | None = None):
         self.calls.append(("GET", url, None, headers))
@@ -58,7 +65,28 @@ def _storage(client: FakeAsyncClient) -> SupabaseDocumentStorage:
     )
 
 
-def test_pdf_and_docx_uploads_use_opaque_paths() -> None:
+def _assert_secret_not_leaked(*values: object) -> None:
+    for value in values:
+        rendered = str(value)
+        assert SECRET not in rendered
+        assert PDF.decode("latin-1") not in rendered
+        assert DOCX.decode("latin-1") not in rendered
+
+
+def _assert_private_secret_headers(
+    headers: dict[str, str] | None, *, media_type: str | None = None
+) -> None:
+    assert headers is not None
+    assert headers["apikey"] == SECRET
+    assert "Authorization" not in headers
+    assert not any(str(value).startswith("Bearer ") for value in headers.values())
+    if media_type is None:
+        assert "Content-Type" not in headers
+    else:
+        assert headers["Content-Type"] == media_type
+
+
+def test_pdf_and_docx_uploads_use_post_and_opaque_paths() -> None:
     async def body() -> None:
         client = FakeAsyncClient()
         storage = _storage(client)
@@ -81,11 +109,19 @@ def test_pdf_and_docx_uploads_use_opaque_paths() -> None:
             original_filename="resume.docx",
         )
         assert docx_meta["storage_path"].endswith(".docx")
-        put_calls = [call for call in client.calls if call[0] == "PUT"]
-        assert put_calls[0][2] == PDF
-        headers = put_calls[0][3] or {}
-        assert headers["Authorization"] == f"Bearer {SECRET}"
-        assert headers["apikey"] == SECRET
+        methods = [call[0] for call in client.calls]
+        assert methods == ["POST", "POST"]
+        assert "PUT" not in methods
+        first = client.calls[0]
+        assert first[1] == f"{OBJECT_URL_PREFIX}assessments/assessment-1/src-cv.pdf"
+        assert first[2] == PDF
+        _assert_private_secret_headers(first[3], media_type="application/pdf")
+        second = client.calls[1]
+        assert second[2] == DOCX
+        _assert_private_secret_headers(
+            second[3],
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
         assert "get_public_url" not in dir(storage)
         assert not hasattr(storage, "public_url")
 
@@ -125,27 +161,34 @@ def test_local_rejections_do_not_touch_the_network() -> None:
         assert media.value.error_code == "UNSUPPORTED_MEDIA_TYPE"
         assert client.calls == []
         for exc in (empty.value, huge.value, media.value):
-            assert SECRET not in str(exc)
+            _assert_secret_not_leaked(exc, exc.error_code)
 
     asyncio.run(body())
 
 
-def test_get_and_delete_use_private_object_urls() -> None:
+def test_get_and_delete_remain_private_storage_operations() -> None:
     async def body() -> None:
         client = FakeAsyncClient()
         storage = _storage(client)
         path = opaque_storage_path("assessment-1", "src-cv", "application/pdf")
         assert await storage.get_private_document(path) == PDF
         await storage.delete_private_document(path)
+        methods = [call[0] for call in client.calls]
+        assert methods == ["GET", "DELETE"]
         urls = [call[1] for call in client.calls]
-        assert all(
-            "example.supabase.co/storage/v1/object/candidate-evidence/" in url for url in urls
-        )
+        assert urls == [
+            f"{OBJECT_URL_PREFIX}{path}",
+            f"{OBJECT_URL_PREFIX}{path}",
+        ]
+        assert all(url.startswith(OBJECT_URL_PREFIX) for url in urls)
         assert all(SECRET not in url for url in urls)
-        client.get_response = FakeResponse(status_code=500)
+        for call in client.calls:
+            _assert_private_secret_headers(call[3])
+        client.get_response = FakeResponse(status_code=500, content=PDF + SECRET.encode())
         with pytest.raises(DocumentStorageError) as failed:
             await storage.get_private_document(path)
-        assert SECRET not in str(failed.value)
+        assert failed.value.error_code == "STORAGE_GET_FAILED"
+        _assert_secret_not_leaked(failed.value, failed.value.error_code)
 
     asyncio.run(body())
 
@@ -153,8 +196,8 @@ def test_get_and_delete_use_private_object_urls() -> None:
 def test_storage_http_status_errors_are_safe() -> None:
     async def body() -> None:
         client = FakeAsyncClient()
-        client.put_response = FakeResponse(status_code=403)
-        client.delete_response = FakeResponse(status_code=500)
+        client.post_response = FakeResponse(status_code=403, content=SECRET.encode() + PDF)
+        client.delete_response = FakeResponse(status_code=500, content=PDF)
         storage = _storage(client)
         with pytest.raises(DocumentStorageError) as put_failed:
             await storage.put_private_document(
@@ -168,16 +211,20 @@ def test_storage_http_status_errors_are_safe() -> None:
             await storage.delete_private_document("assessments/assessment-1/src-cv.pdf")
         assert put_failed.value.error_code == "STORAGE_PUT_FAILED"
         assert delete_failed.value.error_code == "STORAGE_DELETE_FAILED"
+        assert client.calls[0][0] == "POST"
+        _assert_secret_not_leaked(
+            put_failed.value, put_failed.value.error_code, delete_failed.value
+        )
 
     asyncio.run(body())
 
 
 def test_http_errors_are_safe() -> None:
     class BoomClient(FakeAsyncClient):
-        async def put(
+        async def post(
             self, url: str, content: bytes | None = None, headers: dict[str, str] | None = None
         ):
-            raise httpx.ConnectError("boom", request=httpx.Request("PUT", url))
+            raise httpx.ConnectError("boom", request=httpx.Request("POST", url))
 
         async def delete(self, url: str, headers: dict[str, str] | None = None):
             raise httpx.ConnectError("boom", request=httpx.Request("DELETE", url))
@@ -196,6 +243,7 @@ def test_http_errors_are_safe() -> None:
             await storage.delete_private_document("assessments/assessment-1/src-cv.pdf")
         assert put_failed.value.error_code == "STORAGE_PUT_FAILED"
         assert delete_failed.value.error_code == "STORAGE_DELETE_FAILED"
+        _assert_secret_not_leaked(put_failed.value, delete_failed.value)
 
     asyncio.run(body())
 

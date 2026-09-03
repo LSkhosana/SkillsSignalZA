@@ -99,3 +99,7 @@ jobs:
 
       - name: Build server image
         run: docker build --tag skillsignalza-api:ci Server
+
+      - name: Production image import smoke
+        run: |
+          docker run --rm skillsignalza-api:ci python -c "import httpx; from app.engine.extraction import retrieve_candidate_link; from app.repositories.supabase import SupabaseDocumentStorage"
