@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-persistence.json",
+  "title": "SkillSignalZA assessment persistence outcome",
+  "description": "Package L records a Package K outcome without changing scoring.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "persistence_version",
+    "contract_version",
+    "assessment_id",
+    "run_id",
+    "access_state",
+    "latest_run_id"
+  ],
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["PERSISTED", "PERSISTENCE_NOOP", "PERSISTENCE_CONFLICT", "PERSISTENCE_FAILED"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "persistence_version": {
+      "type": "string",
+      "const": "persist.assessment.v1"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "1.2.0"
+    },
+    "assessment_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "access_state": {
+      "type": ["string", "null"],
+      "enum": ["PREVIEW", "UNLOCKED", null]
+    },
+    "latest_run_id": {
+      "type": ["string", "null"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "enum": ["PERSISTED", "PERSISTENCE_NOOP"] } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" },
+          "access_state": { "const": "PREVIEW" },
+          "latest_run_id": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "PERSISTENCE_CONFLICT" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "const": "PERSISTENCE_CONFLICT" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "PERSISTENCE_FAILED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

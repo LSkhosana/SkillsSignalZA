@@ -23,7 +23,7 @@ No scoring rules belong in routes. No Supabase-specific objects belong in the do
 Server/
 ├── app/                  # Application source
 ├── tests/                # Unit and integration tests
-├── supabase/migrations/  # Future SQL migrations (none yet)
+├── migrations/           # PostgreSQL and private Storage setup SQL
 ├── Dockerfile
 ├── pyproject.toml
 └── README.md
@@ -55,9 +55,9 @@ python3.13 -m venv .venv
 
 Copy `.env.example` to `.env` and replace placeholders with local values.
 
-The API starts without `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` or `SUPABASE_SECRET_KEY`. Leave them unset until persistence is approved.
+The API starts without `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` or `SUPABASE_SECRET_KEY`. Leave them unset until a PostgreSQL database and private Storage bucket are configured.
 
-Never commit `.env` or production secrets. `SUPABASE_SECRET_KEY` must never appear in logs or API responses.
+PostgreSQL migrations live in `migrations/postgres/`. The private CV bucket setup lives in `migrations/supabase/`. Never commit `.env` or production secrets. `DATABASE_URL` and `SUPABASE_SECRET_KEY` must never appear in logs or API responses.
 
 ## Local startup
 
@@ -136,6 +136,9 @@ Useful variables:
 - `ENVIRONMENT=production`
 - `LOG_LEVEL=INFO`
 - `CORS_ORIGINS` — comma-separated production web origins, not `*` with credentials
-- `SUPABASE_*` — only after persistence is approved
+- `DATABASE_URL` — PostgreSQL DSN for assessment persistence
+- `DB_POOL_MIN_SIZE` / `DB_POOL_MAX_SIZE` — optional pool bounds, default 0/5
+- `SUPABASE_*` — private Storage after the bucket is configured
+- `SUPABASE_STORAGE_BUCKET` — default `candidate-evidence`
 
 Render injects `PORT`. The Docker command already respects it.
