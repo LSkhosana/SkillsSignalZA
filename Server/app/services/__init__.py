@@ -5,6 +5,7 @@ repositories. They keep HTTP handlers thin and prevent scoring rules
 from leaking into routes.
 """
 
+from app.services.anonymous_assessment import submit_anonymous_assessment
 from app.services.assessment_persistence import persist_assessment_outcome
 from app.services.assessment_pipeline import run_assessment_pipeline
 from app.services.assessment_scoring import score_frozen_assessment
@@ -15,4 +16,5 @@ __all__ = [
     "persist_assessment_outcome",
     "run_assessment_pipeline",
     "score_frozen_assessment",
+    "submit_anonymous_assessment",
 ]

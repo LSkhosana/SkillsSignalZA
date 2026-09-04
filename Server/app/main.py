@@ -1,6 +1,8 @@
 """SkillSignalZA FastAPI application factory."""
 
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,9 +10,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import router as api_v1_router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
+from app.core.resources import close_app_resources, init_app_resource_state
 from app.schemas.health import RootResponse
 
 logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    """Attach empty resource slots on startup and close owned resources on shutdown."""
+    init_app_resource_state(application)
+    try:
+        yield
+    finally:
+        await close_app_resources(application)
 
 
 def create_app() -> FastAPI:
@@ -21,6 +34,7 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
+        lifespan=lifespan,
     )
     application.include_router(api_v1_router, prefix=settings.api_v1_prefix)
     application.add_middleware(
