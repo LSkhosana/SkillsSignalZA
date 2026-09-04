@@ -25,6 +25,7 @@ from tests.unit.services.test_anonymous_assessment import (
     IDENTITY,
     RAW_CLAIM,
     FakeStorage,
+    PipelineSpy,
     RecordingRepository,
     _paid_keys,
     da_docx,
@@ -187,10 +188,14 @@ def test_unsupported_media_type_returns_422(app_client: tuple[TestClient, Any]) 
 
 def test_file_too_large_returns_422(app_client: tuple[TestClient, Any]) -> None:
     client, application = app_client
-    repo, storage = _bind(application)
+    spy = PipelineSpy()
+    repo, storage = _bind(application, run_pipeline=spy)
     response = _post(client, file_bytes=b"a" * (MAX_FILE_SIZE_BYTES + 1))
     assert response.status_code == 422
-    assert response.json()["error_code"] == ERROR_FILE_TOO_LARGE
+    payload = response.json()
+    assert payload["error_code"] == ERROR_FILE_TOO_LARGE
+    draft_validator("anonymous_assessment_response.schema.json").validate(payload)
+    assert spy.calls == []
     assert storage.puts == []
     assert repo.bundles == []
 
@@ -239,12 +244,43 @@ def test_unconfigured_endpoint_returns_503(app_client: tuple[TestClient, Any]) -
 
 def test_missing_cv_returns_schema_422(app_client: tuple[TestClient, Any]) -> None:
     client, application = app_client
-    _bind(application)
+    spy = PipelineSpy()
+    repo, storage = _bind(application, run_pipeline=spy)
     response = client.post(ANON_PATH, data={"track": "software_engineering"})
     assert response.status_code == 422
     payload = response.json()
     assert payload["error_code"] == ERROR_INVALID_SUBMISSION
     assert "detail" not in payload
+    draft_validator("anonymous_assessment_response.schema.json").validate(payload)
+    assert spy.calls == []
+    assert storage.puts == []
+    assert repo.bundles == []
+
+
+def test_duplicate_cv_parts_rejected_before_pipeline_storage_persistence(
+    app_client: tuple[TestClient, Any],
+) -> None:
+    client, application = app_client
+    spy = PipelineSpy()
+    repo, storage = _bind(application, run_pipeline=spy)
+    pdf = se_pdf()
+    response = client.post(
+        ANON_PATH,
+        data={"track": "software_engineering"},
+        files=[
+            ("cv", ("cv.pdf", pdf, MEDIA_PDF)),
+            ("cv", ("other.pdf", pdf, MEDIA_PDF)),
+        ],
+    )
+    assert response.status_code == 422
+    payload = response.json()
+    draft_validator("anonymous_assessment_response.schema.json").validate(payload)
+    assert payload["error_code"] == ERROR_INVALID_SUBMISSION
+    assert payload["claim_token"] is None
+    assert "detail" not in payload
+    assert spy.calls == []
+    assert storage.puts == []
+    assert repo.bundles == []
 
 
 def test_score_route_remains_unchanged(app_client: tuple[TestClient, Any]) -> None:

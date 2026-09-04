@@ -15,8 +15,10 @@ from starlette.datastructures import UploadFile
 
 from app.core.resources import resolve_submission_resources, submission_overrides
 from app.engine.outcomes import engine_outcome
+from app.repositories.supabase import MAX_FILE_SIZE_BYTES
 from app.schemas.scoring import ScoreAssessmentRequest
 from app.services.anonymous_assessment import (
+    ERROR_FILE_TOO_LARGE,
     ERROR_INVALID_SUBMISSION,
     anonymous_failed_outcome,
     anonymous_http_status,
@@ -117,11 +119,16 @@ async def _parse_anonymous_multipart(request: Request) -> dict[str, Any] | JSONR
         return _invalid_submission_response()
     try:
         track = form.get("track")
-        cv = form.get("cv")
+        cv_parts = form.getlist("cv")
         links_field = form.get("links")
-        if not isinstance(track, str) or not isinstance(cv, UploadFile):
+        if not isinstance(track, str) or len(cv_parts) != 1:
             return _invalid_submission_response()
-        file_bytes = await cv.read()
+        cv = cv_parts[0]
+        if not isinstance(cv, UploadFile):
+            return _invalid_submission_response()
+        file_bytes = await _read_bounded_cv(cv)
+        if isinstance(file_bytes, JSONResponse):
+            return file_bytes
         links = _parse_links_field(links_field)
         if isinstance(links, JSONResponse):
             return links
@@ -138,6 +145,14 @@ async def _parse_anonymous_multipart(request: Request) -> dict[str, Any] | JSONR
             result = close()
             if hasattr(result, "__await__"):
                 await result
+
+
+async def _read_bounded_cv(cv: UploadFile) -> bytes | JSONResponse:
+    """Read at most MAX_FILE_SIZE_BYTES + 1 so oversized uploads never fill memory."""
+    file_bytes = await cv.read(MAX_FILE_SIZE_BYTES + 1)
+    if len(file_bytes) > MAX_FILE_SIZE_BYTES:
+        return _file_too_large_response()
+    return bytes(file_bytes)
 
 
 def _parse_links_field(links_field: object) -> list[dict[str, Any]] | JSONResponse:
@@ -157,5 +172,12 @@ def _parse_links_field(links_field: object) -> list[dict[str, Any]] | JSONRespon
 def _invalid_submission_response() -> JSONResponse:
     return JSONResponse(
         content=anonymous_failed_outcome(ERROR_INVALID_SUBMISSION),
+        status_code=422,
+    )
+
+
+def _file_too_large_response() -> JSONResponse:
+    return JSONResponse(
+        content=anonymous_failed_outcome(ERROR_FILE_TOO_LARGE),
         status_code=422,
     )
