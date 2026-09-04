@@ -90,10 +90,11 @@ def test_migration_0003_adds_nullable_owner_user_id_index_without_fk() -> None:
             assert await index.fetchone() is not None
             fks = await connection.execute(
                 """
-                SELECT conname
-                FROM pg_constraint
-                WHERE conrelid = 'public.assessments'::regclass
-                  AND contype = 'f'
+                SELECT conname, pg_get_constraintdef(c.oid) AS definition
+                FROM pg_constraint c
+                WHERE c.conrelid = 'public.assessments'::regclass
+                  AND c.contype = 'f'
+                  AND pg_get_constraintdef(c.oid) ILIKE '%owner_user_id%'
                 """
             )
             assert await fks.fetchall() == []
