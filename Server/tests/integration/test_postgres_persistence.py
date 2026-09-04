@@ -18,6 +18,7 @@ from psycopg.rows import dict_row
 
 from app.engine.schema_registry import draft_validator
 from app.repositories.postgres import (
+    MIGRATION_0002_PATH,
     MIGRATION_PATH,
     PostgresAssessmentRepository,
     apply_postgres_migration,
@@ -59,9 +60,14 @@ def _document(
     }
 
 
+async def _apply_checked_in_migrations(dsn: str) -> None:
+    await apply_postgres_migration(dsn, MIGRATION_PATH)
+    await apply_postgres_migration(dsn, MIGRATION_0002_PATH)
+
+
 async def _connect() -> PostgresAssessmentRepository:
     assert DATABASE_URL is not None
-    await apply_postgres_migration(DATABASE_URL)
+    await _apply_checked_in_migrations(DATABASE_URL)
     return await PostgresAssessmentRepository.connect(DATABASE_URL, min_size=0, max_size=5)
 
 
@@ -141,6 +147,67 @@ def test_migration_creates_five_tables_with_rls_and_no_public_policies() -> None
 
     _run_with_repository(body)
     assert MIGRATION_PATH.name == "0001_assessment_persistence.sql"
+    assert MIGRATION_0002_PATH.name == "0002_harden_immutable_function_search_path.sql"
+
+
+def test_immutable_trigger_function_search_path_is_fixed() -> None:
+    async def body(repository: PostgresAssessmentRepository) -> None:
+        assert DATABASE_URL is not None
+        async with await AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as connection:
+            rows = await connection.execute(
+                """
+                SELECT p.proconfig
+                FROM pg_proc p
+                JOIN pg_namespace n ON n.oid = p.pronamespace
+                WHERE n.nspname = 'public'
+                  AND p.proname = 'skillsignalza_reject_immutable_update'
+                  AND pg_get_function_identity_arguments(p.oid) = ''
+                """
+            )
+            row = await rows.fetchone()
+            assert row is not None
+            assert "search_path=pg_catalog" in list(row["proconfig"] or [])
+
+        lines = [
+            "Summary",
+            "Seeking a junior software engineer role",
+            "Skills",
+            "Experience",
+            "Projects",
+            "Education",
+            "Built a Flask API in Python to solve a workflow problem",
+        ]
+        file_bytes = _pdf(lines)
+        outcome = _run("software_engineering", lines)
+        result = await _persist(outcome, file_bytes, repository)
+        assert result["state"] == "PERSISTED"
+        assert outcome["source_records"]
+        assert outcome["evidence_facts"]
+
+        async with await AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as connection:
+            with pytest.raises(errors.RestrictViolation):
+                await connection.execute("UPDATE assessment_runs SET state = state")
+            await connection.rollback()
+            with pytest.raises(errors.RestrictViolation):
+                await connection.execute("UPDATE assessment_sources SET locator = locator")
+            await connection.rollback()
+            with pytest.raises(errors.RestrictViolation):
+                await connection.execute("UPDATE assessment_evidence SET subject = subject")
+            await connection.rollback()
+            await connection.execute(
+                "UPDATE assessments SET access_state = 'UNLOCKED' WHERE assessment_id = %s",
+                (outcome["assessment_id"],),
+            )
+            await connection.commit()
+            updated = await connection.execute(
+                "SELECT access_state FROM assessments WHERE assessment_id = %s",
+                (outcome["assessment_id"],),
+            )
+            stored = await updated.fetchone()
+            assert stored is not None
+            assert stored["access_state"] == "UNLOCKED"
+
+    _run_with_repository(body)
 
 
 def test_persist_completed_review_required_not_scorable_and_inaccessible_link() -> None:

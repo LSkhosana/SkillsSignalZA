@@ -28,6 +28,7 @@ MIGRATION_PATH = (
     / "postgres"
     / "0001_assessment_persistence.sql"
 )
+MIGRATION_0002_PATH = MIGRATION_PATH.with_name("0002_harden_immutable_function_search_path.sql")
 
 
 def _canonical(value: object) -> str:
