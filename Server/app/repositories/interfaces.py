@@ -6,11 +6,13 @@ leak psycopg, Supabase, or HTTP client types through this module.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Protocol
 
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    ClaimWriteResult,
     PersistenceBundle,
     PersistWriteResult,
 )
@@ -30,6 +32,16 @@ class AssessmentRepository(Protocol):
 
     async def get_latest_run(self, assessment_id: str) -> AssessmentRunRecord | None:
         """Return the run referenced by assessments.latest_run_id."""
+
+    async def claim_assessment(
+        self,
+        *,
+        assessment_id: str,
+        authenticated_user_id: str,
+        presented_claim_token_hash: str,
+        claimed_at: datetime,
+    ) -> ClaimWriteResult:
+        """Atomically attach a verified user as owner of one unclaimed assessment."""
 
 
 class DocumentStorage(Protocol):

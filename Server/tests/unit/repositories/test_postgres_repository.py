@@ -30,10 +30,16 @@ class ScriptedCursor:
         self.fetchone_queue: list[dict[str, Any] | None] = []
         self.fetchall_queue: list[list[dict[str, Any]]] = []
         self.fail_on_evidence = False
+        self.rowcount = 0
+        self.update_rowcount = 1
 
     async def execute(self, sql: str, _params: object = None) -> None:
         compact = " ".join(sql.split())
         self.statements.append(compact)
+        if compact.startswith("UPDATE"):
+            self.rowcount = self.update_rowcount
+        else:
+            self.rowcount = 0
 
     async def executemany(self, sql: str, rows: list[tuple[object, ...]]) -> None:
         self.statements.append(" ".join(sql.split()))
@@ -179,6 +185,7 @@ def test_get_assessment_and_latest_run_use_mapped_rows() -> None:
             "expires_at": None,
             "created_at": assessed,
             "updated_at": assessed,
+            "owner_user_id": None,
         },
         {"latest_run_id": None},
     ]
@@ -187,6 +194,7 @@ def test_get_assessment_and_latest_run_use_mapped_rows() -> None:
     assert record is not None
     assert record.assessment_id == "assessment-1"
     assert record.access_state == "PREVIEW"
+    assert record.owner_user_id is None
     missing = asyncio.run(repo.get_latest_run("assessment-1"))
     assert missing is None
     empty = ScriptedCursor()
@@ -278,3 +286,229 @@ def test_run_owned_by_another_assessment_is_conflict() -> None:
     repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
     result = asyncio.run(repo.persist_bundle(_bundle()))
     assert result.status == "conflict"
+
+
+def _locked_assessment(**overrides: Any) -> dict[str, Any]:
+    assessed = datetime(2026, 9, 2, 8, 0, tzinfo=UTC)
+    row = {
+        "assessment_id": "assessment-1",
+        "candidate_ref": "opaque-candidate",
+        "track": "software_engineering",
+        "access_state": "PREVIEW",
+        "claim_token_hash": EMPTY_SHA256,
+        "claimed_at": None,
+        "latest_run_id": "run-1",
+        "expires_at": None,
+        "created_at": assessed,
+        "updated_at": assessed,
+        "owner_user_id": None,
+    }
+    row.update(overrides)
+    return row
+
+
+def test_claim_assessment_updates_owner_and_clears_hash() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [_locked_assessment()]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "claimed"
+    assert result.claimed_at == claimed_at
+    assert result.access_state == "PREVIEW"
+    joined = "\n".join(cursor.statements)
+    assert "FOR UPDATE" in joined
+    update_sql = next(sql for sql in cursor.statements if sql.startswith("UPDATE assessments"))
+    assert "claim_token_hash = NULL" in update_sql
+    assert "owner_user_id" in update_sql
+    assert "access_state" not in update_sql
+    assert "candidate_ref" not in update_sql
+
+
+def test_claim_assessment_same_owner_is_idempotent_without_token_match() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [
+        _locked_assessment(
+            owner_user_id="user-verified", claim_token_hash=None, claimed_at=claimed_at
+        )
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash="0" * 64,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "idempotent"
+    assert not any(sql.startswith("UPDATE assessments") for sql in cursor.statements)
+
+
+def test_claim_assessment_different_owner_conflicts() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [_locked_assessment(owner_user_id="other-user", claim_token_hash=None)]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "conflict"
+
+
+def test_claim_assessment_wrong_token_and_expired_and_missing() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    missing = ScriptedCursor()
+    repo = PostgresAssessmentRepository(FakePool(missing))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.claim_assessment(
+                assessment_id="missing",
+                authenticated_user_id="user-verified",
+                presented_claim_token_hash=EMPTY_SHA256,
+                claimed_at=claimed_at,
+            )
+        ).status
+        == "not_found"
+    )
+
+    wrong = ScriptedCursor()
+    wrong.fetchone_queue = [_locked_assessment()]
+    wrong_repo = PostgresAssessmentRepository(FakePool(wrong))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            wrong_repo.claim_assessment(
+                assessment_id="assessment-1",
+                authenticated_user_id="user-verified",
+                presented_claim_token_hash="1" * 64,
+                claimed_at=claimed_at,
+            )
+        ).status
+        == "token_invalid"
+    )
+    assert not any(sql.startswith("UPDATE assessments") for sql in wrong.statements)
+
+    expired = ScriptedCursor()
+    expired.fetchone_queue = [_locked_assessment(expires_at=datetime(2026, 1, 1, tzinfo=UTC))]
+    expired_repo = PostgresAssessmentRepository(FakePool(expired))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            expired_repo.claim_assessment(
+                assessment_id="assessment-1",
+                authenticated_user_id="user-verified",
+                presented_claim_token_hash=EMPTY_SHA256,
+                claimed_at=claimed_at,
+            )
+        ).status
+        == "expired"
+    )
+    assert not any(sql.startswith("UPDATE assessments") for sql in expired.statements)
+
+    naive = ScriptedCursor()
+    naive.fetchone_queue = [_locked_assessment(expires_at=datetime(2026, 1, 1))]
+    naive_repo = PostgresAssessmentRepository(FakePool(naive))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            naive_repo.claim_assessment(
+                assessment_id="assessment-1",
+                authenticated_user_id="user-verified",
+                presented_claim_token_hash=EMPTY_SHA256,
+                claimed_at=claimed_at,
+            )
+        ).status
+        == "expired"
+    )
+
+
+def test_claim_assessment_concurrent_update_reread_conflict() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.update_rowcount = 0
+    cursor.fetchone_queue = [
+        _locked_assessment(),
+        {
+            "owner_user_id": "other-user",
+            "claimed_at": claimed_at,
+            "access_state": "PREVIEW",
+        },
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "conflict"
+
+
+def test_claim_assessment_concurrent_update_reread_same_owner() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.update_rowcount = 0
+    cursor.fetchone_queue = [
+        _locked_assessment(),
+        {
+            "owner_user_id": "user-verified",
+            "claimed_at": claimed_at,
+            "access_state": "PREVIEW",
+        },
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "idempotent"
+
+
+def test_claim_assessment_concurrent_update_reread_missing() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.update_rowcount = 0
+    cursor.fetchone_queue = [_locked_assessment(), None]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "not_found"
+
+
+def test_claim_assessment_unequal_hash_length_is_token_invalid() -> None:
+    claimed_at = datetime(2026, 9, 4, 13, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [_locked_assessment(claim_token_hash="abc")]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.claim_assessment(
+            assessment_id="assessment-1",
+            authenticated_user_id="user-verified",
+            presented_claim_token_hash=EMPTY_SHA256,
+            claimed_at=claimed_at,
+        )
+    )
+    assert result.status == "token_invalid"

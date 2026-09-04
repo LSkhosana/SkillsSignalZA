@@ -19,6 +19,7 @@ from psycopg.rows import dict_row
 from app.engine.schema_registry import draft_validator
 from app.repositories.postgres import (
     MIGRATION_0002_PATH,
+    MIGRATION_0003_PATH,
     MIGRATION_PATH,
     PostgresAssessmentRepository,
     apply_postgres_migration,
@@ -63,6 +64,7 @@ def _document(
 async def _apply_checked_in_migrations(dsn: str) -> None:
     await apply_postgres_migration(dsn, MIGRATION_PATH)
     await apply_postgres_migration(dsn, MIGRATION_0002_PATH)
+    await apply_postgres_migration(dsn, MIGRATION_0003_PATH)
 
 
 async def _connect() -> PostgresAssessmentRepository:
@@ -148,6 +150,7 @@ def test_migration_creates_five_tables_with_rls_and_no_public_policies() -> None
     _run_with_repository(body)
     assert MIGRATION_PATH.name == "0001_assessment_persistence.sql"
     assert MIGRATION_0002_PATH.name == "0002_harden_immutable_function_search_path.sql"
+    assert MIGRATION_0003_PATH.name == "0003_assessment_ownership.sql"
 
 
 def test_immutable_trigger_function_search_path_is_fixed() -> None:

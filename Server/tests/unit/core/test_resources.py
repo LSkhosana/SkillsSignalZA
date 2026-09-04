@@ -16,6 +16,7 @@ from app.core.resources import (
     close_app_resources,
     init_app_resource_state,
     persistence_configured,
+    resolve_claim_resources,
     resolve_submission_resources,
 )
 from app.main import create_app
@@ -25,6 +26,7 @@ class _FakeSettings:
     database_url = SecretStr("postgresql://skillsignalza:test@localhost/skillsignalza_test")
     supabase_url = "https://example.invalid.supabase.co"
     supabase_secret_key = SecretStr("test-secret-not-for-production")
+    supabase_publishable_key = None
     supabase_storage_bucket = "candidate-evidence"
     db_pool_min_size = 0
     db_pool_max_size = 5
@@ -90,6 +92,7 @@ def test_production_resource_lifecycle_closes_pool_and_http_client(
         assert client.closed is True
         assert application.state.repository is None
         assert application.state.storage is None
+        assert application.state.auth_verifier is None
 
     asyncio.run(scenario())
     assert _FakeStorage.created
@@ -117,9 +120,16 @@ def test_app_starts_without_persistence_configuration(monkeypatch: pytest.Monkey
             data={"track": "software_engineering"},
             files={"cv": ("cv.pdf", b"%PDF-1.4 test", "application/pdf")},
         )
+        claim_missing = client.post(
+            "/api/v1/assessments/assessment-1/claim",
+            json={"claim_token": "token"},
+            headers={"Authorization": "Bearer access-token"},
+        )
     get_settings.cache_clear()
     assert missing.status_code == 503
     assert missing.json()["error_code"] == "ASSESSMENT_SERVICE_UNAVAILABLE"
+    assert claim_missing.status_code == 503
+    assert claim_missing.json()["error_code"] == "CLAIM_SERVICE_UNAVAILABLE"
 
 
 def test_bind_is_a_noop_when_unconfigured() -> None:
@@ -245,5 +255,78 @@ def test_close_swallows_resource_close_errors() -> None:
         application.state.http_client = boom
         await close_app_resources(application)
         assert application.state.repository is None
+        assert application.state.auth_verifier is None
+
+    asyncio.run(scenario())
+
+
+def test_bind_auth_verifier_without_secret_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.core.resources as resources
+
+    monkeypatch.setattr(resources, "PostgresAssessmentRepository", _FakePostgres)
+    monkeypatch.setattr(resources.httpx, "AsyncClient", _FakeClient)
+    _FakeStorage.created = []
+
+    class AuthSettings:
+        database_url = SecretStr("postgresql://skillsignalza:test@localhost/skillsignalza_test")
+        supabase_url = "https://example.invalid.supabase.co"
+        supabase_secret_key = None
+        supabase_publishable_key = "publishable-not-secret"
+        supabase_storage_bucket = "candidate-evidence"
+        db_pool_min_size = 0
+        db_pool_max_size = 5
+
+    async def scenario() -> None:
+        application = FastAPI()
+        init_app_resource_state(application)
+        application.state.auto_bind_resources = False
+        await bind_production_resources(application, settings=AuthSettings())  # type: ignore[arg-type]
+        assert application.state.storage is None
+        assert application.state.repository is not None
+        verifier = application.state.auth_verifier
+        assert verifier is not None
+        assert verifier._publishable_key == "publishable-not-secret"
+        repository, auth = await resolve_claim_resources(application)
+        assert repository is not None
+        assert auth is verifier
+        submission = await resolve_submission_resources(application)
+        assert submission == (None, None)
+        await close_app_resources(application)
+        assert application.state.auth_verifier is None
+
+    asyncio.run(scenario())
+    assert _FakeStorage.created == []
+
+
+def test_resolve_claim_lazy_binds_through_lock(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.core.resources as resources
+
+    async def fake_bind(application: FastAPI, settings: Settings | None = None) -> None:
+        application.state.repository = "repo"
+        application.state.auth_verifier = "verifier"
+
+    monkeypatch.setattr(resources, "bind_production_resources", fake_bind)
+
+    async def scenario() -> None:
+        application = FastAPI()
+        init_app_resource_state(application)
+        repository, verifier = await resolve_claim_resources(application)
+        assert repository == "repo"
+        assert verifier == "verifier"
+        again = await resolve_claim_resources(application)
+        assert again == ("repo", "verifier")
+
+    asyncio.run(scenario())
+
+
+def test_resolve_claim_returns_none_without_lock() -> None:
+    async def scenario() -> None:
+        application = FastAPI()
+        application.state.repository = None
+        application.state.auth_verifier = None
+        application.state.auto_bind_resources = True
+        repository, verifier = await resolve_claim_resources(application)
+        assert repository is None
+        assert verifier is None
 
     asyncio.run(scenario())
