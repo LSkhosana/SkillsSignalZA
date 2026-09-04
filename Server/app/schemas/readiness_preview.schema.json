@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/readiness-preview.json",
+  "title": "SkillSignalZA readiness preview payload",
+  "description": "Free anonymous preview of a completed assessment. Must not include paid report sections.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_version",
+    "assessment_id",
+    "run_id",
+    "track",
+    "track_label",
+    "final_score",
+    "score_max",
+    "band_id",
+    "band_label",
+    "strongest_area",
+    "priority_gap"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "readiness.preview.v1" },
+    "report_version": { "type": "string", "const": "1.0.0" },
+    "assessment_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "track": { "type": "string", "enum": ["software_engineering", "data_analytics"] },
+    "track_label": { "type": "string", "minLength": 1 },
+    "final_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "score_max": { "type": "integer", "const": 100 },
+    "band_id": {
+      "type": "string",
+      "enum": [
+        "limited_application_evidence",
+        "foundation_visible",
+        "developing_application_readiness",
+        "strong_application_evidence"
+      ]
+    },
+    "band_label": { "type": "string", "minLength": 1 },
+    "strongest_area": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category_id", "label", "score", "max_points", "percentage"],
+      "properties": {
+        "category_id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "score": { "type": "integer", "minimum": 0 },
+        "max_points": { "type": "integer", "minimum": 1 },
+        "percentage": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "priority_gap": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "criterion_id",
+        "criterion_label",
+        "category_id",
+        "category_label",
+        "point_gap",
+        "gap_ratio",
+        "current_anchor",
+        "current_anchor_label",
+        "awarded_points",
+        "max_points"
+      ],
+      "properties": {
+        "criterion_id": { "type": "string", "minLength": 1 },
+        "criterion_label": { "type": "string", "minLength": 1 },
+        "category_id": { "type": "string", "minLength": 1 },
+        "category_label": { "type": "string", "minLength": 1 },
+        "point_gap": { "type": "integer", "minimum": 0 },
+        "gap_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "current_anchor": { "type": "string", "minLength": 1 },
+        "current_anchor_label": { "type": "string", "minLength": 1 },
+        "awarded_points": { "type": "integer", "minimum": 0 },
+        "max_points": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

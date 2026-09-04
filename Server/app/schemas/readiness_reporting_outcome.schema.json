@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/readiness-reporting-outcome.json",
+  "title": "SkillSignalZA readiness reporting service outcome",
+  "description": "Package M application-service outcome. Preview and full report are generated on demand from a persisted completed assessment.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state",
+    "error_code",
+    "reporting_version",
+    "assessment_id",
+    "run_id",
+    "preview",
+    "report"
+  ],
+  "properties": {
+    "state": { "type": "string", "enum": ["COMPLETED", "FAILED"] },
+    "error_code": { "type": ["string", "null"], "minLength": 1 },
+    "reporting_version": { "type": "string", "const": "readiness.reporting.v1" },
+    "assessment_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "preview": { "type": ["object", "null"] },
+    "report": { "type": ["object", "null"] }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "COMPLETED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" },
+          "preview": { "type": "object" },
+          "report": { "type": "object" },
+          "assessment_id": { "type": "string", "minLength": 1 },
+          "run_id": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "FAILED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "enum": [
+              "ASSESSMENT_NOT_FOUND",
+              "ASSESSMENT_NOT_COMPLETED",
+              "ASSESSMENT_RESULT_MISSING",
+              "REPORT_VERSION_NOT_FOUND",
+              "REPORT_RULESET_INVALID",
+              "REPORT_BUILD_FAILED"
+            ]
+          },
+          "preview": { "type": "null" },
+          "report": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

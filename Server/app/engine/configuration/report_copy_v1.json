@@ -1,0 +1,37 @@
+{
+  "report_version": "1.0.0",
+  "contract_version": "1.2.0",
+  "rubric_version": "V2",
+  "status": "approved",
+  "evidence_anchor_labels": {
+    "demonstrated": "Demonstrated",
+    "documented": "Documented",
+    "named_only": "Named only",
+    "missing_unverifiable": "Missing or unverifiable"
+  },
+  "qualification_route_labels": {
+    "se.qual.completed": "Completed relevant qualification",
+    "se.qual.in_progress": "Relevant qualification in progress",
+    "se.qual.experience": "Equivalent technical experience",
+    "se.qual.bootcamp": "Relevant bootcamp or certifications",
+    "se.qual.adjacent": "Adjacent qualification",
+    "se.qual.none": "No relevant qualification",
+    "da.qual.completed": "Completed relevant qualification",
+    "da.qual.in_progress": "Relevant qualification in progress",
+    "da.qual.experience": "Equivalent analytical experience",
+    "da.qual.bootcamp": "Relevant bootcamp or certifications",
+    "da.qual.adjacent": "Adjacent qualification",
+    "da.qual.none": "No relevant qualification"
+  },
+  "cap_rule_labels": {
+    "rubric.v2.se.cap.cv_only_projects": "Project evidence scored from CV description only is capped",
+    "rubric.v2.da.cap.cv_only_projects": "Project evidence scored from CV description only is capped",
+    "rubric.v2.se.cap.no_language": "Overall score capped because programming language evidence is missing",
+    "rubric.v2.da.cap.no_sql": "Overall score capped because SQL evidence is missing",
+    "rubric.v2.da.cap.google_sheets_ceiling": "Spreadsheet evidence is capped when only Google Sheets is shown"
+  },
+  "benchmark": {
+    "scope_statement": "This result measures how strongly the submitted application bundle communicates entry-level readiness against the current SkillSignalZA Rubric V2 benchmark for Software Engineering and Data Analytics.",
+    "disclaimer": "The result measures submitted application evidence only. It does not predict hiring outcomes, employment probability, interview performance, or hidden ability."
+  }
+}
