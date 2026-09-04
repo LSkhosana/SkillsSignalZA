@@ -61,9 +61,12 @@ def test_migration_0003_adds_nullable_owner_user_id_index_without_fk() -> None:
         assert DATABASE_URL is not None
         assert MIGRATION_0003_PATH.is_file()
         sql = MIGRATION_0003_PATH.read_text(encoding="utf-8")
+        ddl = "\n".join(
+            line for line in sql.splitlines() if line.strip() and not line.lstrip().startswith("--")
+        )
         assert "owner_user_id TEXT NULL" in sql
-        assert "auth.users" not in sql
-        assert "FOREIGN KEY" not in sql.upper()
+        assert "auth.users" not in ddl
+        assert "FOREIGN KEY" not in ddl.upper()
         async with await AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as connection:
             column = await connection.execute(
                 """

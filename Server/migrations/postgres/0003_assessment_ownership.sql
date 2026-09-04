@@ -1,8 +1,7 @@
 -- Package O: verified-user ownership for anonymous assessments.
--- Ordinary PostgreSQL 16+. No foreign key to the identity-provider
--- user catalog; CI uses provider-neutral PostgreSQL and the persistence
--- layer stays vendor-neutral.
--- Historical migrations 0001 and 0002 must remain unchanged.
+-- Ordinary PostgreSQL 16+. Ownership is a nullable text column only.
+-- CI uses provider-neutral PostgreSQL and the persistence layer stays
+-- vendor-neutral. Historical migrations 0001 and 0002 must remain unchanged.
 
 ALTER TABLE assessments
     ADD COLUMN IF NOT EXISTS owner_user_id TEXT NULL;
