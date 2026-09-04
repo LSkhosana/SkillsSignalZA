@@ -13,6 +13,7 @@ CONFIGURATION_DIR = Path(__file__).resolve().parent
 RUBRIC_V2_PATH = CONFIGURATION_DIR / "rubric_v2.json"
 ACTION_CATALOG_V1_PATH = CONFIGURATION_DIR / "action_catalog_v1.json"
 PROJECT_CATALOG_V1_PATH = CONFIGURATION_DIR / "project_catalog_v1.json"
+REPORT_COPY_V1_PATH = CONFIGURATION_DIR / "report_copy_v1.json"
 EVIDENCE_RULES_V1_PATH = CONFIGURATION_DIR / "evidence_rules_v1.json"
 HIGHER_ORDER_RULES_V1_PATH = CONFIGURATION_DIR / "higher_order_rules_v1.json"
 CRITERION_BINDING_RULES_V1_PATH = CONFIGURATION_DIR / "criterion_binding_rules_v1.json"
@@ -47,6 +48,15 @@ def load_project_catalog_v1() -> dict[str, Any]:
     document = load_json(PROJECT_CATALOG_V1_PATH)
     if not isinstance(document, dict):
         msg = "project_catalog_v1.json must contain a JSON object"
+        raise TypeError(msg)
+    return document
+
+
+def load_report_copy_v1() -> dict[str, Any]:
+    """Return the canonical Package M customer-copy document."""
+    document = load_json(REPORT_COPY_V1_PATH)
+    if not isinstance(document, dict):
+        msg = "report_copy_v1.json must contain a JSON object"
         raise TypeError(msg)
     return document
 

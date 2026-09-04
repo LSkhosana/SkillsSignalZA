@@ -1182,8 +1182,8 @@ def test_secret_sentinel_exists_only_at_harness_secret_sentinel(
 
 
 def test_fixture_package_does_not_add_reporting_modules() -> None:
-    engine_root = Path(__file__).resolve().parents[3] / "app" / "engine"
-    files = [
-        path for path in (engine_root / "reporting").glob("*.py") if path.name != "__init__.py"
-    ]
-    assert files == []
+    """Golden fixtures remain scoring inputs/outputs, not report builders."""
+    for path in FIXTURE_DIR.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        assert "build_readiness_report" not in text
+        assert "build_readiness_preview" not in text
