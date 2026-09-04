@@ -5,8 +5,9 @@ Uses psycopg 3 with a small connection pool. Does not use PostgREST.
 
 from __future__ import annotations
 
+import hmac
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Self
 
@@ -17,6 +18,7 @@ from psycopg_pool import AsyncConnectionPool
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    ClaimWriteResult,
     DocumentMetadata,
     PersistenceBundle,
     PersistWriteResult,
@@ -29,6 +31,13 @@ MIGRATION_PATH = (
     / "0001_assessment_persistence.sql"
 )
 MIGRATION_0002_PATH = MIGRATION_PATH.with_name("0002_harden_immutable_function_search_path.sql")
+MIGRATION_0003_PATH = MIGRATION_PATH.with_name("0003_assessment_ownership.sql")
+
+_ASSESSMENT_SELECT = """
+    SELECT assessment_id, candidate_ref, track, access_state, claim_token_hash,
+           claimed_at, latest_run_id, expires_at, created_at, updated_at, owner_user_id
+    FROM assessments
+"""
 
 
 def _canonical(value: object) -> str:
@@ -143,28 +152,113 @@ class PostgresAssessmentRepository:
         async with self._pool.connection() as connection:
             async with connection.cursor() as cursor:
                 await cursor.execute(
-                    """
-                    SELECT assessment_id, candidate_ref, track, access_state, claim_token_hash,
-                           claimed_at, latest_run_id, expires_at, created_at, updated_at
-                    FROM assessments
-                    WHERE assessment_id = %s
-                    """,
+                    _ASSESSMENT_SELECT + " WHERE assessment_id = %s",
                     (assessment_id,),
                 )
                 row = await cursor.fetchone()
         if row is None:
             return None
-        return AssessmentRecord(
-            assessment_id=str(row["assessment_id"]),
-            candidate_ref=str(row["candidate_ref"]),
-            track=str(row["track"]),
-            access_state=str(row["access_state"]),  # type: ignore[arg-type]
-            claim_token_hash=_text(row["claim_token_hash"]),
-            claimed_at=row["claimed_at"],
-            latest_run_id=_text(row["latest_run_id"]),
-            expires_at=row["expires_at"],
-            created_at=row["created_at"],
-            updated_at=row["updated_at"],
+        return _assessment_from_row(row)
+
+    async def claim_assessment(
+        self,
+        *,
+        assessment_id: str,
+        authenticated_user_id: str,
+        presented_claim_token_hash: str,
+        claimed_at: datetime,
+    ) -> ClaimWriteResult:
+        async with self._pool.connection() as connection:
+            async with connection.transaction():
+                async with connection.cursor() as cursor:
+                    return await self._claim_in_transaction(
+                        cursor,
+                        assessment_id=assessment_id,
+                        authenticated_user_id=authenticated_user_id,
+                        presented_claim_token_hash=presented_claim_token_hash,
+                        claimed_at=claimed_at,
+                    )
+
+    async def _claim_in_transaction(
+        self,
+        cursor: Any,
+        *,
+        assessment_id: str,
+        authenticated_user_id: str,
+        presented_claim_token_hash: str,
+        claimed_at: datetime,
+    ) -> ClaimWriteResult:
+        await cursor.execute(
+            _ASSESSMENT_SELECT + " WHERE assessment_id = %s FOR UPDATE",
+            (assessment_id,),
+        )
+        row = await cursor.fetchone()
+        if row is None:
+            return ClaimWriteResult("not_found", assessment_id)
+        owner = _text(row.get("owner_user_id"))
+        access_state = str(row["access_state"])
+        if owner is not None:
+            if owner == authenticated_user_id:
+                return ClaimWriteResult(
+                    "idempotent",
+                    assessment_id,
+                    claimed_at=row["claimed_at"],
+                    access_state=access_state,  # type: ignore[arg-type]
+                )
+            return ClaimWriteResult(
+                "conflict",
+                assessment_id,
+                claimed_at=row["claimed_at"],
+                access_state=access_state,  # type: ignore[arg-type]
+            )
+        stored_hash = _text(row["claim_token_hash"])
+        if stored_hash is None or not _hashes_equal(stored_hash, presented_claim_token_hash):
+            return ClaimWriteResult("token_invalid", assessment_id)
+        if row["expires_at"] is not None and _expiry_passed(row["expires_at"], claimed_at):
+            return ClaimWriteResult("expired", assessment_id)
+        await cursor.execute(
+            """
+            UPDATE assessments
+            SET owner_user_id = %s,
+                claimed_at = %s,
+                claim_token_hash = NULL,
+                updated_at = now()
+            WHERE assessment_id = %s
+              AND owner_user_id IS NULL
+            """,
+            (authenticated_user_id, claimed_at, assessment_id),
+        )
+        if cursor.rowcount == 0:
+            await cursor.execute(
+                """
+                SELECT owner_user_id, claimed_at, access_state
+                FROM assessments
+                WHERE assessment_id = %s
+                """,
+                (assessment_id,),
+            )
+            again = await cursor.fetchone()
+            if again is None:
+                return ClaimWriteResult("not_found", assessment_id)
+            other = _text(again.get("owner_user_id"))
+            if other == authenticated_user_id:
+                return ClaimWriteResult(
+                    "idempotent",
+                    assessment_id,
+                    claimed_at=again["claimed_at"],
+                    access_state=str(again["access_state"]),  # type: ignore[arg-type]
+                )
+            return ClaimWriteResult(
+                "conflict",
+                assessment_id,
+                claimed_at=again["claimed_at"],
+                access_state=str(again["access_state"]),  # type: ignore[arg-type]
+            )
+        return ClaimWriteResult(
+            "claimed",
+            assessment_id,
+            claimed_at=claimed_at,
+            access_state=access_state,  # type: ignore[arg-type]
         )
 
     async def get_run(self, run_id: str) -> AssessmentRunRecord | None:
@@ -535,8 +629,38 @@ class PostgresAssessmentRepository:
         )
 
 
+def _assessment_from_row(row: dict[str, Any]) -> AssessmentRecord:
+    return AssessmentRecord(
+        assessment_id=str(row["assessment_id"]),
+        candidate_ref=str(row["candidate_ref"]),
+        track=str(row["track"]),
+        access_state=str(row["access_state"]),  # type: ignore[arg-type]
+        claim_token_hash=_text(row["claim_token_hash"]),
+        claimed_at=row["claimed_at"],
+        latest_run_id=_text(row["latest_run_id"]),
+        expires_at=row["expires_at"],
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+        owner_user_id=_text(row.get("owner_user_id")),
+    )
+
+
+def _hashes_equal(stored_hash: str, presented_hash: str) -> bool:
+    stored = stored_hash.encode("utf-8")
+    presented = presented_hash.encode("utf-8")
+    if len(stored) != len(presented):
+        return False
+    return hmac.compare_digest(stored, presented)
+
+
+def _expiry_passed(expires_at: datetime, claimed_at: datetime) -> bool:
+    expiry = expires_at if expires_at.tzinfo is not None else expires_at.replace(tzinfo=UTC)
+    instant = claimed_at if claimed_at.tzinfo is not None else claimed_at.replace(tzinfo=UTC)
+    return expiry <= instant
+
+
 async def apply_postgres_migration(dsn: str, path: Path = MIGRATION_PATH) -> None:
-    """Apply the checked-in Package L migration. Used by tests and operators."""
+    """Apply one checked-in PostgreSQL migration. Used by tests and operators."""
     from psycopg import AsyncConnection
 
     sql = path.read_text(encoding="utf-8")

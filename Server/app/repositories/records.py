@@ -7,6 +7,14 @@ from datetime import datetime
 from typing import Any, Literal
 
 PersistWriteStatus = Literal["inserted", "noop", "conflict"]
+ClaimWriteStatus = Literal[
+    "claimed",
+    "idempotent",
+    "conflict",
+    "not_found",
+    "token_invalid",
+    "expired",
+]
 AccessState = Literal["PREVIEW", "UNLOCKED"]
 
 
@@ -49,6 +57,16 @@ class PersistWriteResult:
 
 
 @dataclass(frozen=True)
+class ClaimWriteResult:
+    """Atomic ownership-claim outcome without vendor types."""
+
+    status: ClaimWriteStatus
+    assessment_id: str
+    claimed_at: datetime | None = None
+    access_state: AccessState | None = None
+
+
+@dataclass(frozen=True)
 class AssessmentRecord:
     """Mutable assessment lifecycle row."""
 
@@ -62,6 +80,7 @@ class AssessmentRecord:
     expires_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    owner_user_id: str | None = None
 
 
 @dataclass(frozen=True)

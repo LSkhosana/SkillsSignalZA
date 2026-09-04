@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-claim-response.json",
+  "title": "SkillSignalZA assessment claim outcome",
+  "description": "Customer-facing Package O outcome. Establishes ownership of an existing anonymous assessment without unlocking the paid report.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "state",
+    "assessment_id",
+    "access_state",
+    "claimed_at",
+    "error_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "assessment.claim.v1"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["CLAIMED", "FAILED"]
+    },
+    "assessment_id": {
+      "type": "string"
+    },
+    "access_state": {
+      "type": ["string", "null"],
+      "enum": ["PREVIEW", null]
+    },
+    "claimed_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "CLAIMED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" },
+          "assessment_id": { "type": "string", "minLength": 1 },
+          "access_state": { "const": "PREVIEW" },
+          "claimed_at": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "FAILED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "string", "minLength": 1 },
+          "access_state": { "type": "null" },
+          "claimed_at": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

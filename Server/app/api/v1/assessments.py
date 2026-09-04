@@ -7,13 +7,19 @@ status codes. Scoring rules belong in `app.engine.scoring`.
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from starlette.datastructures import UploadFile
 
-from app.core.resources import resolve_submission_resources, submission_overrides
+from app.core.auth import AuthServiceUnavailable, parse_bearer_authorization
+from app.core.resources import (
+    resolve_claim_resources,
+    resolve_submission_resources,
+    submission_overrides,
+)
 from app.engine.outcomes import engine_outcome
 from app.repositories.supabase import MAX_FILE_SIZE_BYTES
 from app.schemas.scoring import ScoreAssessmentRequest
@@ -24,6 +30,15 @@ from app.services.anonymous_assessment import (
     anonymous_http_status,
     anonymous_service_unavailable,
     submit_anonymous_assessment,
+)
+from app.services.assessment_claim import (
+    ERROR_AUTH_INVALID,
+    ERROR_AUTH_SERVICE_UNAVAILABLE,
+    ERROR_INVALID_CLAIM_REQUEST,
+    claim_assessment_for_user,
+    claim_failed_outcome,
+    claim_http_status,
+    claim_service_unavailable,
 )
 from app.services.assessment_scoring import score_frozen_assessment
 
@@ -105,6 +120,62 @@ async def post_anonymous_assessment(request: Request) -> JSONResponse:
     return JSONResponse(content=outcome, status_code=anonymous_http_status(outcome))
 
 
+@router.post(
+    "/{assessment_id}/claim",
+    summary="Claim an anonymous assessment",
+    description=(
+        "Attach a verified Supabase Auth user as owner of an existing anonymous "
+        "assessment. Ownership does not unlock the paid report."
+    ),
+    responses={
+        200: {"description": "Assessment claimed, including same-owner retry."},
+        401: {"description": "Missing or invalid Authorization bearer token."},
+        403: {"description": "Claim token does not match the assessment."},
+        404: {"description": "Assessment does not exist."},
+        409: {"description": "Assessment already owned by a different user."},
+        410: {"description": "Claim window has expired."},
+        422: {"description": "Malformed claim request body."},
+        503: {"description": "Auth or persistence infrastructure unavailable."},
+    },
+)
+async def post_claim_assessment(assessment_id: str, request: Request) -> JSONResponse:
+    access_token, auth_error = parse_bearer_authorization(request.headers.get("Authorization"))
+    if auth_error is not None:
+        payload = claim_failed_outcome(auth_error, assessment_id)
+        return JSONResponse(content=payload, status_code=claim_http_status(payload))
+    repository, verifier = await resolve_claim_resources(request.app)
+    if repository is None or verifier is None:
+        payload = claim_service_unavailable(assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    try:
+        principal = await verifier.verify_access_token(access_token or "")
+    except AuthServiceUnavailable:
+        payload = claim_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE, assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    except Exception:
+        payload = claim_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE, assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    if principal is None or not principal.subject:
+        payload = claim_failed_outcome(ERROR_AUTH_INVALID, assessment_id)
+        return JSONResponse(content=payload, status_code=401)
+    parsed = await _parse_claim_json(request)
+    if isinstance(parsed, JSONResponse):
+        return parsed
+    try:
+        claimed_at = getattr(request.app.state, "claimed_at", None)
+        outcome = await claim_assessment_for_user(
+            repository=repository,
+            assessment_id=assessment_id,
+            authenticated_user_id=principal.subject,
+            claim_token=parsed,
+            claimed_at=claimed_at if isinstance(claimed_at, datetime) else None,
+        )
+    except Exception:
+        outcome = claim_service_unavailable(assessment_id)
+        return JSONResponse(content=outcome, status_code=503)
+    return JSONResponse(content=outcome, status_code=claim_http_status(outcome))
+
+
 def _http_status(outcome: dict[str, Any]) -> int:
     state = outcome.get("state")
     if not isinstance(state, str):
@@ -181,3 +252,21 @@ def _file_too_large_response() -> JSONResponse:
         content=anonymous_failed_outcome(ERROR_FILE_TOO_LARGE),
         status_code=422,
     )
+
+
+async def _parse_claim_json(request: Request) -> str | JSONResponse:
+    try:
+        payload = await request.json()
+    except Exception:
+        return _invalid_claim_response()
+    if not isinstance(payload, dict):
+        return _invalid_claim_response()
+    claim_token = payload.get("claim_token")
+    if not isinstance(claim_token, str) or not claim_token.strip():
+        return _invalid_claim_response()
+    return claim_token
+
+
+def _invalid_claim_response() -> JSONResponse:
+    payload = claim_failed_outcome(ERROR_INVALID_CLAIM_REQUEST)
+    return JSONResponse(content=payload, status_code=422)

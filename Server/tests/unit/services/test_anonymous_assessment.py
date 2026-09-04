@@ -5,7 +5,9 @@ from __future__ import annotations
 import ast
 import asyncio
 import hashlib
+import hmac
 import json
+from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +15,7 @@ from app.engine.schema_registry import draft_validator
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    ClaimWriteResult,
     PersistenceBundle,
     PersistWriteResult,
 )
@@ -87,6 +90,14 @@ PAID_KEYS = {
 }
 
 
+def _hashes_match(stored: str, presented: str) -> bool:
+    stored_bytes = stored.encode("utf-8")
+    presented_bytes = presented.encode("utf-8")
+    if len(stored_bytes) != len(presented_bytes):
+        return False
+    return hmac.compare_digest(stored_bytes, presented_bytes)
+
+
 class RecordingRepository:
     def __init__(self) -> None:
         self.bundles: list[PersistenceBundle] = []
@@ -96,6 +107,8 @@ class RecordingRepository:
         self.persist_result: PersistWriteResult | None = None
         self.get_assessment_error: Exception | None = None
         self.store_on_persist = True
+        self.claim_error: Exception | None = None
+        self.claim_calls: list[dict[str, Any]] = []
 
     async def persist_bundle(self, bundle: PersistenceBundle) -> PersistWriteResult:
         if self.persist_error is not None:
@@ -124,6 +137,74 @@ class RecordingRepository:
         if record is None or record.latest_run_id is None:
             return None
         return self.runs.get(record.latest_run_id)
+
+    async def claim_assessment(
+        self,
+        *,
+        assessment_id: str,
+        authenticated_user_id: str,
+        presented_claim_token_hash: str,
+        claimed_at: Any,
+    ) -> ClaimWriteResult:
+        self.claim_calls.append(
+            {
+                "assessment_id": assessment_id,
+                "authenticated_user_id": authenticated_user_id,
+                "presented_claim_token_hash": presented_claim_token_hash,
+            }
+        )
+        if self.claim_error is not None:
+            raise self.claim_error
+        record = self.assessments.get(assessment_id)
+        if record is None:
+            return ClaimWriteResult("not_found", assessment_id)
+        if record.owner_user_id is not None:
+            if record.owner_user_id == authenticated_user_id:
+                return ClaimWriteResult(
+                    "idempotent",
+                    assessment_id,
+                    claimed_at=record.claimed_at,
+                    access_state=record.access_state,
+                )
+            return ClaimWriteResult(
+                "conflict",
+                assessment_id,
+                claimed_at=record.claimed_at,
+                access_state=record.access_state,
+            )
+        stored = record.claim_token_hash
+        if stored is None or not _hashes_match(stored, presented_claim_token_hash):
+            return ClaimWriteResult("token_invalid", assessment_id)
+        if record.expires_at is not None:
+            expiry = (
+                record.expires_at
+                if record.expires_at.tzinfo is not None
+                else record.expires_at.replace(tzinfo=UTC)
+            )
+            instant = (
+                claimed_at if claimed_at.tzinfo is not None else claimed_at.replace(tzinfo=UTC)
+            )
+            if expiry <= instant:
+                return ClaimWriteResult("expired", assessment_id)
+        self.assessments[assessment_id] = AssessmentRecord(
+            assessment_id=record.assessment_id,
+            candidate_ref=record.candidate_ref,
+            track=record.track,
+            access_state=record.access_state,
+            claim_token_hash=None,
+            claimed_at=claimed_at,
+            latest_run_id=record.latest_run_id,
+            expires_at=record.expires_at,
+            created_at=record.created_at,
+            updated_at=claimed_at,
+            owner_user_id=authenticated_user_id,
+        )
+        return ClaimWriteResult(
+            "claimed",
+            assessment_id,
+            claimed_at=claimed_at,
+            access_state=record.access_state,
+        )
 
     def _store(self, bundle: PersistenceBundle) -> None:
         outcome = bundle.pipeline_outcome
