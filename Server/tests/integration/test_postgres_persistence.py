@@ -20,6 +20,7 @@ from app.engine.schema_registry import draft_validator
 from app.repositories.postgres import (
     MIGRATION_0002_PATH,
     MIGRATION_0003_PATH,
+    MIGRATION_0004_PATH,
     MIGRATION_PATH,
     PostgresAssessmentRepository,
     apply_postgres_migration,
@@ -65,6 +66,7 @@ async def _apply_checked_in_migrations(dsn: str) -> None:
     await apply_postgres_migration(dsn, MIGRATION_PATH)
     await apply_postgres_migration(dsn, MIGRATION_0002_PATH)
     await apply_postgres_migration(dsn, MIGRATION_0003_PATH)
+    await apply_postgres_migration(dsn, MIGRATION_0004_PATH)
 
 
 async def _connect() -> PostgresAssessmentRepository:
@@ -129,7 +131,8 @@ def test_migration_creates_five_tables_with_rls_and_no_public_policies() -> None
                 """
             )
             names = {row["tablename"] for row in await tables.fetchall()}
-            assert names == V1_TABLES
+            assert V1_TABLES <= names
+            assert names - V1_TABLES <= {"assessment_payments"}
             rls = await connection.execute(
                 """
                 SELECT c.relname, c.relrowsecurity

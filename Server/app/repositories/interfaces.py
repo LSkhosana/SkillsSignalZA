@@ -12,7 +12,10 @@ from typing import Any, Protocol
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    CheckoutBeginResult,
     ClaimWriteResult,
+    FulfillmentResult,
+    PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
 )
@@ -42,6 +45,49 @@ class AssessmentRepository(Protocol):
         claimed_at: datetime,
     ) -> ClaimWriteResult:
         """Atomically attach a verified user as owner of one unclaimed assessment."""
+
+    async def begin_checkout_attempt(
+        self,
+        *,
+        assessment_id: str,
+        owner_user_id: str,
+        payment_id: str,
+        provider_reference: str,
+        product_id: str,
+        billing_model: str,
+        provider: str,
+        amount_minor: int,
+        currency: str,
+    ) -> CheckoutBeginResult:
+        """Atomically create one INITIALIZING attempt or return the existing active checkout."""
+
+    async def mark_checkout_initialized(
+        self,
+        *,
+        payment_id: str,
+        authorization_url: str,
+    ) -> PaymentRecord | None:
+        """Persist INITIALIZED plus the provider authorization URL."""
+
+    async def mark_checkout_initialization_failed(self, *, payment_id: str) -> PaymentRecord | None:
+        """Retain a failed attempt without leaving an active customer checkout."""
+
+    async def get_payment_by_provider_reference(
+        self, provider_reference: str
+    ) -> PaymentRecord | None:
+        """Return the local payment attempt for a provider reference."""
+
+    async def fulfill_payment_and_unlock(
+        self,
+        *,
+        payment_id: str,
+        provider_reference: str,
+        provider_transaction_id: str,
+        verified_amount_minor: int,
+        verified_currency: str,
+        paid_at: datetime,
+    ) -> FulfillmentResult:
+        """Atomically mark payment SUCCEEDED and transition PREVIEW to UNLOCKED."""
 
 
 class DocumentStorage(Protocol):

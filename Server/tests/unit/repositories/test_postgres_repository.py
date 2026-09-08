@@ -512,3 +512,321 @@ def test_claim_assessment_unequal_hash_length_is_token_invalid() -> None:
         )
     )
     assert result.status == "token_invalid"
+
+
+def _payment_row(**overrides: Any) -> dict[str, Any]:
+    assessed = datetime(2026, 9, 2, 8, 0, tzinfo=UTC)
+    row = {
+        "payment_id": "pay-1",
+        "assessment_id": "assessment-1",
+        "owner_user_id": "user-verified",
+        "product_id": "readiness_report_v1",
+        "billing_model": "one_time",
+        "provider": "paystack",
+        "provider_reference": "psk-1",
+        "provider_transaction_id": None,
+        "amount_minor": 15900,
+        "currency": "ZAR",
+        "status": "INITIALIZING",
+        "authorization_url": None,
+        "paid_at": None,
+        "created_at": assessed,
+        "updated_at": assessed,
+    }
+    row.update(overrides)
+    return row
+
+
+def test_begin_checkout_creates_initializing_attempt() -> None:
+    cursor = ScriptedCursor()
+    created = _payment_row()
+    cursor.fetchone_queue = [
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        {"state": "COMPLETED"},
+        None,
+        created,
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.begin_checkout_attempt(
+            assessment_id="assessment-1",
+            owner_user_id="user-verified",
+            payment_id="pay-1",
+            provider_reference="psk-1",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+    )
+    assert result.status == "created"
+    assert result.payment is not None
+    assert result.payment.status == "INITIALIZING"
+    joined = "\n".join(cursor.statements)
+    assert "FOR UPDATE" in joined
+    assert "INSERT INTO assessment_payments" in joined
+
+
+def test_begin_checkout_returns_existing_initialized_without_insert() -> None:
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        {"state": "COMPLETED"},
+        _payment_row(status="INITIALIZED", authorization_url="https://checkout.paystack.com/x"),
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.begin_checkout_attempt(
+            assessment_id="assessment-1",
+            owner_user_id="user-verified",
+            payment_id="pay-2",
+            provider_reference="psk-2",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+    )
+    assert result.status == "existing_initialized"
+    assert "INSERT INTO assessment_payments" not in "\n".join(cursor.statements)
+
+
+def test_fulfill_payment_unlocks_preview_assessment() -> None:
+    paid_at = datetime(2026, 9, 8, 9, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.update_rowcount = 1
+    cursor.fetchone_queue = [
+        _payment_row(status="INITIALIZED", authorization_url="https://checkout.paystack.com/x"),
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        None,
+        {"state": "COMPLETED"},
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.fulfill_payment_and_unlock(
+            payment_id="pay-1",
+            provider_reference="psk-1",
+            provider_transaction_id="9001",
+            verified_amount_minor=15900,
+            verified_currency="ZAR",
+            paid_at=paid_at,
+        )
+    )
+    assert result.status == "unlocked"
+    assert result.access_state == "UNLOCKED"
+    joined = "\n".join(cursor.statements)
+    assert "status = 'SUCCEEDED'" in joined
+    assert "access_state = 'UNLOCKED'" in joined
+    assert "assessment_result" not in joined.lower() or "UPDATE assessment_runs" not in joined
+
+
+def test_begin_checkout_not_found_not_owned_and_already_unlocked() -> None:
+    missing = ScriptedCursor()
+    missing.fetchone_queue = [None]
+    repo = PostgresAssessmentRepository(FakePool(missing))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.begin_checkout_attempt(
+                assessment_id="assessment-1",
+                owner_user_id="user-verified",
+                payment_id="pay-1",
+                provider_reference="psk-1",
+                product_id="readiness_report_v1",
+                billing_model="one_time",
+                provider="paystack",
+                amount_minor=15900,
+                currency="ZAR",
+            )
+        ).status
+        == "not_found"
+    )
+    owned = ScriptedCursor()
+    owned.fetchone_queue = [_locked_assessment(owner_user_id="other", claim_token_hash=None)]
+    repo = PostgresAssessmentRepository(FakePool(owned))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.begin_checkout_attempt(
+                assessment_id="assessment-1",
+                owner_user_id="user-verified",
+                payment_id="pay-1",
+                provider_reference="psk-1",
+                product_id="readiness_report_v1",
+                billing_model="one_time",
+                provider="paystack",
+                amount_minor=15900,
+                currency="ZAR",
+            )
+        ).status
+        == "not_owned"
+    )
+    unlocked = ScriptedCursor()
+    unlocked.fetchone_queue = [
+        _locked_assessment(access_state="UNLOCKED", owner_user_id="user-verified"),
+        _payment_row(status="SUCCEEDED", provider_transaction_id="1"),
+    ]
+    repo = PostgresAssessmentRepository(FakePool(unlocked))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.begin_checkout_attempt(
+            assessment_id="assessment-1",
+            owner_user_id="user-verified",
+            payment_id="pay-1",
+            provider_reference="psk-1",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+    )
+    assert result.status == "already_unlocked"
+
+
+def test_begin_checkout_initializing_and_unique_violation() -> None:
+    from psycopg.errors import UniqueViolation
+
+    busy = ScriptedCursor()
+    busy.fetchone_queue = [
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        {"state": "COMPLETED"},
+        _payment_row(status="INITIALIZING"),
+    ]
+    repo = PostgresAssessmentRepository(FakePool(busy))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.begin_checkout_attempt(
+                assessment_id="assessment-1",
+                owner_user_id="user-verified",
+                payment_id="pay-2",
+                provider_reference="psk-2",
+                product_id="readiness_report_v1",
+                billing_model="one_time",
+                provider="paystack",
+                amount_minor=15900,
+                currency="ZAR",
+            )
+        ).status
+        == "initializing"
+    )
+
+    class BoomCursor(ScriptedCursor):
+        async def execute(self, sql: str, _params: object = None) -> None:
+            compact = " ".join(sql.split())
+            self.statements.append(compact)
+            if compact.startswith("INSERT INTO assessment_payments"):
+                raise UniqueViolation("duplicate")
+
+    boom = BoomCursor()
+    boom.fetchone_queue = [
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        {"state": "COMPLETED"},
+        None,
+    ]
+    repo = PostgresAssessmentRepository(FakePool(boom))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.begin_checkout_attempt(
+                assessment_id="assessment-1",
+                owner_user_id="user-verified",
+                payment_id="pay-2",
+                provider_reference="psk-2",
+                product_id="readiness_report_v1",
+                billing_model="one_time",
+                provider="paystack",
+                amount_minor=15900,
+                currency="ZAR",
+            )
+        ).status
+        == "conflict"
+    )
+
+
+def test_mark_initialized_failed_and_get_by_reference() -> None:
+    cursor = ScriptedCursor()
+    cursor.fetchone_queue = [
+        _payment_row(status="INITIALIZED", authorization_url="https://checkout.paystack.com/x"),
+        _payment_row(status="INITIALIZATION_FAILED"),
+        _payment_row(),
+        None,
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    initialized = asyncio.run(
+        repo.mark_checkout_initialized(
+            payment_id="pay-1", authorization_url="https://checkout.paystack.com/x"
+        )
+    )
+    assert initialized is not None
+    failed = asyncio.run(repo.mark_checkout_initialization_failed(payment_id="pay-1"))
+    assert failed is not None
+    found = asyncio.run(repo.get_payment_by_provider_reference("psk-1"))
+    assert found is not None
+    missing = asyncio.run(repo.get_payment_by_provider_reference("missing"))
+    assert missing is None
+
+
+def test_fulfill_conflicts_and_idempotent_success() -> None:
+    paid_at = datetime(2026, 9, 8, 9, 0, tzinfo=UTC)
+    missing = ScriptedCursor()
+    missing.fetchone_queue = [None]
+    repo = PostgresAssessmentRepository(FakePool(missing))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.fulfill_payment_and_unlock(
+                payment_id="pay-1",
+                provider_reference="psk-1",
+                provider_transaction_id="9001",
+                verified_amount_minor=15900,
+                verified_currency="ZAR",
+                paid_at=paid_at,
+            )
+        ).status
+        == "not_found"
+    )
+    mismatch = ScriptedCursor()
+    mismatch.fetchone_queue = [
+        _payment_row(status="INITIALIZED", authorization_url="https://checkout.paystack.com/x"),
+        _locked_assessment(owner_user_id="other", claim_token_hash=None),
+    ]
+    repo = PostgresAssessmentRepository(FakePool(mismatch))  # type: ignore[arg-type]
+    assert (
+        asyncio.run(
+            repo.fulfill_payment_and_unlock(
+                payment_id="pay-1",
+                provider_reference="psk-1",
+                provider_transaction_id="9001",
+                verified_amount_minor=15900,
+                verified_currency="ZAR",
+                paid_at=paid_at,
+            )
+        ).status
+        == "conflict"
+    )
+    idempotent = ScriptedCursor()
+    idempotent.fetchone_queue = [
+        _payment_row(
+            status="SUCCEEDED",
+            provider_transaction_id="9001",
+            paid_at=paid_at,
+            authorization_url="https://checkout.paystack.com/x",
+        ),
+        _locked_assessment(
+            owner_user_id="user-verified",
+            access_state="UNLOCKED",
+            claim_token_hash=None,
+        ),
+        None,
+        {"state": "COMPLETED"},
+    ]
+    repo = PostgresAssessmentRepository(FakePool(idempotent))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.fulfill_payment_and_unlock(
+            payment_id="pay-1",
+            provider_reference="psk-1",
+            provider_transaction_id="9001",
+            verified_amount_minor=15900,
+            verified_currency="ZAR",
+            paid_at=paid_at,
+        )
+    )
+    assert result.status == "idempotent"

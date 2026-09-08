@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/payment-checkout-response.json",
+  "title": "SkillSignalZA payment checkout outcome",
+  "description": "Customer-facing Package P checkout outcome. Does not include the paid Readiness Report, verified email, or provider secrets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "state",
+    "assessment_id",
+    "payment_id",
+    "access_state",
+    "amount_minor",
+    "currency",
+    "provider",
+    "provider_reference",
+    "authorization_url",
+    "error_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "payment.checkout.v1"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["PAYMENT_INITIALIZED", "ALREADY_UNLOCKED", "FAILED"]
+    },
+    "assessment_id": {
+      "type": "string"
+    },
+    "payment_id": {
+      "type": ["string", "null"]
+    },
+    "access_state": {
+      "type": ["string", "null"],
+      "enum": ["PREVIEW", "UNLOCKED", null]
+    },
+    "amount_minor": {
+      "type": ["integer", "null"]
+    },
+    "currency": {
+      "type": ["string", "null"]
+    },
+    "provider": {
+      "type": ["string", "null"]
+    },
+    "provider_reference": {
+      "type": ["string", "null"]
+    },
+    "authorization_url": {
+      "type": ["string", "null"]
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "PAYMENT_INITIALIZED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" },
+          "assessment_id": { "type": "string", "minLength": 1 },
+          "payment_id": { "type": "string", "minLength": 1 },
+          "access_state": { "const": "PREVIEW" },
+          "amount_minor": { "const": 15900 },
+          "currency": { "const": "ZAR" },
+          "provider": { "const": "paystack" },
+          "provider_reference": { "type": "string", "minLength": 1 },
+          "authorization_url": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "ALREADY_UNLOCKED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" },
+          "assessment_id": { "type": "string", "minLength": 1 },
+          "access_state": { "const": "UNLOCKED" },
+          "amount_minor": { "const": 15900 },
+          "currency": { "const": "ZAR" },
+          "provider": { "const": "paystack" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "FAILED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "string", "minLength": 1 },
+          "payment_id": { "type": "null" },
+          "access_state": { "type": "null" },
+          "amount_minor": { "type": "null" },
+          "currency": { "type": "null" },
+          "provider": { "type": "null" },
+          "provider_reference": { "type": "null" },
+          "authorization_url": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

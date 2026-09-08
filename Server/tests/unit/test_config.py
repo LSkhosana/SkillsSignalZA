@@ -49,10 +49,24 @@ def test_secret_is_not_exposed_in_settings_repr() -> None:
         _env_file=None,
         supabase_secret_key="super-secret-test-key",
         database_url="postgresql://user:super-db-secret@localhost/db",
+        paystack_secret_key="sk_test_fake_not_for_storage",
     )
     rendered = repr(settings)
     assert "super-secret-test-key" not in rendered
     assert "super-db-secret" not in rendered
+    assert "sk_test_fake_not_for_storage" not in rendered
+
+
+def test_settings_load_without_paystack_variables() -> None:
+    settings = Settings(_env_file=None)
+    assert settings.paystack_secret_key is None
+    assert settings.paystack_callback_url is None
+
+
+def test_empty_paystack_secret_is_treated_as_missing() -> None:
+    settings = Settings(_env_file=None, paystack_secret_key="  ", paystack_callback_url="")
+    assert settings.paystack_secret_key is None
+    assert settings.paystack_callback_url is None
 
 
 def test_pool_bounds_are_validated() -> None:

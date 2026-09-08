@@ -16,9 +16,14 @@ class AuthServiceUnavailable(Exception):
 
 @dataclass(frozen=True)
 class AuthenticatedPrincipal:
-    """Stable verified subject. Never includes email, tokens, or JWT bodies."""
+    """Verified identity from the identity provider.
+
+    `subject` is the sole identity used for assessment ownership. `email` is
+    the verified provider email when present and is never client-supplied.
+    """
 
     subject: str
+    email: str | None = None
 
 
 class AuthVerifier(Protocol):
