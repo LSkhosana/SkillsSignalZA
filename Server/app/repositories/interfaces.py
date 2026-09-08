@@ -59,7 +59,11 @@ class AssessmentRepository(Protocol):
         amount_minor: int,
         currency: str,
     ) -> CheckoutBeginResult:
-        """Atomically create one INITIALIZING attempt or return the existing active checkout."""
+        """Atomically create one INITIALIZING attempt or return the existing active checkout.
+
+        A stale INITIALIZING attempt is retained as INITIALIZATION_FAILED so a
+        later request can create a fresh attempt without deleting audit history.
+        """
 
     async def mark_checkout_initialized(
         self,

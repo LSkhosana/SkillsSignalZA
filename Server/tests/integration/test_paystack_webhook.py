@@ -329,7 +329,7 @@ def test_valid_verified_success_unlocks_once_and_replay_is_idempotent(
     assert EMAIL not in first.text
 
 
-def test_signed_invalid_json_and_missing_reference_are_safe_noops(
+def test_signed_invalid_json_and_missing_reference_are_retryable_without_unlock(
     app_client: tuple[TestClient, Any],
 ) -> None:
     client, application = app_client
@@ -349,10 +349,24 @@ def test_signed_invalid_json_and_missing_reference_are_safe_noops(
         content=b'{"event":"charge.success","data":{}}',
         headers={"x-paystack-signature": "ok"},
     )
-    assert invalid.status_code == 200
-    assert listed.status_code == 200
-    assert missing.status_code == 200
+    blank = client.post(
+        WEBHOOK_PATH,
+        content=b'{"event":"charge.success","data":{"reference":" "}}',
+        headers={"x-paystack-signature": "ok"},
+    )
+    bad_data = client.post(
+        WEBHOOK_PATH,
+        content=b'{"event":"charge.success","data":[]}',
+        headers={"x-paystack-signature": "ok"},
+    )
+    assert invalid.status_code == 422
+    assert listed.status_code == 422
+    assert missing.status_code == 422
+    assert blank.status_code == 422
+    assert bad_data.status_code == 422
+    assert invalid.json()["received"] is False
     assert repo.assessments[IDENTITY.assessment_id].access_state == "PREVIEW"
+    assert repo.payments[PAYMENT_ID].status == "INITIALIZED"
     assert provider.verify_calls == []
 
 

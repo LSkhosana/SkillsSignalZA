@@ -44,14 +44,14 @@ async def post_paystack_webhook(request: Request) -> JSONResponse:
         return JSONResponse(content={"received": False}, status_code=400)
     payload = _parse_event(body)
     if payload is None:
-        return JSONResponse(content={"received": True}, status_code=200)
+        return JSONResponse(content={"received": False}, status_code=422)
     event_name = payload.get("event")
     if event_name != "charge.success":
         return JSONResponse(content={"received": True}, status_code=200)
     data = payload.get("data")
     reference = data.get("reference") if isinstance(data, dict) else None
     if not isinstance(reference, str) or not reference.strip():
-        return JSONResponse(content={"received": True}, status_code=200)
+        return JSONResponse(content={"received": False}, status_code=422)
     outcome = await fulfill_verified_paystack_payment(
         repository=repository,
         provider=provider,

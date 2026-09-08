@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
 PersistWriteStatus = Literal["inserted", "noop", "conflict"]
@@ -120,6 +120,24 @@ class PaymentRecord:
     paid_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+STALE_INITIALIZING_AFTER = timedelta(seconds=30)
+
+
+def initializing_attempt_is_stale(
+    payment: PaymentRecord, *, observed_at: datetime | None = None
+) -> bool:
+    """True when an INITIALIZING row is old enough to fail closed and retry."""
+    if payment.status != "INITIALIZING":
+        return False
+    observed = observed_at or datetime.now(UTC)
+    stamp = payment.updated_at
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=UTC)
+    if observed.tzinfo is None:
+        observed = observed.replace(tzinfo=UTC)
+    return observed - stamp >= STALE_INITIALIZING_AFTER
 
 
 @dataclass(frozen=True)

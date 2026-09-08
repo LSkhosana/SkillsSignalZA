@@ -7,7 +7,7 @@ import asyncio
 import hashlib
 import hmac
 import json
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,7 @@ from app.repositories.records import (
     PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
+    initializing_attempt_is_stale,
 )
 from app.repositories.supabase import (
     MAX_FILE_SIZE_BYTES,
@@ -116,6 +117,7 @@ class RecordingRepository:
         self.payments_by_reference: dict[str, str] = {}
         self.begin_checkout_error: Exception | None = None
         self.fulfill_error: Exception | None = None
+        self.mark_initialized_error: Exception | None = None
 
     async def persist_bundle(self, bundle: PersistenceBundle) -> PersistWriteResult:
         if self.persist_error is not None:
@@ -267,20 +269,29 @@ class RecordingRepository:
             ),
             None,
         )
-        if active is not None:
-            if active.status == "INITIALIZED":
-                return CheckoutBeginResult(
-                    "existing_initialized",
-                    assessment_id,
-                    payment=active,
-                    access_state="PREVIEW",
-                )
+        if active is not None and active.status == "INITIALIZED":
             return CheckoutBeginResult(
-                "initializing",
+                "existing_initialized",
                 assessment_id,
                 payment=active,
                 access_state="PREVIEW",
             )
+        if active is not None and active.status == "INITIALIZING":
+            if not initializing_attempt_is_stale(active):
+                return CheckoutBeginResult(
+                    "initializing",
+                    assessment_id,
+                    payment=active,
+                    access_state="PREVIEW",
+                )
+            self.payments[active.payment_id] = PaymentRecord(
+                **{
+                    **active.__dict__,
+                    "status": "INITIALIZATION_FAILED",
+                    "updated_at": datetime.now(UTC),
+                }
+            )
+        created_at = datetime.now(UTC)
         created = PaymentRecord(
             payment_id=payment_id,
             assessment_id=assessment_id,
@@ -295,8 +306,8 @@ class RecordingRepository:
             status="INITIALIZING",
             authorization_url=None,
             paid_at=None,
-            created_at=record.updated_at,
-            updated_at=record.updated_at,
+            created_at=created_at,
+            updated_at=created_at,
         )
         self.payments[payment_id] = created
         self.payments_by_reference[provider_reference] = payment_id
@@ -313,6 +324,8 @@ class RecordingRepository:
         payment_id: str,
         authorization_url: str,
     ) -> PaymentRecord | None:
+        if self.mark_initialized_error is not None:
+            raise self.mark_initialized_error
         current = self.payments.get(payment_id)
         if current is None or current.status != "INITIALIZING":
             return current
@@ -321,6 +334,7 @@ class RecordingRepository:
                 **current.__dict__,
                 "status": "INITIALIZED",
                 "authorization_url": authorization_url,
+                "updated_at": datetime.now(UTC),
             }
         )
         self.payments[payment_id] = updated
@@ -330,7 +344,13 @@ class RecordingRepository:
         current = self.payments.get(payment_id)
         if current is None or current.status != "INITIALIZING":
             return current
-        updated = PaymentRecord(**{**current.__dict__, "status": "INITIALIZATION_FAILED"})
+        updated = PaymentRecord(
+            **{
+                **current.__dict__,
+                "status": "INITIALIZATION_FAILED",
+                "updated_at": datetime.now(UTC),
+            }
+        )
         self.payments[payment_id] = updated
         return updated
 

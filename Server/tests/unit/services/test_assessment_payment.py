@@ -6,7 +6,12 @@ import asyncio
 from datetime import UTC, datetime
 
 from app.commerce.errors import PaymentProviderError, PaymentProviderRejected
-from app.repositories.records import AssessmentRecord, AssessmentRunRecord
+from app.repositories.records import (
+    AssessmentRecord,
+    AssessmentRunRecord,
+    PaymentRecord,
+    initializing_attempt_is_stale,
+)
 from app.services.assessment_payment import (
     ERROR_PAYMENT_EMAIL_REQUIRED,
     fulfill_verified_paystack_payment,
@@ -186,6 +191,104 @@ def test_initialize_covers_validation_and_provider_branches() -> None:
         )
     )
     assert crashed["error_code"] == "PAYMENT_SERVICE_UNAVAILABLE"
+
+
+def test_stale_initializing_attempt_allows_fresh_checkout() -> None:
+    repo = RecordingRepository()
+    _seed(repo)
+    provider = FakePaymentProvider()
+    repo.payments["pay_stale"] = PaymentRecord(
+        payment_id="pay_stale",
+        assessment_id=IDENTITY.assessment_id,
+        owner_user_id=USER_A,
+        product_id="readiness_report_v1",
+        billing_model="one_time",
+        provider="paystack",
+        provider_reference="psk_stale",
+        provider_transaction_id=None,
+        amount_minor=15900,
+        currency="ZAR",
+        status="INITIALIZING",
+        authorization_url=None,
+        paid_at=None,
+        created_at=CLAIMED_AT,
+        updated_at=CLAIMED_AT,
+    )
+    recovered = asyncio.run(
+        initialize_readiness_checkout(
+            repository=repo,
+            provider=provider,
+            assessment_id=IDENTITY.assessment_id,
+            owner_user_id=USER_A,
+            email=EMAIL,
+            payment_id_factory=lambda: "pay_fresh",
+            reference_factory=lambda: "psk_fresh",
+        )
+    )
+    assert recovered["state"] == "PAYMENT_INITIALIZED"
+    assert recovered["provider_reference"] == "psk_fresh"
+    assert repo.payments["pay_stale"].status == "INITIALIZATION_FAILED"
+
+
+def test_initialized_persist_failure_fails_closed_and_allows_retry() -> None:
+    repo = RecordingRepository()
+    _seed(repo)
+    provider = FakePaymentProvider()
+    repo.mark_initialized_error = RuntimeError("transient")
+    stranded = asyncio.run(
+        initialize_readiness_checkout(
+            repository=repo,
+            provider=provider,
+            assessment_id=IDENTITY.assessment_id,
+            owner_user_id=USER_A,
+            email=EMAIL,
+            payment_id_factory=lambda: "pay_stranded",
+            reference_factory=lambda: "psk_stranded",
+        )
+    )
+    assert stranded["error_code"] == "PAYMENT_SERVICE_UNAVAILABLE"
+    assert repo.payments["pay_stranded"].status == "INITIALIZATION_FAILED"
+    repo.mark_initialized_error = None
+    retry = asyncio.run(
+        initialize_readiness_checkout(
+            repository=repo,
+            provider=provider,
+            assessment_id=IDENTITY.assessment_id,
+            owner_user_id=USER_A,
+            email=EMAIL,
+            payment_id_factory=lambda: "pay_retry",
+            reference_factory=lambda: "psk_retry",
+        )
+    )
+    assert retry["state"] == "PAYMENT_INITIALIZED"
+    assert retry["provider_reference"] == "psk_retry"
+
+
+def test_initializing_attempt_is_stale_uses_updated_at() -> None:
+    stale = PaymentRecord(
+        payment_id="pay_stale",
+        assessment_id=IDENTITY.assessment_id,
+        owner_user_id=USER_A,
+        product_id="readiness_report_v1",
+        billing_model="one_time",
+        provider="paystack",
+        provider_reference="psk_stale",
+        provider_transaction_id=None,
+        amount_minor=15900,
+        currency="ZAR",
+        status="INITIALIZING",
+        authorization_url=None,
+        paid_at=None,
+        created_at=CLAIMED_AT,
+        updated_at=CLAIMED_AT.replace(tzinfo=None),
+    )
+    assert initializing_attempt_is_stale(stale, observed_at=datetime(2026, 9, 8, tzinfo=UTC))
+    fresh = PaymentRecord(**{**stale.__dict__, "updated_at": datetime(2026, 9, 8, 12, 0)})
+    assert not initializing_attempt_is_stale(
+        fresh, observed_at=datetime(2026, 9, 8, 12, 0, 10, tzinfo=UTC)
+    )
+    initialized = PaymentRecord(**{**stale.__dict__, "status": "INITIALIZED"})
+    assert not initializing_attempt_is_stale(initialized)
 
 
 def test_fulfill_covers_retry_and_conflict_paths() -> None:

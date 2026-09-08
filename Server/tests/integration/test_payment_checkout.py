@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from starlette.requests import Request
 
 from app.commerce.errors import PaymentProviderRejected, PaymentProviderUnavailable
 from app.commerce.provider import PaymentCheckout, VerifiedPayment
@@ -304,6 +305,7 @@ def test_existing_initialized_returns_same_checkout(app_client: tuple[TestClient
 def test_initializing_does_not_create_second_checkout(app_client: tuple[TestClient, Any]) -> None:
     client, application = app_client
     repo, _auth, provider = _bind(application)
+    now = datetime.now(UTC)
     repo.payments["pay_busy"] = PaymentRecord(
         payment_id="pay_busy",
         assessment_id=IDENTITY.assessment_id,
@@ -318,13 +320,90 @@ def test_initializing_does_not_create_second_checkout(app_client: tuple[TestClie
         status="INITIALIZING",
         authorization_url=None,
         paid_at=None,
-        created_at=CLAIMED_AT,
-        updated_at=CLAIMED_AT,
+        created_at=now,
+        updated_at=now,
     )
     response = client.post(PAYMENT_PATH, headers={"Authorization": f"Bearer {ACCESS}"})
     assert response.status_code == 409
     assert response.json()["error_code"] == "PAYMENT_INITIALIZING"
     assert provider.initialize_calls == []
+
+
+def test_stale_initializing_attempt_can_be_retried(app_client: tuple[TestClient, Any]) -> None:
+    client, application = app_client
+    repo, _auth, provider = _bind(application)
+    repo.payments["pay_stale"] = PaymentRecord(
+        payment_id="pay_stale",
+        assessment_id=IDENTITY.assessment_id,
+        owner_user_id=USER_A,
+        product_id="readiness_report_v1",
+        billing_model="one_time",
+        provider="paystack",
+        provider_reference="psk_stale",
+        provider_transaction_id=None,
+        amount_minor=15900,
+        currency="ZAR",
+        status="INITIALIZING",
+        authorization_url=None,
+        paid_at=None,
+        created_at=CLAIMED_AT,
+        updated_at=CLAIMED_AT,
+    )
+    repo.payments_by_reference["psk_stale"] = "pay_stale"
+    response = client.post(PAYMENT_PATH, headers={"Authorization": f"Bearer {ACCESS}"})
+    assert response.status_code == 200
+    payload = response.json()
+    _assert_safe(payload)
+    assert payload["state"] == "PAYMENT_INITIALIZED"
+    assert payload["provider_reference"] == REFERENCE
+    assert repo.payments["pay_stale"].status == "INITIALIZATION_FAILED"
+    assert repo.payments[PAYMENT_ID].status == "INITIALIZED"
+    assert len(provider.initialize_calls) == 1
+
+
+def test_initialized_persist_failure_marks_failed_and_allows_retry(
+    app_client: tuple[TestClient, Any],
+) -> None:
+    client, application = app_client
+    repo, _auth, provider = _bind(application)
+    repo.mark_initialized_error = RuntimeError("transient")
+    first = client.post(PAYMENT_PATH, headers={"Authorization": f"Bearer {ACCESS}"})
+    assert first.status_code == 503
+    assert first.json()["error_code"] == "PAYMENT_SERVICE_UNAVAILABLE"
+    assert repo.payments[PAYMENT_ID].status == "INITIALIZATION_FAILED"
+    assert len(provider.initialize_calls) == 1
+    repo.mark_initialized_error = None
+    application.state.payment_id_factory = lambda: "pay_retry"
+    application.state.payment_reference_factory = lambda: "psk_retry"
+    second = client.post(PAYMENT_PATH, headers={"Authorization": f"Bearer {ACCESS}"})
+    assert second.status_code == 200
+    assert second.json()["state"] == "PAYMENT_INITIALIZED"
+    assert second.json()["provider_reference"] == "psk_retry"
+    assert repo.payments["pay_retry"].status == "INITIALIZED"
+    assert len(provider.initialize_calls) == 2
+
+
+def test_unauthenticated_oversized_body_is_not_parsed(
+    app_client: tuple[TestClient, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    client, application = app_client
+    _bind(application)
+    parsed = {"json": 0}
+
+    async def forbidden_json(self: Request) -> Any:
+        parsed["json"] += 1
+        raise AssertionError("checkout must not parse the request body")
+
+    monkeypatch.setattr(Request, "json", forbidden_json)
+    body = json.dumps({"amount_minor": 1, "blob": "x" * 8_000}).encode()
+    response = client.post(
+        PAYMENT_PATH,
+        content=body,
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "AUTH_REQUIRED"
+    assert parsed["json"] == 0
 
 
 def test_client_body_cannot_override_server_owned_fields(

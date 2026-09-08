@@ -201,7 +201,6 @@ async def post_claim_assessment(assessment_id: str, request: Request) -> JSONRes
     },
 )
 async def post_assessment_payment(assessment_id: str, request: Request) -> JSONResponse:
-    await _ignore_payment_body(request)
     access_token, auth_error = parse_bearer_authorization(request.headers.get("Authorization"))
     if auth_error is not None:
         payload = payment_failed_outcome(auth_error, assessment_id)
@@ -331,13 +330,3 @@ async def _parse_claim_json(request: Request) -> str | JSONResponse:
 def _invalid_claim_response() -> JSONResponse:
     payload = claim_failed_outcome(ERROR_INVALID_CLAIM_REQUEST)
     return JSONResponse(content=payload, status_code=422)
-
-
-async def _ignore_payment_body(request: Request) -> None:
-    """Consume any JSON body so clients cannot supply checkout fields."""
-    if request.headers.get("content-length") in {None, "0"}:
-        return
-    try:
-        await request.json()
-    except Exception:
-        return

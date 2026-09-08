@@ -185,8 +185,10 @@ async def initialize_readiness_checkout(
         )
     except Exception:
         logger.error("payment initialization persistence failed")
+        await _mark_failed(repository, attempt.payment_id)
         return payment_service_unavailable(identifier)
     if initialized is None or initialized.authorization_url is None:
+        await _mark_failed(repository, attempt.payment_id)
         return payment_service_unavailable(identifier)
     return _initialized_outcome(initialized)
 

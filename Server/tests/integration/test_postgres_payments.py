@@ -379,3 +379,64 @@ def test_concurrent_fulfillment_cannot_double_apply() -> None:
         assert assessment.access_state == "UNLOCKED"
 
     _run_with_repository(body)
+
+
+def test_stale_initializing_attempt_is_failed_and_retry_creates_fresh_checkout() -> None:
+    async def body(repository: PostgresAssessmentRepository) -> None:
+        assessment_id = await _owned(repository)
+        first = await repository.begin_checkout_attempt(
+            assessment_id=assessment_id,
+            owner_user_id=USER_A,
+            payment_id="pay-stale-1",
+            provider_reference="psk-stale-1",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+        assert first.status == "created"
+        assert DATABASE_URL is not None
+        async with await AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as connection:
+            await connection.execute(
+                """
+                UPDATE assessment_payments
+                SET updated_at = now() - interval '31 seconds'
+                WHERE payment_id = 'pay-stale-1'
+                """
+            )
+            await connection.commit()
+        retry = await repository.begin_checkout_attempt(
+            assessment_id=assessment_id,
+            owner_user_id=USER_A,
+            payment_id="pay-stale-2",
+            provider_reference="psk-stale-2",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+        assert retry.status == "created"
+        assert retry.payment is not None
+        assert retry.payment.payment_id == "pay-stale-2"
+        assert retry.payment.status == "INITIALIZING"
+        failed = await repository.get_payment_by_provider_reference("psk-stale-1")
+        assert failed is not None
+        assert failed.status == "INITIALIZATION_FAILED"
+        still_active = await repository.begin_checkout_attempt(
+            assessment_id=assessment_id,
+            owner_user_id=USER_A,
+            payment_id="pay-stale-3",
+            provider_reference="psk-stale-3",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+        assert still_active.status == "initializing"
+        assert still_active.payment is not None
+        assert still_active.payment.payment_id == "pay-stale-2"
+
+    _run_with_repository(body)

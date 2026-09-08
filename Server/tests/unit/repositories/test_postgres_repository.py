@@ -690,7 +690,7 @@ def test_begin_checkout_initializing_and_unique_violation() -> None:
     busy.fetchone_queue = [
         _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
         {"state": "COMPLETED"},
-        _payment_row(status="INITIALIZING"),
+        _payment_row(status="INITIALIZING", updated_at=datetime.now(UTC)),
     ]
     repo = PostgresAssessmentRepository(FakePool(busy))  # type: ignore[arg-type]
     assert (
@@ -860,3 +860,33 @@ def test_fulfill_rowcount_zero_rereads_matching_success_as_idempotent() -> None:
         )
     )
     assert result.status == "idempotent"
+
+
+def test_begin_checkout_recovers_stale_initializing_attempt() -> None:
+    stale_at = datetime(2026, 9, 2, 8, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    created = _payment_row(payment_id="pay-2", provider_reference="psk-2")
+    cursor.fetchone_queue = [
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        {"state": "COMPLETED"},
+        _payment_row(updated_at=stale_at),
+        created,
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.begin_checkout_attempt(
+            assessment_id="assessment-1",
+            owner_user_id="user-verified",
+            payment_id="pay-2",
+            provider_reference="psk-2",
+            product_id="readiness_report_v1",
+            billing_model="one_time",
+            provider="paystack",
+            amount_minor=15900,
+            currency="ZAR",
+        )
+    )
+    assert result.status == "created"
+    joined = "\n".join(cursor.statements)
+    assert "INITIALIZATION_FAILED" in joined
+    assert "INSERT INTO assessment_payments" in joined

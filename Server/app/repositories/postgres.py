@@ -26,6 +26,7 @@ from app.repositories.records import (
     PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
+    initializing_attempt_is_stale,
 )
 
 MIGRATION_PATH = (
@@ -340,20 +341,49 @@ class PostgresAssessmentRepository:
         if latest_run_id is None or not await self._latest_run_is_completed(cursor, latest_run_id):
             return CheckoutBeginResult("not_completed", assessment_id, access_state=access_state)
         active = await self._load_active_payment(cursor, assessment_id, product_id, for_update=True)
-        if active is not None:
-            if active.status == "INITIALIZED":
-                return CheckoutBeginResult(
-                    "existing_initialized",
-                    assessment_id,
-                    payment=active,
-                    access_state="PREVIEW",
-                )
+        if active is not None and active.status == "INITIALIZED":
             return CheckoutBeginResult(
-                "initializing",
+                "existing_initialized",
                 assessment_id,
                 payment=active,
                 access_state="PREVIEW",
             )
+        if active is not None and active.status == "INITIALIZING":
+            if not initializing_attempt_is_stale(active):
+                return CheckoutBeginResult(
+                    "initializing",
+                    assessment_id,
+                    payment=active,
+                    access_state="PREVIEW",
+                )
+            await cursor.execute(
+                """
+                UPDATE assessment_payments
+                SET status = 'INITIALIZATION_FAILED',
+                    updated_at = now()
+                WHERE payment_id = %s
+                  AND status = 'INITIALIZING'
+                """,
+                (active.payment_id,),
+            )
+            if cursor.rowcount == 0:
+                leftover = await self._load_active_payment(
+                    cursor, assessment_id, product_id, for_update=True
+                )
+                if leftover is not None and leftover.status == "INITIALIZED":
+                    return CheckoutBeginResult(
+                        "existing_initialized",
+                        assessment_id,
+                        payment=leftover,
+                        access_state="PREVIEW",
+                    )
+                if leftover is not None:
+                    return CheckoutBeginResult(
+                        "initializing",
+                        assessment_id,
+                        payment=leftover,
+                        access_state="PREVIEW",
+                    )
         await cursor.execute(
             """
             INSERT INTO assessment_payments (
