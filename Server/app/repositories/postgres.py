@@ -566,6 +566,23 @@ class PostgresAssessmentRepository:
             (provider_transaction_id, paid_at, payment_id),
         )
         if cursor.rowcount == 0:
+            await cursor.execute(
+                _PAYMENT_SELECT + " WHERE payment_id = %s",
+                (payment_id,),
+            )
+            again = await cursor.fetchone()
+            current = _payment_from_row(again) if again is not None else None
+            if (
+                current is not None
+                and current.status == "SUCCEEDED"
+                and current.provider_transaction_id == provider_transaction_id
+            ):
+                return FulfillmentResult(
+                    "idempotent",
+                    payment_id,
+                    assessment_id=payment.assessment_id,
+                    access_state="UNLOCKED",
+                )
             return FulfillmentResult(
                 "conflict",
                 payment_id,

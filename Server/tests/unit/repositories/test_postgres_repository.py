@@ -830,3 +830,33 @@ def test_fulfill_conflicts_and_idempotent_success() -> None:
         )
     )
     assert result.status == "idempotent"
+
+
+def test_fulfill_rowcount_zero_rereads_matching_success_as_idempotent() -> None:
+    paid_at = datetime(2026, 9, 8, 9, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.update_rowcount = 0
+    cursor.fetchone_queue = [
+        _payment_row(status="INITIALIZED", authorization_url="https://checkout.paystack.com/x"),
+        _locked_assessment(owner_user_id="user-verified", claim_token_hash=None),
+        None,
+        {"state": "COMPLETED"},
+        _payment_row(
+            status="SUCCEEDED",
+            provider_transaction_id="9001",
+            paid_at=paid_at,
+            authorization_url="https://checkout.paystack.com/x",
+        ),
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    result = asyncio.run(
+        repo.fulfill_payment_and_unlock(
+            payment_id="pay-1",
+            provider_reference="psk-1",
+            provider_transaction_id="9001",
+            verified_amount_minor=15900,
+            verified_currency="ZAR",
+            paid_at=paid_at,
+        )
+    )
+    assert result.status == "idempotent"

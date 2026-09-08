@@ -33,7 +33,13 @@ def _digest() -> str:
     return hash_claim_token(RAW_CLAIM)
 
 
-async def _seed(repository: PostgresAssessmentRepository, **extra):
+async def _seed(
+    repository: PostgresAssessmentRepository,
+    *,
+    assessment_id: str = "assessment-1",
+    run_id: str = "run-1",
+    **extra,
+):
     lines = [
         "Summary",
         "Seeking a junior software engineer role",
@@ -44,7 +50,12 @@ async def _seed(repository: PostgresAssessmentRepository, **extra):
         "Built a Flask API in Python to solve a workflow problem",
     ]
     file_bytes = _pdf(lines)
-    outcome = _run("software_engineering", lines)
+    outcome = _run(
+        "software_engineering",
+        lines,
+        assessment_id=assessment_id,
+        run_id=run_id,
+    )
     result = await _persist(
         outcome,
         file_bytes,

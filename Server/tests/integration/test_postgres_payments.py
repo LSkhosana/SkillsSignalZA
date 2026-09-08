@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime
+from uuid import uuid4
 
 import pytest
 from psycopg import AsyncConnection, errors
@@ -23,7 +24,12 @@ PAID_AT = datetime(2026, 9, 8, 9, 0, tzinfo=UTC)
 
 
 async def _owned(repository: PostgresAssessmentRepository) -> str:
-    outcome = await _seed(repository)
+    suffix = uuid4().hex
+    outcome = await _seed(
+        repository,
+        assessment_id=f"pay-assessment-{suffix}",
+        run_id=f"pay-run-{suffix}",
+    )
     assessment_id = outcome["assessment_id"]
     claimed = await repository.claim_assessment(
         assessment_id=assessment_id,
