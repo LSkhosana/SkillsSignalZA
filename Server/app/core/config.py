@@ -1,8 +1,8 @@
 """Typed environment configuration for the SkillSignalZA API.
 
 Settings are cached for process lifetime. The application must start
-when Supabase variables are absent. Secret values must never be logged
-or returned by endpoints.
+when Supabase or Paystack variables are absent. Secret values must never
+be logged or returned by endpoints.
 """
 
 from functools import lru_cache
@@ -58,6 +58,14 @@ class Settings(BaseSettings):
         default="candidate-evidence",
         validation_alias="SUPABASE_STORAGE_BUCKET",
     )
+    paystack_secret_key: SecretStr | None = Field(
+        default=None,
+        validation_alias="PAYSTACK_SECRET_KEY",
+    )
+    paystack_callback_url: str | None = Field(
+        default=None,
+        validation_alias="PAYSTACK_CALLBACK_URL",
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -69,6 +77,8 @@ class Settings(BaseSettings):
         "supabase_publishable_key",
         "supabase_secret_key",
         "database_url",
+        "paystack_secret_key",
+        "paystack_callback_url",
         mode="before",
     )
     @classmethod

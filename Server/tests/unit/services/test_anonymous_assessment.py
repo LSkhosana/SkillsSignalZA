@@ -7,7 +7,7 @@ import asyncio
 import hashlib
 import hmac
 import json
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,9 +15,13 @@ from app.engine.schema_registry import draft_validator
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    CheckoutBeginResult,
     ClaimWriteResult,
+    FulfillmentResult,
+    PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
+    initializing_attempt_is_stale,
 )
 from app.repositories.supabase import (
     MAX_FILE_SIZE_BYTES,
@@ -109,6 +113,11 @@ class RecordingRepository:
         self.store_on_persist = True
         self.claim_error: Exception | None = None
         self.claim_calls: list[dict[str, Any]] = []
+        self.payments: dict[str, PaymentRecord] = {}
+        self.payments_by_reference: dict[str, str] = {}
+        self.begin_checkout_error: Exception | None = None
+        self.fulfill_error: Exception | None = None
+        self.mark_initialized_error: Exception | None = None
 
     async def persist_bundle(self, bundle: PersistenceBundle) -> PersistWriteResult:
         if self.persist_error is not None:
@@ -204,6 +213,254 @@ class RecordingRepository:
             assessment_id,
             claimed_at=claimed_at,
             access_state=record.access_state,
+        )
+
+    async def begin_checkout_attempt(
+        self,
+        *,
+        assessment_id: str,
+        owner_user_id: str,
+        payment_id: str,
+        provider_reference: str,
+        product_id: str,
+        billing_model: str,
+        provider: str,
+        amount_minor: int,
+        currency: str,
+    ) -> CheckoutBeginResult:
+        if self.begin_checkout_error is not None:
+            raise self.begin_checkout_error
+        record = self.assessments.get(assessment_id)
+        if record is None:
+            return CheckoutBeginResult("not_found", assessment_id)
+        if record.access_state == "UNLOCKED":
+            succeeded = next(
+                (
+                    payment
+                    for payment in self.payments.values()
+                    if payment.assessment_id == assessment_id
+                    and payment.product_id == product_id
+                    and payment.status == "SUCCEEDED"
+                ),
+                None,
+            )
+            return CheckoutBeginResult(
+                "already_unlocked",
+                assessment_id,
+                payment=succeeded,
+                access_state="UNLOCKED",
+            )
+        if record.owner_user_id is None or record.owner_user_id != owner_user_id:
+            return CheckoutBeginResult("not_owned", assessment_id, access_state=record.access_state)
+        run = None
+        if record.latest_run_id is not None:
+            run = self.runs.get(record.latest_run_id)
+        if run is None or run.state != "COMPLETED":
+            return CheckoutBeginResult(
+                "not_completed", assessment_id, access_state=record.access_state
+            )
+        active = next(
+            (
+                payment
+                for payment in self.payments.values()
+                if payment.assessment_id == assessment_id
+                and payment.product_id == product_id
+                and payment.status in {"INITIALIZING", "INITIALIZED"}
+            ),
+            None,
+        )
+        if active is not None and active.status == "INITIALIZED":
+            return CheckoutBeginResult(
+                "existing_initialized",
+                assessment_id,
+                payment=active,
+                access_state="PREVIEW",
+            )
+        if active is not None and active.status == "INITIALIZING":
+            if not initializing_attempt_is_stale(active):
+                return CheckoutBeginResult(
+                    "initializing",
+                    assessment_id,
+                    payment=active,
+                    access_state="PREVIEW",
+                )
+            self.payments[active.payment_id] = PaymentRecord(
+                **{
+                    **active.__dict__,
+                    "status": "INITIALIZATION_FAILED",
+                    "updated_at": datetime.now(UTC),
+                }
+            )
+        created_at = datetime.now(UTC)
+        created = PaymentRecord(
+            payment_id=payment_id,
+            assessment_id=assessment_id,
+            owner_user_id=owner_user_id,
+            product_id=product_id,
+            billing_model=billing_model,
+            provider=provider,
+            provider_reference=provider_reference,
+            provider_transaction_id=None,
+            amount_minor=amount_minor,
+            currency=currency,
+            status="INITIALIZING",
+            authorization_url=None,
+            paid_at=None,
+            created_at=created_at,
+            updated_at=created_at,
+        )
+        self.payments[payment_id] = created
+        self.payments_by_reference[provider_reference] = payment_id
+        return CheckoutBeginResult(
+            "created",
+            assessment_id,
+            payment=created,
+            access_state="PREVIEW",
+        )
+
+    async def mark_checkout_initialized(
+        self,
+        *,
+        payment_id: str,
+        authorization_url: str,
+    ) -> PaymentRecord | None:
+        if self.mark_initialized_error is not None:
+            raise self.mark_initialized_error
+        current = self.payments.get(payment_id)
+        if current is None or current.status != "INITIALIZING":
+            return current
+        updated = PaymentRecord(
+            **{
+                **current.__dict__,
+                "status": "INITIALIZED",
+                "authorization_url": authorization_url,
+                "updated_at": datetime.now(UTC),
+            }
+        )
+        self.payments[payment_id] = updated
+        return updated
+
+    async def mark_checkout_initialization_failed(self, *, payment_id: str) -> PaymentRecord | None:
+        current = self.payments.get(payment_id)
+        if current is None or current.status != "INITIALIZING":
+            return current
+        updated = PaymentRecord(
+            **{
+                **current.__dict__,
+                "status": "INITIALIZATION_FAILED",
+                "updated_at": datetime.now(UTC),
+            }
+        )
+        self.payments[payment_id] = updated
+        return updated
+
+    async def get_payment_by_provider_reference(
+        self, provider_reference: str
+    ) -> PaymentRecord | None:
+        payment_id = self.payments_by_reference.get(provider_reference)
+        if payment_id is None:
+            return None
+        return self.payments.get(payment_id)
+
+    async def fulfill_payment_and_unlock(
+        self,
+        *,
+        payment_id: str,
+        provider_reference: str,
+        provider_transaction_id: str,
+        verified_amount_minor: int,
+        verified_currency: str,
+        paid_at: Any,
+    ) -> FulfillmentResult:
+        if self.fulfill_error is not None:
+            raise self.fulfill_error
+        payment = self.payments.get(payment_id)
+        if payment is None:
+            return FulfillmentResult("not_found", payment_id)
+        assessment = self.assessments.get(payment.assessment_id)
+        if assessment is None:
+            return FulfillmentResult("not_found", payment_id, assessment_id=payment.assessment_id)
+        if (
+            payment.provider_reference != provider_reference
+            or payment.amount_minor != 15900
+            or verified_amount_minor != 15900
+            or payment.currency != "ZAR"
+            or verified_currency != "ZAR"
+            or payment.product_id != "readiness_report_v1"
+            or payment.billing_model != "one_time"
+            or payment.provider != "paystack"
+            or assessment.owner_user_id != payment.owner_user_id
+        ):
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        other = next(
+            (
+                item
+                for item in self.payments.values()
+                if item.provider_transaction_id == provider_transaction_id
+                and item.payment_id != payment_id
+            ),
+            None,
+        )
+        if other is not None:
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        run = None
+        if assessment.latest_run_id is not None:
+            run = self.runs.get(assessment.latest_run_id)
+        if run is None or run.state != "COMPLETED":
+            return FulfillmentResult(
+                "not_completed",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        if (
+            payment.status == "SUCCEEDED"
+            and payment.provider_transaction_id == provider_transaction_id
+        ):
+            if assessment.access_state != "UNLOCKED":
+                self.assessments[assessment.assessment_id] = AssessmentRecord(
+                    **{**assessment.__dict__, "access_state": "UNLOCKED"}
+                )
+            return FulfillmentResult(
+                "idempotent",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state="UNLOCKED",
+            )
+        if payment.status == "SUCCEEDED":
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        updated_payment = PaymentRecord(
+            **{
+                **payment.__dict__,
+                "status": "SUCCEEDED",
+                "provider_transaction_id": provider_transaction_id,
+                "paid_at": paid_at,
+            }
+        )
+        self.payments[payment_id] = updated_payment
+        self.assessments[assessment.assessment_id] = AssessmentRecord(
+            **{**assessment.__dict__, "access_state": "UNLOCKED"}
+        )
+        return FulfillmentResult(
+            "unlocked",
+            payment_id,
+            assessment_id=payment.assessment_id,
+            access_state="UNLOCKED",
         )
 
     def _store(self, bundle: PersistenceBundle) -> None:

@@ -14,6 +14,8 @@ import httpx
 from fastapi import FastAPI
 
 from app.auth.supabase import SupabaseAuthVerifier
+from app.commerce.paystack import PaystackPaymentProvider
+from app.commerce.provider import PaymentProvider
 from app.core.auth import AuthVerifier
 from app.core.config import Settings, get_settings
 from app.repositories.interfaces import AssessmentRepository, DocumentStorage
@@ -41,6 +43,12 @@ def claim_auth_configured(settings: Settings | None = None) -> bool:
     )
 
 
+def paystack_configured(settings: Settings | None = None) -> bool:
+    """Return True when a Paystack secret key is present."""
+    current = settings if settings is not None else get_settings()
+    return getattr(current, "paystack_secret_key", None) is not None
+
+
 def init_app_resource_state(application: FastAPI) -> None:
     """Attach empty resource slots. Must not open sockets or pools."""
     application.state.repository = None
@@ -48,6 +56,7 @@ def init_app_resource_state(application: FastAPI) -> None:
     application.state.http_client = None
     application.state.postgres_repository = None
     application.state.auth_verifier = None
+    application.state.payment_provider = None
     application.state.resource_lock = asyncio.Lock()
     application.state.auto_bind_resources = True
 
@@ -65,19 +74,23 @@ async def bind_production_resources(application: FastAPI, settings: Settings | N
     existing_client = getattr(application.state, "http_client", None)
     existing_storage = getattr(application.state, "storage", None)
     existing_verifier = getattr(application.state, "auth_verifier", None)
+    existing_provider = getattr(application.state, "payment_provider", None)
 
     need_postgres = (
         database_url is not None and existing_postgres is None and existing_repository is None
     )
     need_storage = bool(supabase_url) and secret_key is not None and existing_storage is None
     need_auth = bool(supabase_url) and bool(publishable_key) and existing_verifier is None
-    if not need_postgres and not need_storage and not need_auth:
+    paystack_secret = getattr(current, "paystack_secret_key", None)
+    need_provider = paystack_secret is not None and existing_provider is None
+    if not need_postgres and not need_storage and not need_auth and not need_provider:
         return
 
     created_repository = None
     created_client = None
     storage = None
     auth_verifier = None
+    payment_provider = None
 
     if need_postgres:
         try:
@@ -92,7 +105,7 @@ async def bind_production_resources(application: FastAPI, settings: Settings | N
 
     repository = existing_postgres or existing_repository or created_repository
     client = existing_client
-    if (need_storage or need_auth) and client is None:
+    if (need_storage or need_auth or need_provider) and client is None:
         created_client = httpx.AsyncClient()
         client = created_client
 
@@ -121,6 +134,19 @@ async def bind_production_resources(application: FastAPI, settings: Settings | N
             await _close_created_resources(created_repository, created_client)
             return
 
+    if need_provider and client is not None and paystack_secret is not None:
+        try:
+            callback_url = getattr(current, "paystack_callback_url", None)
+            payment_provider = PaystackPaymentProvider(
+                secret_key=paystack_secret.get_secret_value(),
+                client=client,
+                callback_url=str(callback_url) if callback_url else None,
+            )
+        except Exception:
+            logger.error("failed to create payment provider")
+            await _close_created_resources(created_repository, created_client)
+            return
+
     if created_repository is not None:
         application.state.postgres_repository = created_repository
         application.state.repository = created_repository
@@ -130,6 +156,8 @@ async def bind_production_resources(application: FastAPI, settings: Settings | N
         application.state.storage = storage
     if auth_verifier is not None:
         application.state.auth_verifier = auth_verifier
+    if payment_provider is not None:
+        application.state.payment_provider = payment_provider
 
 
 async def resolve_submission_resources(
@@ -186,6 +214,65 @@ async def resolve_claim_resources(
         return None, None
 
 
+async def resolve_payment_resources(
+    application: FastAPI,
+) -> tuple[AssessmentRepository | None, AuthVerifier | None, PaymentProvider | None]:
+    """Return injected or lazily bound checkout repository, auth, and provider."""
+    repository = getattr(application.state, "repository", None)
+    verifier = getattr(application.state, "auth_verifier", None)
+    provider = getattr(application.state, "payment_provider", None)
+    if repository is not None and verifier is not None and provider is not None:
+        return repository, verifier, provider
+    if not getattr(application.state, "auto_bind_resources", True):
+        return None, None, None
+    lock = getattr(application.state, "resource_lock", None)
+    if lock is None:
+        return None, None, None
+    async with lock:
+        repository = getattr(application.state, "repository", None)
+        verifier = getattr(application.state, "auth_verifier", None)
+        provider = getattr(application.state, "payment_provider", None)
+        if repository is not None and verifier is not None and provider is not None:
+            return repository, verifier, provider
+        if not claim_auth_configured() or not paystack_configured():
+            return None, None, None
+        await bind_production_resources(application)
+        repository = getattr(application.state, "repository", None)
+        verifier = getattr(application.state, "auth_verifier", None)
+        provider = getattr(application.state, "payment_provider", None)
+        if repository is not None and verifier is not None and provider is not None:
+            return repository, verifier, provider
+        return None, None, None
+
+
+async def resolve_webhook_resources(
+    application: FastAPI,
+) -> tuple[AssessmentRepository | None, PaymentProvider | None]:
+    """Return injected or lazily bound webhook repository and provider."""
+    repository = getattr(application.state, "repository", None)
+    provider = getattr(application.state, "payment_provider", None)
+    if repository is not None and provider is not None:
+        return repository, provider
+    if not getattr(application.state, "auto_bind_resources", True):
+        return None, None
+    lock = getattr(application.state, "resource_lock", None)
+    if lock is None:
+        return None, None
+    async with lock:
+        repository = getattr(application.state, "repository", None)
+        provider = getattr(application.state, "payment_provider", None)
+        if repository is not None and provider is not None:
+            return repository, provider
+        if not paystack_configured():
+            return None, None
+        await bind_production_resources(application)
+        repository = getattr(application.state, "repository", None)
+        provider = getattr(application.state, "payment_provider", None)
+        if repository is not None and provider is not None:
+            return repository, provider
+        return None, None
+
+
 async def close_app_resources(application: FastAPI) -> None:
     """Close owned pool and HTTP client without leaking connection details."""
     postgres = getattr(application.state, "postgres_repository", None)
@@ -195,6 +282,7 @@ async def close_app_resources(application: FastAPI) -> None:
     application.state.postgres_repository = None
     application.state.http_client = None
     application.state.auth_verifier = None
+    application.state.payment_provider = None
     if postgres is not None:
         try:
             await postgres.close()

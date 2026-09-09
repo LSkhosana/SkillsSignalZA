@@ -17,6 +17,7 @@ from starlette.datastructures import UploadFile
 from app.core.auth import AuthServiceUnavailable, parse_bearer_authorization
 from app.core.resources import (
     resolve_claim_resources,
+    resolve_payment_resources,
     resolve_submission_resources,
     submission_overrides,
 )
@@ -39,6 +40,12 @@ from app.services.assessment_claim import (
     claim_failed_outcome,
     claim_http_status,
     claim_service_unavailable,
+)
+from app.services.assessment_payment import (
+    initialize_readiness_checkout,
+    payment_failed_outcome,
+    payment_http_status,
+    payment_service_unavailable,
 )
 from app.services.assessment_scoring import score_frozen_assessment
 
@@ -174,6 +181,59 @@ async def post_claim_assessment(assessment_id: str, request: Request) -> JSONRes
         outcome = claim_service_unavailable(assessment_id)
         return JSONResponse(content=outcome, status_code=503)
     return JSONResponse(content=outcome, status_code=claim_http_status(outcome))
+
+
+@router.post(
+    "/{assessment_id}/payment",
+    summary="Initialize Readiness Report checkout",
+    description=(
+        "Create a one-time Paystack checkout for the verified owner of a completed "
+        "assessment. The client cannot choose amount, currency, product, or email."
+    ),
+    responses={
+        200: {"description": "Checkout initialized or assessment already unlocked."},
+        401: {"description": "Missing or invalid Authorization bearer token."},
+        403: {"description": "Caller does not own the assessment."},
+        404: {"description": "Assessment does not exist."},
+        409: {"description": "Assessment is not completed or checkout is in progress."},
+        422: {"description": "Verified principal has no usable email."},
+        503: {"description": "Auth, persistence, or Paystack is unavailable."},
+    },
+)
+async def post_assessment_payment(assessment_id: str, request: Request) -> JSONResponse:
+    access_token, auth_error = parse_bearer_authorization(request.headers.get("Authorization"))
+    if auth_error is not None:
+        payload = payment_failed_outcome(auth_error, assessment_id)
+        return JSONResponse(content=payload, status_code=payment_http_status(payload))
+    repository, verifier, provider = await resolve_payment_resources(request.app)
+    if repository is None or verifier is None or provider is None:
+        payload = payment_service_unavailable(assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    try:
+        principal = await verifier.verify_access_token(access_token or "")
+    except AuthServiceUnavailable:
+        payload = payment_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE, assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    except Exception:
+        payload = payment_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE, assessment_id)
+        return JSONResponse(content=payload, status_code=503)
+    if principal is None or not principal.subject:
+        payload = payment_failed_outcome(ERROR_AUTH_INVALID, assessment_id)
+        return JSONResponse(content=payload, status_code=401)
+    try:
+        outcome = await initialize_readiness_checkout(
+            repository=repository,
+            provider=provider,
+            assessment_id=assessment_id,
+            owner_user_id=principal.subject,
+            email=principal.email or "",
+            payment_id_factory=getattr(request.app.state, "payment_id_factory", None),
+            reference_factory=getattr(request.app.state, "payment_reference_factory", None),
+        )
+    except Exception:
+        outcome = payment_service_unavailable(assessment_id)
+        return JSONResponse(content=outcome, status_code=503)
+    return JSONResponse(content=outcome, status_code=payment_http_status(outcome))
 
 
 def _http_status(outcome: dict[str, Any]) -> int:

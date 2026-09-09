@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Self
 
+from psycopg.errors import UniqueViolation
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from psycopg_pool import AsyncConnectionPool
@@ -18,10 +19,14 @@ from psycopg_pool import AsyncConnectionPool
 from app.repositories.records import (
     AssessmentRecord,
     AssessmentRunRecord,
+    CheckoutBeginResult,
     ClaimWriteResult,
     DocumentMetadata,
+    FulfillmentResult,
+    PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
+    initializing_attempt_is_stale,
 )
 
 MIGRATION_PATH = (
@@ -32,11 +37,18 @@ MIGRATION_PATH = (
 )
 MIGRATION_0002_PATH = MIGRATION_PATH.with_name("0002_harden_immutable_function_search_path.sql")
 MIGRATION_0003_PATH = MIGRATION_PATH.with_name("0003_assessment_ownership.sql")
+MIGRATION_0004_PATH = MIGRATION_PATH.with_name("0004_payment_entitlements.sql")
 
 _ASSESSMENT_SELECT = """
     SELECT assessment_id, candidate_ref, track, access_state, claim_token_hash,
            claimed_at, latest_run_id, expires_at, created_at, updated_at, owner_user_id
     FROM assessments
+"""
+_PAYMENT_SELECT = """
+    SELECT payment_id, assessment_id, owner_user_id, product_id, billing_model, provider,
+           provider_reference, provider_transaction_id, amount_minor, currency, status,
+           authorization_url, paid_at, created_at, updated_at
+    FROM assessment_payments
 """
 
 
@@ -260,6 +272,433 @@ class PostgresAssessmentRepository:
             claimed_at=claimed_at,
             access_state=access_state,  # type: ignore[arg-type]
         )
+
+    async def begin_checkout_attempt(
+        self,
+        *,
+        assessment_id: str,
+        owner_user_id: str,
+        payment_id: str,
+        provider_reference: str,
+        product_id: str,
+        billing_model: str,
+        provider: str,
+        amount_minor: int,
+        currency: str,
+    ) -> CheckoutBeginResult:
+        try:
+            async with self._pool.connection() as connection:
+                async with connection.transaction():
+                    async with connection.cursor() as cursor:
+                        return await self._begin_checkout_in_transaction(
+                            cursor,
+                            assessment_id=assessment_id,
+                            owner_user_id=owner_user_id,
+                            payment_id=payment_id,
+                            provider_reference=provider_reference,
+                            product_id=product_id,
+                            billing_model=billing_model,
+                            provider=provider,
+                            amount_minor=amount_minor,
+                            currency=currency,
+                        )
+        except UniqueViolation:
+            return CheckoutBeginResult("conflict", assessment_id, access_state="PREVIEW")
+
+    async def _begin_checkout_in_transaction(
+        self,
+        cursor: Any,
+        *,
+        assessment_id: str,
+        owner_user_id: str,
+        payment_id: str,
+        provider_reference: str,
+        product_id: str,
+        billing_model: str,
+        provider: str,
+        amount_minor: int,
+        currency: str,
+    ) -> CheckoutBeginResult:
+        await cursor.execute(
+            _ASSESSMENT_SELECT + " WHERE assessment_id = %s FOR UPDATE",
+            (assessment_id,),
+        )
+        row = await cursor.fetchone()
+        if row is None:
+            return CheckoutBeginResult("not_found", assessment_id)
+        access_state = str(row["access_state"])
+        owner = _text(row.get("owner_user_id"))
+        if access_state == "UNLOCKED":
+            return CheckoutBeginResult(
+                "already_unlocked",
+                assessment_id,
+                payment=await self._load_succeeded_payment(cursor, assessment_id, product_id),
+                access_state="UNLOCKED",
+            )
+        if owner is None or owner != owner_user_id:
+            return CheckoutBeginResult("not_owned", assessment_id, access_state=access_state)
+        latest_run_id = _text(row.get("latest_run_id"))
+        if latest_run_id is None or not await self._latest_run_is_completed(cursor, latest_run_id):
+            return CheckoutBeginResult("not_completed", assessment_id, access_state=access_state)
+        active = await self._load_active_payment(cursor, assessment_id, product_id, for_update=True)
+        if active is not None and active.status == "INITIALIZED":
+            return CheckoutBeginResult(
+                "existing_initialized",
+                assessment_id,
+                payment=active,
+                access_state="PREVIEW",
+            )
+        if active is not None and active.status == "INITIALIZING":
+            if not initializing_attempt_is_stale(active):
+                return CheckoutBeginResult(
+                    "initializing",
+                    assessment_id,
+                    payment=active,
+                    access_state="PREVIEW",
+                )
+            await cursor.execute(
+                """
+                UPDATE assessment_payments
+                SET status = 'INITIALIZATION_FAILED',
+                    updated_at = now()
+                WHERE payment_id = %s
+                  AND status = 'INITIALIZING'
+                """,
+                (active.payment_id,),
+            )
+            if cursor.rowcount == 0:
+                leftover = await self._load_active_payment(
+                    cursor, assessment_id, product_id, for_update=True
+                )
+                if leftover is not None and leftover.status == "INITIALIZED":
+                    return CheckoutBeginResult(
+                        "existing_initialized",
+                        assessment_id,
+                        payment=leftover,
+                        access_state="PREVIEW",
+                    )
+                if leftover is not None:
+                    return CheckoutBeginResult(
+                        "initializing",
+                        assessment_id,
+                        payment=leftover,
+                        access_state="PREVIEW",
+                    )
+        await cursor.execute(
+            """
+            INSERT INTO assessment_payments (
+                payment_id, assessment_id, owner_user_id, product_id, billing_model,
+                provider, provider_reference, amount_minor, currency, status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'INITIALIZING')
+            """,
+            (
+                payment_id,
+                assessment_id,
+                owner_user_id,
+                product_id,
+                billing_model,
+                provider,
+                provider_reference,
+                amount_minor,
+                currency,
+            ),
+        )
+        created = await self._load_payment_by_id(cursor, payment_id)
+        return CheckoutBeginResult(
+            "created",
+            assessment_id,
+            payment=created,
+            access_state="PREVIEW",
+        )
+
+    async def mark_checkout_initialized(
+        self,
+        *,
+        payment_id: str,
+        authorization_url: str,
+    ) -> PaymentRecord | None:
+        async with self._pool.connection() as connection:
+            async with connection.transaction():
+                async with connection.cursor() as cursor:
+                    await cursor.execute(
+                        """
+                        UPDATE assessment_payments
+                        SET status = 'INITIALIZED',
+                            authorization_url = %s,
+                            updated_at = now()
+                        WHERE payment_id = %s
+                          AND status = 'INITIALIZING'
+                        """,
+                        (authorization_url, payment_id),
+                    )
+                    return await self._load_payment_by_id(cursor, payment_id)
+
+    async def mark_checkout_initialization_failed(self, *, payment_id: str) -> PaymentRecord | None:
+        async with self._pool.connection() as connection:
+            async with connection.transaction():
+                async with connection.cursor() as cursor:
+                    await cursor.execute(
+                        """
+                        UPDATE assessment_payments
+                        SET status = 'INITIALIZATION_FAILED',
+                            updated_at = now()
+                        WHERE payment_id = %s
+                          AND status = 'INITIALIZING'
+                        """,
+                        (payment_id,),
+                    )
+                    return await self._load_payment_by_id(cursor, payment_id)
+
+    async def get_payment_by_provider_reference(
+        self, provider_reference: str
+    ) -> PaymentRecord | None:
+        async with self._pool.connection() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    _PAYMENT_SELECT + " WHERE provider_reference = %s",
+                    (provider_reference,),
+                )
+                row = await cursor.fetchone()
+        if row is None:
+            return None
+        return _payment_from_row(row)
+
+    async def fulfill_payment_and_unlock(
+        self,
+        *,
+        payment_id: str,
+        provider_reference: str,
+        provider_transaction_id: str,
+        verified_amount_minor: int,
+        verified_currency: str,
+        paid_at: datetime,
+    ) -> FulfillmentResult:
+        try:
+            async with self._pool.connection() as connection:
+                async with connection.transaction():
+                    async with connection.cursor() as cursor:
+                        return await self._fulfill_in_transaction(
+                            cursor,
+                            payment_id=payment_id,
+                            provider_reference=provider_reference,
+                            provider_transaction_id=provider_transaction_id,
+                            verified_amount_minor=verified_amount_minor,
+                            verified_currency=verified_currency,
+                            paid_at=paid_at,
+                        )
+        except UniqueViolation:
+            return FulfillmentResult("conflict", payment_id)
+
+    async def _fulfill_in_transaction(
+        self,
+        cursor: Any,
+        *,
+        payment_id: str,
+        provider_reference: str,
+        provider_transaction_id: str,
+        verified_amount_minor: int,
+        verified_currency: str,
+        paid_at: datetime,
+    ) -> FulfillmentResult:
+        await cursor.execute(
+            _PAYMENT_SELECT + " WHERE payment_id = %s FOR UPDATE",
+            (payment_id,),
+        )
+        payment_row = await cursor.fetchone()
+        if payment_row is None:
+            return FulfillmentResult("not_found", payment_id)
+        payment = _payment_from_row(payment_row)
+        await cursor.execute(
+            _ASSESSMENT_SELECT + " WHERE assessment_id = %s FOR UPDATE",
+            (payment.assessment_id,),
+        )
+        assessment_row = await cursor.fetchone()
+        if assessment_row is None:
+            return FulfillmentResult("not_found", payment_id, assessment_id=payment.assessment_id)
+        assessment = _assessment_from_row(assessment_row)
+        if not _fulfillment_fields_match(
+            payment,
+            assessment,
+            provider_reference=provider_reference,
+            verified_amount_minor=verified_amount_minor,
+            verified_currency=verified_currency,
+        ):
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        await cursor.execute(
+            """
+            SELECT payment_id
+            FROM assessment_payments
+            WHERE provider_transaction_id = %s
+              AND payment_id <> %s
+            FOR UPDATE
+            """,
+            (provider_transaction_id, payment_id),
+        )
+        other = await cursor.fetchone()
+        if other is not None:
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        latest_run_id = assessment.latest_run_id
+        if latest_run_id is None or not await self._latest_run_is_completed(cursor, latest_run_id):
+            return FulfillmentResult(
+                "not_completed",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        if (
+            payment.status == "SUCCEEDED"
+            and payment.provider_transaction_id == provider_transaction_id
+        ):
+            if assessment.access_state != "UNLOCKED":
+                await cursor.execute(
+                    """
+                    UPDATE assessments
+                    SET access_state = 'UNLOCKED', updated_at = now()
+                    WHERE assessment_id = %s
+                      AND access_state = 'PREVIEW'
+                    """,
+                    (payment.assessment_id,),
+                )
+            return FulfillmentResult(
+                "idempotent",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state="UNLOCKED",
+            )
+        if payment.status == "SUCCEEDED":
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        await cursor.execute(
+            """
+            UPDATE assessment_payments
+            SET status = 'SUCCEEDED',
+                provider_transaction_id = %s,
+                paid_at = %s,
+                updated_at = now()
+            WHERE payment_id = %s
+              AND status IN ('INITIALIZED', 'INITIALIZING')
+            """,
+            (provider_transaction_id, paid_at, payment_id),
+        )
+        if cursor.rowcount == 0:
+            await cursor.execute(
+                _PAYMENT_SELECT + " WHERE payment_id = %s",
+                (payment_id,),
+            )
+            again = await cursor.fetchone()
+            current = _payment_from_row(again) if again is not None else None
+            if (
+                current is not None
+                and current.status == "SUCCEEDED"
+                and current.provider_transaction_id == provider_transaction_id
+            ):
+                return FulfillmentResult(
+                    "idempotent",
+                    payment_id,
+                    assessment_id=payment.assessment_id,
+                    access_state="UNLOCKED",
+                )
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        await cursor.execute(
+            """
+            UPDATE assessments
+            SET access_state = 'UNLOCKED', updated_at = now()
+            WHERE assessment_id = %s
+              AND access_state = 'PREVIEW'
+            """,
+            (payment.assessment_id,),
+        )
+        if cursor.rowcount == 0 and assessment.access_state != "UNLOCKED":
+            return FulfillmentResult(
+                "conflict",
+                payment_id,
+                assessment_id=payment.assessment_id,
+                access_state=assessment.access_state,
+            )
+        return FulfillmentResult(
+            "unlocked",
+            payment_id,
+            assessment_id=payment.assessment_id,
+            access_state="UNLOCKED",
+        )
+
+    async def _latest_run_is_completed(self, cursor: Any, run_id: str) -> bool:
+        await cursor.execute(
+            "SELECT state FROM assessment_runs WHERE run_id = %s",
+            (run_id,),
+        )
+        row = await cursor.fetchone()
+        return row is not None and str(row["state"]) == "COMPLETED"
+
+    async def _load_payment_by_id(self, cursor: Any, payment_id: str) -> PaymentRecord | None:
+        await cursor.execute(_PAYMENT_SELECT + " WHERE payment_id = %s", (payment_id,))
+        row = await cursor.fetchone()
+        if row is None:
+            return None
+        return _payment_from_row(row)
+
+    async def _load_active_payment(
+        self,
+        cursor: Any,
+        assessment_id: str,
+        product_id: str,
+        *,
+        for_update: bool,
+    ) -> PaymentRecord | None:
+        suffix = " FOR UPDATE" if for_update else ""
+        await cursor.execute(
+            _PAYMENT_SELECT
+            + """
+            WHERE assessment_id = %s
+              AND product_id = %s
+              AND status IN ('INITIALIZING', 'INITIALIZED')
+            """
+            + suffix,
+            (assessment_id, product_id),
+        )
+        row = await cursor.fetchone()
+        if row is None:
+            return None
+        return _payment_from_row(row)
+
+    async def _load_succeeded_payment(
+        self, cursor: Any, assessment_id: str, product_id: str
+    ) -> PaymentRecord | None:
+        await cursor.execute(
+            _PAYMENT_SELECT
+            + """
+            WHERE assessment_id = %s
+              AND product_id = %s
+              AND status = 'SUCCEEDED'
+            ORDER BY paid_at DESC NULLS LAST
+            LIMIT 1
+            """,
+            (assessment_id, product_id),
+        )
+        row = await cursor.fetchone()
+        if row is None:
+            return None
+        return _payment_from_row(row)
 
     async def get_run(self, run_id: str) -> AssessmentRunRecord | None:
         async with self._pool.connection() as connection:
@@ -643,6 +1082,51 @@ def _assessment_from_row(row: dict[str, Any]) -> AssessmentRecord:
         updated_at=row["updated_at"],
         owner_user_id=_text(row.get("owner_user_id")),
     )
+
+
+def _payment_from_row(row: dict[str, Any]) -> PaymentRecord:
+    return PaymentRecord(
+        payment_id=str(row["payment_id"]),
+        assessment_id=str(row["assessment_id"]),
+        owner_user_id=str(row["owner_user_id"]),
+        product_id=str(row["product_id"]),
+        billing_model=str(row["billing_model"]),
+        provider=str(row["provider"]),
+        provider_reference=str(row["provider_reference"]),
+        provider_transaction_id=_text(row.get("provider_transaction_id")),
+        amount_minor=int(row["amount_minor"]),
+        currency=str(row["currency"]),
+        status=str(row["status"]),  # type: ignore[arg-type]
+        authorization_url=_text(row.get("authorization_url")),
+        paid_at=row.get("paid_at"),
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+    )
+
+
+def _fulfillment_fields_match(
+    payment: PaymentRecord,
+    assessment: AssessmentRecord,
+    *,
+    provider_reference: str,
+    verified_amount_minor: int,
+    verified_currency: str,
+) -> bool:
+    if payment.assessment_id != assessment.assessment_id:
+        return False
+    if assessment.owner_user_id is None or payment.owner_user_id != assessment.owner_user_id:
+        return False
+    if payment.product_id != "readiness_report_v1":
+        return False
+    if payment.billing_model != "one_time":
+        return False
+    if payment.provider != "paystack":
+        return False
+    if payment.provider_reference != provider_reference:
+        return False
+    if payment.amount_minor != 15900 or verified_amount_minor != 15900:
+        return False
+    return payment.currency == "ZAR" and verified_currency == "ZAR"
 
 
 def _hashes_equal(stored_hash: str, presented_hash: str) -> bool:

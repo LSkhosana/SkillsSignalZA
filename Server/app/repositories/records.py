@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
 PersistWriteStatus = Literal["inserted", "noop", "conflict"]
@@ -16,6 +16,24 @@ ClaimWriteStatus = Literal[
     "expired",
 ]
 AccessState = Literal["PREVIEW", "UNLOCKED"]
+PaymentStatus = Literal["INITIALIZING", "INITIALIZED", "INITIALIZATION_FAILED", "SUCCEEDED"]
+CheckoutBeginStatus = Literal[
+    "created",
+    "existing_initialized",
+    "initializing",
+    "already_unlocked",
+    "not_found",
+    "not_owned",
+    "not_completed",
+    "conflict",
+]
+FulfillmentStatus = Literal[
+    "unlocked",
+    "idempotent",
+    "not_found",
+    "conflict",
+    "not_completed",
+]
 
 
 @dataclass(frozen=True)
@@ -81,6 +99,65 @@ class AssessmentRecord:
     created_at: datetime
     updated_at: datetime
     owner_user_id: str | None = None
+
+
+@dataclass(frozen=True)
+class PaymentRecord:
+    """One payment attempt. Email, webhook bodies, and secrets are never stored."""
+
+    payment_id: str
+    assessment_id: str
+    owner_user_id: str
+    product_id: str
+    billing_model: str
+    provider: str
+    provider_reference: str
+    provider_transaction_id: str | None
+    amount_minor: int
+    currency: str
+    status: PaymentStatus
+    authorization_url: str | None
+    paid_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+
+STALE_INITIALIZING_AFTER = timedelta(seconds=30)
+
+
+def initializing_attempt_is_stale(
+    payment: PaymentRecord, *, observed_at: datetime | None = None
+) -> bool:
+    """True when an INITIALIZING row is old enough to fail closed and retry."""
+    if payment.status != "INITIALIZING":
+        return False
+    observed = observed_at or datetime.now(UTC)
+    stamp = payment.updated_at
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=UTC)
+    if observed.tzinfo is None:
+        observed = observed.replace(tzinfo=UTC)
+    return observed - stamp >= STALE_INITIALIZING_AFTER
+
+
+@dataclass(frozen=True)
+class CheckoutBeginResult:
+    """Atomic checkout-attempt outcome without vendor types."""
+
+    status: CheckoutBeginStatus
+    assessment_id: str
+    payment: PaymentRecord | None = None
+    access_state: AccessState | None = None
+
+
+@dataclass(frozen=True)
+class FulfillmentResult:
+    """Atomic payment-success + entitlement-write outcome."""
+
+    status: FulfillmentStatus
+    payment_id: str
+    assessment_id: str | None = None
+    access_state: AccessState | None = None
 
 
 @dataclass(frozen=True)

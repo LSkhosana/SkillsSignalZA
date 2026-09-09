@@ -45,10 +45,23 @@ class SupabaseAuthVerifier:
             if not isinstance(payload, dict):
                 return None
             subject = payload.get("id")
-            if isinstance(subject, str) and subject.strip():
-                return AuthenticatedPrincipal(subject=subject.strip())
-            return None
+            if not isinstance(subject, str) or not subject.strip():
+                return None
+            return AuthenticatedPrincipal(
+                subject=subject.strip(),
+                email=_verified_email(payload.get("email")),
+            )
         if response.status_code in {401, 403, 404}:
             return None
         logger.error("supabase auth verification unavailable")
         raise AuthServiceUnavailable
+
+
+def _verified_email(value: object) -> str | None:
+    """Return the Auth API email when it is a usable string. Never logs it."""
+    if not isinstance(value, str):
+        return None
+    stripped = value.strip()
+    if not stripped or "@" not in stripped or " " in stripped:
+        return None
+    return stripped

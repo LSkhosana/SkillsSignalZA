@@ -15,9 +15,12 @@ from app.core.resources import (
     bind_production_resources,
     close_app_resources,
     init_app_resource_state,
+    paystack_configured,
     persistence_configured,
     resolve_claim_resources,
+    resolve_payment_resources,
     resolve_submission_resources,
+    resolve_webhook_resources,
 )
 from app.main import create_app
 
@@ -125,11 +128,20 @@ def test_app_starts_without_persistence_configuration(monkeypatch: pytest.Monkey
             json={"claim_token": "token"},
             headers={"Authorization": "Bearer access-token"},
         )
+        payment_missing = client.post(
+            "/api/v1/assessments/assessment-1/payment",
+            headers={"Authorization": "Bearer access-token"},
+        )
+        webhook_missing = client.post("/api/v1/payments/paystack/webhook", content=b"{}")
     get_settings.cache_clear()
     assert missing.status_code == 503
     assert missing.json()["error_code"] == "ASSESSMENT_SERVICE_UNAVAILABLE"
     assert claim_missing.status_code == 503
     assert claim_missing.json()["error_code"] == "CLAIM_SERVICE_UNAVAILABLE"
+    assert payment_missing.status_code == 503
+    assert payment_missing.json()["error_code"] == "PAYMENT_SERVICE_UNAVAILABLE"
+    assert webhook_missing.status_code == 503
+    assert webhook_missing.json()["received"] is False
 
 
 def test_bind_is_a_noop_when_unconfigured() -> None:
@@ -520,5 +532,43 @@ def test_postgres_connect_failure_does_not_create_http_client(
         assert application.state.http_client is None
         assert application.state.auth_verifier is None
         assert _CountingClient.created == 0
+
+    asyncio.run(scenario())
+
+
+def test_paystack_bind_and_resolve(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.core.resources as resources
+
+    monkeypatch.setattr(resources.httpx, "AsyncClient", _FakeClient)
+
+    class PaySettings:
+        database_url = None
+        supabase_url = None
+        supabase_secret_key = None
+        supabase_publishable_key = None
+        supabase_storage_bucket = "candidate-evidence"
+        db_pool_min_size = 0
+        db_pool_max_size = 5
+        paystack_secret_key = SecretStr("sk_test_fake_not_real")
+        paystack_callback_url = "https://app.example.invalid/return"
+
+    assert paystack_configured(PaySettings()) is True  # type: ignore[arg-type]
+    assert paystack_configured(Settings(_env_file=None)) is False
+
+    async def scenario() -> None:
+        application = FastAPI()
+        init_app_resource_state(application)
+        application.state.auto_bind_resources = False
+        await bind_production_resources(application, settings=PaySettings())  # type: ignore[arg-type]
+        assert application.state.payment_provider is not None
+        assert application.state.http_client is not None
+        application.state.repository = "repo"
+        webhook = await resolve_webhook_resources(application)
+        assert webhook[0] == "repo"
+        assert webhook[1] is application.state.payment_provider
+        payment = await resolve_payment_resources(application)
+        assert payment == (None, None, None)
+        await close_app_resources(application)
+        assert application.state.payment_provider is None
 
     asyncio.run(scenario())

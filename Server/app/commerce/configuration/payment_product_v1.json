@@ -1,0 +1,9 @@
+{
+  "catalog_version": "1.0.0",
+  "status": "approved",
+  "product_id": "readiness_report_v1",
+  "billing_model": "one_time",
+  "amount_minor": 15900,
+  "currency": "ZAR",
+  "provider": "paystack"
+}

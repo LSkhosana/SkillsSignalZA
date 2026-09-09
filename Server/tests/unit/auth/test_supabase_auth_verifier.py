@@ -55,7 +55,10 @@ def test_valid_user_response_returns_subject_only() -> None:
         )
 
     principal = asyncio.run(_verifier(handler).verify_access_token(ACCESS))
-    assert principal == AuthenticatedPrincipal(subject="user-123")
+    assert principal == AuthenticatedPrincipal(
+        subject="user-123",
+        email="hidden@example.invalid",
+    )
     request = captured[0]
     assert str(request.url) == f"{SUPABASE_URL}/auth/v1/user"
     assert request.headers["apikey"] == PUBLISHABLE
@@ -88,6 +91,30 @@ def test_invalid_expired_and_malformed_user_payloads_return_none() -> None:
     assert asyncio.run(_verifier(not_object).verify_access_token(ACCESS)) is None
     assert asyncio.run(_verifier(invalid_json).verify_access_token(ACCESS)) is None
     assert asyncio.run(_verifier(not_found).verify_access_token(ACCESS)) is None
+
+
+def test_blank_or_malformed_email_is_omitted_from_principal() -> None:
+    def blank(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"id": "user-123", "email": "  "})
+
+    def invalid(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"id": "user-123", "email": "not-an-email"})
+
+    def missing(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"id": "user-123"})
+
+    assert asyncio.run(_verifier(blank).verify_access_token(ACCESS)) == AuthenticatedPrincipal(
+        subject="user-123",
+        email=None,
+    )
+    assert asyncio.run(_verifier(invalid).verify_access_token(ACCESS)) == AuthenticatedPrincipal(
+        subject="user-123",
+        email=None,
+    )
+    assert asyncio.run(_verifier(missing).verify_access_token(ACCESS)) == AuthenticatedPrincipal(
+        subject="user-123",
+        email=None,
+    )
 
 
 def test_outage_and_unexpected_status_raise_unavailable() -> None:

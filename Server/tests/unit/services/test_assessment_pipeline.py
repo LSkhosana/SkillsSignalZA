@@ -113,13 +113,15 @@ def _run(
     *,
     links: list[dict[str, Any]] | None = None,
     retrieve_link: Any = _blocked_retrieve,
+    assessment_id: str = "assessment-1",
+    run_id: str = "run-1",
 ) -> dict[str, Any]:
     file_bytes = _pdf(lines)
     outcome = run_assessment_pipeline(
         assessment_input=_input(track, file_bytes, links),
         cv_file_bytes=file_bytes,
-        assessment_id="assessment-1",
-        run_id="run-1",
+        assessment_id=assessment_id,
+        run_id=run_id,
         assessed_at=ASSESSED_AT,
         retrieve_link=retrieve_link,
     )
