@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-report-error.json",
+  "title": "SkillSignalZA unlocked report delivery error",
+  "description": "Safe Package Q error envelope. Successful HTTP 200 bodies are canonical readiness.report.v1 and do not use this schema. Paid report fields are forbidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "state",
+    "assessment_id",
+    "error_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "assessment.report.v1"
+    },
+    "state": {
+      "type": "string",
+      "const": "FAILED"
+    },
+    "assessment_id": {
+      "type": "string"
+    },
+    "error_code": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
