@@ -12,10 +12,10 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ title: 'Not found' }} />
       <ScreenShell title="Screen not found">
         <Text style={[styles.body, { color: theme.textSecondary }]}>
-          That route is not part of this scaffold.
+          That page is not part of the SkillSignalZA customer flow.
         </Text>
         <Link href="/" style={[styles.link, { color: theme.accent }]}>
-          Go to welcome
+          Go to start
         </Link>
       </ScreenShell>
     </>
