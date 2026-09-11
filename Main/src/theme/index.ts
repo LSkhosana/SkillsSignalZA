@@ -10,6 +10,11 @@ export const Colors = {
     surface: '#FFFFFF',
     border: '#E5E7EB',
     accent: '#1D4ED8',
+    danger: '#991B1B',
+    dangerSurface: '#FEF2F2',
+    success: '#166534',
+    successSurface: '#F0FDF4',
+    muted: '#6B7280',
   },
   dark: {
     text: '#F9FAFB',
@@ -18,6 +23,11 @@ export const Colors = {
     surface: '#111827',
     border: '#374151',
     accent: '#60A5FA',
+    danger: '#FECACA',
+    dangerSurface: '#3F1D1D',
+    success: '#BBF7D0',
+    successSurface: '#14532D',
+    muted: '#9CA3AF',
   },
 } as const;
 

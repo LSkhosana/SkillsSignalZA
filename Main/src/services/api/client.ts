@@ -4,6 +4,8 @@ import { ApiError, toApiError } from './errors';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
+export type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+
 export type ApiRequestOptions = {
   method?: HttpMethod;
   body?: unknown;
@@ -26,6 +28,16 @@ export type ApiFailure = {
 
 export type ApiResult<T> = ApiSuccess<T> | ApiFailure;
 
+export type ApiClient = {
+  request: <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
+  requestResult: <T>(path: string, options?: ApiRequestOptions) => Promise<ApiResult<T>>;
+};
+
+export type CreateApiClientOptions = {
+  getAccessToken?: () => string | null | undefined | Promise<string | null | undefined>;
+  fetchImpl?: FetchLike;
+};
+
 function joinUrl(baseUrl: string, path: string): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   return `${baseUrl}${normalizedPath}`;
@@ -33,6 +45,10 @@ function joinUrl(baseUrl: string, path: string): string {
 
 function isJsonContentType(contentType: string | null): boolean {
   return Boolean(contentType?.toLowerCase().includes('application/json'));
+}
+
+function isFormDataBody(body: unknown): body is FormData {
+  return typeof FormData !== 'undefined' && body instanceof FormData;
 }
 
 async function parseBody(response: Response): Promise<unknown> {
@@ -68,43 +84,68 @@ function errorMessageFromBody(body: unknown, fallback: string): string {
 }
 
 function errorCodeFromBody(body: unknown): string | undefined {
-  if (body && typeof body === 'object' && typeof (body as { code?: unknown }).code === 'string') {
-    return (body as { code: string }).code;
+  if (!body || typeof body !== 'object') {
+    return undefined;
+  }
+
+  const record = body as { error_code?: unknown; code?: unknown };
+  if (typeof record.error_code === 'string' && record.error_code.length > 0) {
+    return record.error_code;
+  }
+  if (typeof record.code === 'string' && record.code.length > 0) {
+    return record.code;
   }
 
   return undefined;
 }
 
-export function createApiClient(getAccessToken?: () => string | null | undefined) {
+function omitContentType(headers: Record<string, string>): Record<string, string> {
+  const next: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() === 'content-type') {
+      continue;
+    }
+    next[key] = value;
+  }
+  return next;
+}
+
+export function createApiClient(options: CreateApiClientOptions = {}): ApiClient {
+  const fetchImpl = options.fetchImpl ?? fetch;
+
   async function requestResult<T>(
     path: string,
-    options: ApiRequestOptions = {},
+    requestOptions: ApiRequestOptions = {},
   ): Promise<ApiResult<T>> {
     try {
       const baseUrl = getApiBaseUrl();
-      const method = options.method ?? 'GET';
-      const headers: Record<string, string> = {
+      const method = requestOptions.method ?? 'GET';
+      let headers: Record<string, string> = {
         Accept: 'application/json',
-        ...options.headers,
+        ...requestOptions.headers,
       };
 
-      const token = options.accessToken ?? getAccessToken?.() ?? null;
+      const token = requestOptions.accessToken ?? (await options.getAccessToken?.()) ?? null;
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
 
       const init: RequestInit = {
         method,
-        headers,
-        signal: options.signal,
+        signal: requestOptions.signal,
       };
 
-      if (options.body !== undefined) {
+      if (isFormDataBody(requestOptions.body)) {
+        headers = omitContentType(headers);
+        init.body = requestOptions.body;
+      } else if (requestOptions.body !== undefined) {
         headers['Content-Type'] = 'application/json';
-        init.body = JSON.stringify(options.body);
+        init.body = JSON.stringify(requestOptions.body);
       }
 
-      const response = await fetch(joinUrl(baseUrl, path), init);
+      init.headers = headers;
+
+      const response = await fetchImpl(joinUrl(baseUrl, path), init);
       const body = await parseBody(response);
 
       if (!response.ok) {
@@ -125,8 +166,8 @@ export function createApiClient(getAccessToken?: () => string | null | undefined
     }
   }
 
-  async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-    const result = await requestResult<T>(path, options);
+  async function request<T>(path: string, requestOptions: ApiRequestOptions = {}): Promise<T> {
+    const result = await requestResult<T>(path, requestOptions);
     if (!result.ok) {
       throw result.error;
     }

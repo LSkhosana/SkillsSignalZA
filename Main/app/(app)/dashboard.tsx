@@ -1,44 +1,24 @@
 import { Link } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { ScreenShell } from '@/components/screen-shell';
 import { useTheme } from '@/hooks/use-theme';
-import { getHealth } from '@/services/api';
+import { useAuth } from '@/services/auth/provider';
 
 export default function DashboardScreen() {
   const theme = useTheme();
-  const [healthMessage, setHealthMessage] = useState('Checking API health…');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void getHealth().then((result) => {
-      if (cancelled) {
-        return;
-      }
-
-      if (result.ok) {
-        setHealthMessage(`API health: ${result.data.status}`);
-        return;
-      }
-
-      setHealthMessage(`API unavailable: ${result.error.message}`);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const auth = useAuth();
 
   return (
-    <ScreenShell title="Dashboard">
+    <ScreenShell title="Account">
       <Text style={[styles.body, { color: theme.textSecondary }]}>
-        Signed-in product screens will live in this route group. Scoring stays in Server/.
+        Assessment history is not part of this release. Continue from a new assessment or an existing preview.
       </Text>
-      <Text style={[styles.body, { color: theme.textSecondary }]}>{healthMessage}</Text>
+      <Text style={[styles.body, { color: theme.textSecondary }]}>
+        {auth.status === 'signed_in' ? `Signed in as ${auth.user?.email ?? 'your account'}.` : 'You are signed out.'}
+      </Text>
       <Link href="/" style={[styles.link, { color: theme.accent }]}>
-        Back to welcome
+        Back to start
       </Link>
     </ScreenShell>
   );

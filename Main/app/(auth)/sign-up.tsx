@@ -1,20 +1,20 @@
 import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { ScreenShell } from '@/components/screen-shell';
 import { StatusBanner } from '@/components/status-banner';
 import { UiButton } from '@/components/ui-button';
 import { UiTextField } from '@/components/ui-text-field';
 import { useTheme } from '@/hooks/use-theme';
-import { signIn } from '@/services/auth';
 import { toHref } from '@/lib/href';
+import { signUp } from '@/services/auth';
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const theme = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ assessmentId?: string | string[]; next?: string | string[] }>();
@@ -23,6 +23,7 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [confirmEmail, setConfirmEmail] = useState(false);
   const [busy, setBusy] = useState(false);
 
   function continuePath() {
@@ -41,30 +42,42 @@ export default function SignInScreen() {
       setError('Enter a valid email address.');
       return;
     }
-    if (!password) {
-      setError('Enter your password.');
+    if (password.length < 6) {
+      setError('Choose a password of at least 6 characters.');
       return;
     }
     setBusy(true);
     try {
-      await signIn(email, password);
+      const result = await signUp(email, password);
+      if (result.status === 'confirm_email') {
+        setConfirmEmail(true);
+        return;
+      }
       router.replace(continuePath());
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Sign-in is unavailable right now.');
+      setError(caught instanceof Error ? caught.message : 'Sign-up is unavailable right now.');
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <ScreenShell title="Sign in" subtitle="Use your SkillSignalZA email and password." testID="sign-in-screen">
+    <ScreenShell title="Create account" subtitle="Email and password only. Server/ verifies the session token." testID="sign-up-screen">
+      {confirmEmail ? (
+        <StatusBanner
+          tone="success"
+          title="Check your email, then sign in"
+          message="Your account was created. Confirm the email from Supabase, then sign in to claim this assessment."
+          testID="confirm-email"
+        />
+      ) : null}
       <UiTextField
         label="Email"
         value={email}
         onChangeText={setEmail}
         autoComplete="email"
         keyboardType="email-address"
-        testID="sign-in-email"
+        testID="sign-up-email"
       />
       <UiTextField
         label="Password"
@@ -72,29 +85,23 @@ export default function SignInScreen() {
         onChangeText={setPassword}
         autoComplete="password"
         secureTextEntry
-        testID="sign-in-password"
+        testID="sign-up-password"
       />
-      {error ? <StatusBanner tone="danger" title="Could not sign in" message={error} testID="auth-error" /> : null}
-      <UiButton label={busy ? 'Signing in…' : 'Sign in'} disabled={busy} testID="sign-in-submit" onPress={() => void onSubmit()} />
-      <Link href={{ pathname: '/sign-up', params: { assessmentId, next } } as unknown as Href} style={[styles.link, { color: theme.accent }]}>
-        Create an account
+      {error ? <StatusBanner tone="danger" title="Could not create account" message={error} testID="auth-error" /> : null}
+      <UiButton
+        label={busy ? 'Creating account…' : 'Create account'}
+        disabled={busy || confirmEmail}
+        testID="sign-up-submit"
+        onPress={() => void onSubmit()}
+      />
+      <Link href={{ pathname: '/sign-in', params: { assessmentId, next } } as unknown as Href} style={[styles.link, { color: theme.accent }]}>
+        Already have an account? Sign in
       </Link>
-      <Link href="/" style={[styles.link, { color: theme.accent }]}>
-        Back to start
-      </Link>
-      <Text style={[styles.body, { color: theme.textSecondary }]}>
-        After you sign in, SkillSignalZA claims the same assessment and continues checkout. Tokens are never placed in
-        the URL.
-      </Text>
     </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
   link: {
     fontSize: 16,
     fontWeight: '600',
