@@ -214,6 +214,34 @@ async def resolve_claim_resources(
         return None, None
 
 
+async def resolve_report_resources(
+    application: FastAPI,
+) -> tuple[AssessmentRepository | None, AuthVerifier | None]:
+    """Return injected or lazily bound report repository and auth verifier."""
+    repository = getattr(application.state, "repository", None)
+    verifier = getattr(application.state, "auth_verifier", None)
+    if repository is not None and verifier is not None:
+        return repository, verifier
+    if not getattr(application.state, "auto_bind_resources", True):
+        return None, None
+    lock = getattr(application.state, "resource_lock", None)
+    if lock is None:
+        return None, None
+    async with lock:
+        repository = getattr(application.state, "repository", None)
+        verifier = getattr(application.state, "auth_verifier", None)
+        if repository is not None and verifier is not None:
+            return repository, verifier
+        if not claim_auth_configured():
+            return None, None
+        await bind_production_resources(application)
+        repository = getattr(application.state, "repository", None)
+        verifier = getattr(application.state, "auth_verifier", None)
+        if repository is not None and verifier is not None:
+            return repository, verifier
+        return None, None
+
+
 async def resolve_payment_resources(
     application: FastAPI,
 ) -> tuple[AssessmentRepository | None, AuthVerifier | None, PaymentProvider | None]:

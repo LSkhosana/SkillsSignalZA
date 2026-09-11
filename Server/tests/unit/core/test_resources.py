@@ -19,6 +19,7 @@ from app.core.resources import (
     persistence_configured,
     resolve_claim_resources,
     resolve_payment_resources,
+    resolve_report_resources,
     resolve_submission_resources,
     resolve_webhook_resources,
 )
@@ -133,6 +134,10 @@ def test_app_starts_without_persistence_configuration(monkeypatch: pytest.Monkey
             headers={"Authorization": "Bearer access-token"},
         )
         webhook_missing = client.post("/api/v1/payments/paystack/webhook", content=b"{}")
+        report_missing = client.get(
+            "/api/v1/assessments/assessment-1/report",
+            headers={"Authorization": "Bearer access-token"},
+        )
     get_settings.cache_clear()
     assert missing.status_code == 503
     assert missing.json()["error_code"] == "ASSESSMENT_SERVICE_UNAVAILABLE"
@@ -142,6 +147,8 @@ def test_app_starts_without_persistence_configuration(monkeypatch: pytest.Monkey
     assert payment_missing.json()["error_code"] == "PAYMENT_SERVICE_UNAVAILABLE"
     assert webhook_missing.status_code == 503
     assert webhook_missing.json()["received"] is False
+    assert report_missing.status_code == 503
+    assert report_missing.json()["error_code"] == "REPORT_SERVICE_UNAVAILABLE"
 
 
 def test_bind_is_a_noop_when_unconfigured() -> None:
@@ -301,6 +308,8 @@ def test_bind_auth_verifier_without_secret_key(monkeypatch: pytest.MonkeyPatch) 
         repository, auth = await resolve_claim_resources(application)
         assert repository is not None
         assert auth is verifier
+        report = await resolve_report_resources(application)
+        assert report == (repository, verifier)
         submission = await resolve_submission_resources(application)
         assert submission == (None, None)
         await close_app_resources(application)
@@ -334,6 +343,35 @@ def test_resolve_claim_lazy_binds_through_lock(monkeypatch: pytest.MonkeyPatch) 
         assert verifier == "verifier"
         again = await resolve_claim_resources(application)
         assert again == ("repo", "verifier")
+        report = await resolve_report_resources(application)
+        assert report == ("repo", "verifier")
+
+    asyncio.run(scenario())
+
+
+def test_resolve_report_lazy_binds_through_lock(monkeypatch: pytest.MonkeyPatch) -> None:
+    import app.core.resources as resources
+
+    class ReportSettings:
+        supabase_url = "https://example.invalid.supabase.co"
+        supabase_publishable_key = "publishable-not-secret"
+        supabase_secret_key = None
+        database_url = None
+
+    async def fake_bind(application: FastAPI, settings: Settings | None = None) -> None:
+        application.state.repository = "repo"
+        application.state.auth_verifier = "verifier"
+
+    monkeypatch.setattr(resources, "bind_production_resources", fake_bind)
+    monkeypatch.setattr(resources, "get_settings", lambda: ReportSettings())
+
+    async def scenario() -> None:
+        application = FastAPI()
+        init_app_resource_state(application)
+        first = await resolve_report_resources(application)
+        second = await resolve_report_resources(application)
+        assert first == ("repo", "verifier")
+        assert second == first
 
     asyncio.run(scenario())
 
@@ -347,6 +385,8 @@ def test_resolve_claim_returns_none_without_lock() -> None:
         repository, verifier = await resolve_claim_resources(application)
         assert repository is None
         assert verifier is None
+        report = await resolve_report_resources(application)
+        assert report == (None, None)
 
     asyncio.run(scenario())
 
@@ -398,8 +438,10 @@ def test_missing_publishable_key_does_not_repeatedly_bind_claim_resources(
         application = FastAPI()
         init_app_resource_state(application)
         first = await resolve_claim_resources(application)
+        report_first = await resolve_report_resources(application)
         second = await resolve_claim_resources(application)
         assert first == (None, None)
+        assert report_first == (None, None)
         assert second == (None, None)
         assert _CountingPostgres.created == 0
         assert _CountingClient.created == 0
