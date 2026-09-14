@@ -119,9 +119,6 @@ def _assemble(
     for fact in eligible:
         if fact.get("attribution_status") == "conflicting":
             flags.append("MATERIAL_SOURCE_CONTRADICTION")
-        source = source_by_id[fact["source_id"]]
-        if source.get("source_type") != CV_SOURCE and fact.get("attribution_status") == "unclear":
-            flags.append("OWNERSHIP_UNCLEAR")
     track_spec = registry["tracks"][safe_track]
     qualification_anchor, qualification_ids = _qualification_route(
         safe_track, eligible, flags, registry
@@ -224,6 +221,11 @@ def _eligible_facts(
             and not has_cue(str(fact["explicit_text"]), FINDING_CUES)
         ):
             continue
+        if (
+            spec["criterion_id"] == "se.projects.depth_ownership"
+            and fact.get("attribution_status") != "attributed"
+        ):
+            continue
         found.append(fact)
     return found
 
@@ -249,10 +251,6 @@ def _qualification_route(
     application_present = any(
         fact["fact_type"] in {"skill_application", "tool_application"} for fact in facts
     )
-    years = any("year" in str(fact["explicit_text"]).casefold() for fact in facts) and not quals
-    if years:
-        flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-        return none_route, []
     contributing: dict[str, list[str]] = {}
     for fact in quals:
         route = _route_for_qualification_fact(

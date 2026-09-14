@@ -147,8 +147,6 @@ def _classify(
     _assert_unique_ids(combined, safe_track)
     _assert_facts_reference_sources(combined, source_records, safe_track)
     _validate_facts(combined, safe_track)
-    if any(fact["attribution_status"] == "unclear" for fact in assigned):
-        flags.append("OWNERSHIP_UNCLEAR")
     unique_flags = ordered_unique_flags(flags)
     if selected_track_target_present(combined, safe_track):
         unique_flags = [flag for flag in unique_flags if flag != "TRACK_MISMATCH"]
