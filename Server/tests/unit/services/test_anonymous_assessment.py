@@ -788,6 +788,23 @@ def test_review_required_is_persisted_without_preview() -> None:
     outcome = _submit(
         repository=repository,
         storage=storage,
+        cv_file_bytes=build_text_pdf([["Seeking a data analyst role"]]),
+    )
+    assert outcome["state"] == "REVIEW_REQUIRED"
+    assert outcome["preview"] is None
+    assert outcome["claim_token"] == RAW_CLAIM
+    assert outcome["access_state"] == "PREVIEW"
+    assert len(storage.puts) == 1
+    assert len(repository.bundles) == 1
+    assert _paid_keys(outcome) == set()
+
+
+def test_accessible_submitted_link_is_persisted_with_preview() -> None:
+    repository = RecordingRepository()
+    storage = FakeStorage()
+    outcome = _submit(
+        repository=repository,
+        storage=storage,
         links=[
             {
                 "submitted_url": "https://example.com/project",
@@ -796,8 +813,9 @@ def test_review_required_is_persisted_without_preview() -> None:
         ],
         retrieve_link=_accessible_retrieve,
     )
-    assert outcome["state"] == "REVIEW_REQUIRED"
-    assert outcome["preview"] is None
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["preview"] is not None
+    assert outcome["preview"]["schema_version"] == "readiness.preview.v1"
     assert outcome["claim_token"] == RAW_CLAIM
     assert outcome["access_state"] == "PREVIEW"
     assert len(storage.puts) == 1

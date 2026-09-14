@@ -258,7 +258,7 @@ def test_inaccessible_link_is_preserved_without_standalone_penalty() -> None:
     assert outcome["assessment_result"] is not None
 
 
-def test_accessible_unclear_link_is_review_required() -> None:
+def test_accessible_unclear_link_completes_without_ownership_block() -> None:
     outcome = _run(
         "software_engineering",
         ["Junior Software Engineer"],
@@ -271,10 +271,71 @@ def test_accessible_unclear_link_is_review_required() -> None:
         ],
         retrieve_link=_accessible_retrieve,
     )
-    assert outcome["state"] == "REVIEW_REQUIRED"
-    assert outcome["assessment_result"] is None
-    assert "OWNERSHIP_UNCLEAR" in outcome["review_flags"]
-    assert outcome["scoring_context"] is not None
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["assessment_result"] is not None
+    assert "OWNERSHIP_UNCLEAR" not in outcome["review_flags"]
+    assert not set(outcome["review_flags"]) & {
+        "OWNERSHIP_UNCLEAR",
+        "MATERIAL_CLASSIFICATION_AMBIGUITY",
+        "MATERIAL_SOURCE_CONTRADICTION",
+    }
+    assert any(
+        record["ownership_status"] == "unclear"
+        for record in outcome["source_records"]
+        if record["source_type"] != "cv"
+    )
+    python = next(
+        item
+        for item in outcome["assessment_result"]["criterion_results"]
+        if item["criterion_id"] == "se.core.programming_language"
+    )
+    assert python["anchor"] == "documented"
+    depth = next(
+        item
+        for item in outcome["assessment_result"]["criterion_results"]
+        if item["criterion_id"] == "se.projects.depth_ownership"
+    )
+    assert depth["anchor"] == "missing_unverifiable"
+
+
+def test_realistic_years_wording_and_accessible_repo_completes() -> None:
+    outcome = _run(
+        "software_engineering",
+        [
+            "Summary",
+            "Seeking a junior software engineer role",
+            "Skills",
+            "Experience",
+            "3 years of React experience",
+            "Projects",
+            "Education",
+        ],
+        links=[
+            {
+                "link_id": "link-1",
+                "submitted_url": "https://example.com/project",
+                "declared_type": "repository",
+            }
+        ],
+        retrieve_link=_accessible_retrieve,
+    )
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["assessment_result"] is not None
+    assert "OWNERSHIP_UNCLEAR" not in outcome["review_flags"]
+    assert "MATERIAL_CLASSIFICATION_AMBIGUITY" not in outcome["review_flags"]
+    assert "MATERIAL_SOURCE_CONTRADICTION" not in outcome["review_flags"]
+    for record in outcome["source_records"]:
+        if record["source_type"] != "cv":
+            assert record["ownership_status"] == "unclear"
+    depth = next(
+        item
+        for item in outcome["assessment_result"]["criterion_results"]
+        if item["criterion_id"] == "se.projects.depth_ownership"
+    )
+    assert depth["anchor"] == "missing_unverifiable"
+    for item in outcome["assessment_result"]["criterion_results"]:
+        if item["criterion_id"] == "se.core.programming_language":
+            assert item["anchor"] != "demonstrated"
 
 
 def test_duplicate_url_same_type_is_retrieved_once() -> None:
