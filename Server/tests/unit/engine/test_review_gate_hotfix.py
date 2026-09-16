@@ -1,4 +1,4 @@
-"""Issue #38 review-gate hotfix: qualification year wording and default-unclear links."""
+"""Issue #38 review-gate hotfix: qualification routing and default-unclear links."""
 
 from __future__ import annotations
 
@@ -130,7 +130,27 @@ def test_final_year_qualification_remains_in_progress() -> None:
     assert outcome["state"] == "COMPLETED"
 
 
-def test_two_conflicting_qualification_routes_remain_review_required() -> None:
+def test_unrouteable_qualification_falls_back_to_none_without_review() -> None:
+    outcome = _assemble(
+        [
+            _fact(
+                "ev-0001",
+                subject="bachelor_degree",
+                fact_type="qualification",
+                explicit_text="BSc Computer Science",
+            )
+        ]
+    )
+    assert "MATERIAL_CLASSIFICATION_AMBIGUITY" not in outcome["review_flags"]
+    assert _binding(outcome, "se.alignment.qualification") == {
+        "criterion_id": "se.alignment.qualification",
+        "anchor": "se.qual.none",
+        "evidence_ids": [],
+    }
+    assert outcome["state"] == "COMPLETED"
+
+
+def test_multiple_supported_qualification_routes_choose_highest_defensible() -> None:
     outcome = _assemble(
         [
             _fact(
@@ -141,10 +161,28 @@ def test_two_conflicting_qualification_routes_remain_review_required() -> None:
             ),
             _fact(
                 "ev-0002",
+                subject="diploma",
+                fact_type="qualification",
+                explicit_text="Diploma in Information Technology currently studying",
+            ),
+        ]
+    )
+    qualification = _binding(outcome, "se.alignment.qualification")
+    assert qualification["anchor"] == "se.qual.completed"
+    assert qualification["evidence_ids"] == ["ev-0001"]
+    assert "MATERIAL_CLASSIFICATION_AMBIGUITY" not in outcome["review_flags"]
+    assert outcome["state"] == "COMPLETED"
+
+
+def test_same_qualification_fact_with_conflicting_status_remains_review_required() -> None:
+    outcome = _assemble(
+        [
+            _fact(
+                "ev-0001",
                 subject="bachelor_degree",
                 fact_type="qualification",
-                explicit_text="BSc Computer Science in progress",
-            ),
+                explicit_text="Completed BSc Computer Science, currently studying",
+            )
         ]
     )
     assert "MATERIAL_CLASSIFICATION_AMBIGUITY" in outcome["review_flags"]

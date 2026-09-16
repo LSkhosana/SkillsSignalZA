@@ -121,7 +121,7 @@ def _assemble(
             flags.append("MATERIAL_SOURCE_CONTRADICTION")
     track_spec = registry["tracks"][safe_track]
     qualification_anchor, qualification_ids = _qualification_route(
-        safe_track, eligible, flags, registry
+        safe_track, eligible, flags, registry, rubric
     )
     bindings: list[dict[str, Any]] = []
     for spec in track_spec["criteria"]:
@@ -235,6 +235,7 @@ def _qualification_route(
     facts: list[dict[str, Any]],
     flags: list[str],
     registry: dict[str, Any],
+    rubric: dict[str, Any],
 ) -> tuple[str, list[str]]:
     prefix = "se" if track == "software_engineering" else "da"
     none_route = NONE_ROUTES[track]
@@ -252,6 +253,7 @@ def _qualification_route(
         fact["fact_type"] in {"skill_application", "tool_application"} for fact in facts
     )
     contributing: dict[str, list[str]] = {}
+    unresolved_relevant = False
     for fact in quals:
         route = _route_for_qualification_fact(
             fact,
@@ -263,19 +265,42 @@ def _qualification_route(
         if route == "ambiguous":
             flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
             return none_route, []
+        if route == "unresolved_relevant":
+            unresolved_relevant = True
+            continue
         if route is None:
             continue
         contributing.setdefault(route, []).append(str(fact["evidence_id"]))
-    if quals and not contributing:
-        flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-        return none_route, []
     if not contributing:
+        if unresolved_relevant:
+            return none_route, []
+        if quals:
+            flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
+            return none_route, []
         return none_route, []
     if len(contributing) > 1:
-        flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-        return none_route, []
+        return _highest_defensible_qualification(track, contributing, rubric)
     route, evidence_ids = next(iter(contributing.items()))
     return f"{prefix}.qual.{route}", evidence_ids
+
+
+def _highest_defensible_qualification(
+    track: str,
+    contributing: dict[str, list[str]],
+    rubric: dict[str, Any],
+) -> tuple[str, list[str]]:
+    ranked: list[tuple[int, int, str, list[str]]] = []
+    for index, spec in enumerate(rubric["tracks"][track]["qualification_routes"]):
+        anchor = str(spec["id"])
+        route = anchor.rsplit(".", 1)[-1]
+        evidence_ids = contributing.get(route)
+        if not evidence_ids:
+            continue
+        ranked.append((int(spec["points"]), -index, anchor, evidence_ids))
+    if not ranked:
+        raise AssemblyFailure(ERROR_IMPOSSIBLE_QUALIFICATION, track)
+    _, _, anchor, evidence_ids = max(ranked)
+    return anchor, evidence_ids
 
 
 def _route_for_qualification_fact(
@@ -304,6 +329,8 @@ def _route_for_qualification_fact(
         return "ambiguous"
     if len(routes) == 1:
         return routes[0]
+    if relevant:
+        return "unresolved_relevant"
     return None
 
 
