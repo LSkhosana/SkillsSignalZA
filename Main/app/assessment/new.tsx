@@ -23,6 +23,7 @@ import {
   customerMessageForCode,
   customerMessageFromError,
   submitAssessment,
+  toApiError,
   type CandidateLinkInput,
   type PickedCvDocument,
 } from '@/services/api';
@@ -157,6 +158,8 @@ export default function NewAssessmentScreen() {
       }
 
       router.replace(toHref(`/assessment/${assessmentId}/preview`));
+    } catch (caught) {
+      setError(customerMessageFromError(toApiError(caught), 'The assessment could not be submitted.'));
     } finally {
       setBusy(false);
     }

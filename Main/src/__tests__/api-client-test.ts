@@ -125,6 +125,34 @@ describe('API client and assessment operations', () => {
     }
   });
 
+  it('fails closed with API_URL_MISSING when the API base URL is unset', async () => {
+    const previous = process.env.EXPO_PUBLIC_API_URL;
+    delete process.env.EXPO_PUBLIC_API_URL;
+    const fetchImpl = jest.fn();
+    try {
+      const result = await createApiClient({ fetchImpl }).requestResult('/api/v1/assessments');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('API_URL_MISSING');
+      }
+      expect(fetchImpl).not.toHaveBeenCalled();
+    } finally {
+      process.env.EXPO_PUBLIC_API_URL = previous;
+    }
+  });
+
+  it('maps a network failure to ASSESSMENT_SERVICE_UNAVAILABLE', async () => {
+    const result = await createApiClient({
+      fetchImpl: async () => {
+        throw new TypeError('Failed to fetch');
+      },
+    }).requestResult('/api/v1/health');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('ASSESSMENT_SERVICE_UNAVAILABLE');
+    }
+  });
+
   it('sends bearer token on report GET', async () => {
     const fetchImpl = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
       expect(String(url)).toContain('/api/v1/assessments/a-test-1/report');

@@ -32,6 +32,7 @@ export function toApiError(error: unknown): ApiError {
     return new ApiError({
       message: error.message,
       status: null,
+      code: codeFromThrownMessage(error.message),
       details: error,
     });
   }
@@ -41,4 +42,20 @@ export function toApiError(error: unknown): ApiError {
     status: null,
     details: error,
   });
+}
+
+function codeFromThrownMessage(message: string): string | undefined {
+  const normalized = message.toLowerCase();
+  if (normalized.includes('expo_public_api_url') || normalized.includes('missing required environment')) {
+    return 'API_URL_MISSING';
+  }
+  if (
+    normalized === 'failed to fetch' ||
+    normalized === 'network request failed' ||
+    normalized.includes('networkerror') ||
+    normalized.includes('load failed')
+  ) {
+    return 'ASSESSMENT_SERVICE_UNAVAILABLE';
+  }
+  return undefined;
 }

@@ -48,7 +48,13 @@ function isJsonContentType(contentType: string | null): boolean {
 }
 
 function isFormDataBody(body: unknown): body is FormData {
-  return typeof FormData !== 'undefined' && body instanceof FormData;
+  if (body == null || typeof body !== 'object') {
+    return false;
+  }
+  if (typeof FormData !== 'undefined' && body instanceof FormData) {
+    return true;
+  }
+  return Object.prototype.toString.call(body) === '[object FormData]';
 }
 
 async function parseBody(response: Response): Promise<unknown> {
@@ -118,6 +124,18 @@ export function createApiClient(options: CreateApiClientOptions = {}): ApiClient
     requestOptions: ApiRequestOptions = {},
   ): Promise<ApiResult<T>> {
     try {
+      if (!hasApiBaseUrl()) {
+        return {
+          ok: false,
+          status: null,
+          error: new ApiError({
+            message: 'EXPO_PUBLIC_API_URL is not set.',
+            status: null,
+            code: 'API_URL_MISSING',
+          }),
+        };
+      }
+
       const baseUrl = getApiBaseUrl();
       const method = requestOptions.method ?? 'GET';
       let headers: Record<string, string> = {
