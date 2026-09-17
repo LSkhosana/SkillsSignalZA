@@ -7,24 +7,32 @@ import { MaxContentWidth, Spacing } from '@/theme';
 
 type ScreenShellProps = {
   title: string;
+  subtitle?: string;
+  headerRight?: ReactNode;
   children: ReactNode;
+  testID?: string;
 };
 
-export function ScreenShell({ title, children }: ScreenShellProps) {
+export function ScreenShell({ title, subtitle, headerRight, children, testID }: ScreenShellProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const horizontalPadding = width >= 768 ? Spacing.xl : Spacing.md;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} testID={testID}>
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
           styles.scrollContent,
           { paddingHorizontal: horizontalPadding, maxWidth: MaxContentWidth },
         ]}
       >
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: theme.text, flex: 1 }]}>{title}</Text>
+            {headerRight}
+          </View>
+          {subtitle ? <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
           {children}
         </View>
       </ScrollView>
@@ -48,8 +56,17 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     gap: Spacing.md,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   title: {
     fontSize: 28,
     fontWeight: '700',
+  },
+  subtitle: {
+    fontSize: 16,
+    lineHeight: 24,
   },
 });
