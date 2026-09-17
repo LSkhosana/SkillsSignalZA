@@ -263,7 +263,7 @@ def test_qualification_ambiguity_creates_review_flag() -> None:
                 "ev-0001",
                 subject="bachelor_degree",
                 fact_type="qualification",
-                explicit_text="Bachelor of Arts",
+                explicit_text="Completed BSc Computer Science, currently studying",
             )
         ]
     )
