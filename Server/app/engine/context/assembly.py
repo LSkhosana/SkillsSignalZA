@@ -253,7 +253,6 @@ def _qualification_route(
         fact["fact_type"] in {"skill_application", "tool_application"} for fact in facts
     )
     contributing: dict[str, list[str]] = {}
-    unresolved_relevant = False
     for fact in quals:
         route = _route_for_qualification_fact(
             fact,
@@ -265,18 +264,11 @@ def _qualification_route(
         if route == "ambiguous":
             flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
             return none_route, []
-        if route == "unresolved_relevant":
-            unresolved_relevant = True
-            continue
-        if route is None:
+        if route in {"unresolved_relevant", None}:
             continue
         contributing.setdefault(route, []).append(str(fact["evidence_id"]))
     if not contributing:
-        if unresolved_relevant:
-            return none_route, []
-        if quals:
-            flags.append("MATERIAL_CLASSIFICATION_AMBIGUITY")
-            return none_route, []
+        # Generic qualification labels cannot establish a defensible route or a contradiction.
         return none_route, []
     if len(contributing) > 1:
         return _highest_defensible_qualification(track, contributing, rubric)
