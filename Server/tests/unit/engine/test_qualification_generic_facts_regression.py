@@ -58,9 +58,10 @@ def test_generic_qualification_does_not_obscure_separate_supported_route() -> No
 
 
 def test_genuinely_conflicting_status_within_one_qualification_still_blocks() -> None:
-    anchor, ids, flags = _route(
-        [_qualification("ev-1", "bachelor_degree", "Completed BSc Computer Science, currently studying")]
+    qualification = _qualification(
+        "ev-1", "bachelor_degree", "Completed BSc Computer Science, currently studying"
     )
+    anchor, ids, flags = _route([qualification])
     assert anchor == "se.qual.none"
     assert ids == []
     assert flags == ["MATERIAL_CLASSIFICATION_AMBIGUITY"]
