@@ -30,7 +30,6 @@ from app.services.assessment_persistence import persist_assessment_outcome_async
 from app.services.assessment_pipeline import run_assessment_pipeline
 from tests.unit.services.test_assessment_pipeline import (
     ASSESSED_AT,
-    _accessible_retrieve,
     _failed_retrieve,
     _input,
     _pdf,
@@ -262,32 +261,11 @@ def test_persist_completed_review_required_not_scorable_and_inaccessible_link() 
         assert da_result["state"] == "PERSISTED"
         assert da_result["assessment_id"] == "assessment-da"
 
-        review = _run(
-            "software_engineering",
-            ["Junior Software Engineer"],
-            links=[
-                {
-                    "link_id": "link-1",
-                    "submitted_url": "https://example.com/project",
-                    "declared_type": "project",
-                }
-            ],
-            retrieve_link=_accessible_retrieve,
-        )
+        review = _run("software_engineering", ["Seeking a data analyst role"])
         review["assessment_id"] = "assessment-review"
         review["run_id"] = "run-review"
-        review_bytes = _pdf(["Junior Software Engineer"])
-        review_input = _input(
-            "software_engineering",
-            review_bytes,
-            links=[
-                {
-                    "link_id": "link-1",
-                    "submitted_url": "https://example.com/project",
-                    "declared_type": "project",
-                }
-            ],
-        )
+        review_bytes = _pdf(["Seeking a data analyst role"])
+        review_input = _input("software_engineering", review_bytes)
         review_result = await _persist(
             review, review_bytes, repository, assessment_input=review_input
         )

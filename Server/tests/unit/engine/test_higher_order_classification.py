@@ -159,8 +159,8 @@ def test_accessible_submitted_work_proof_is_documented_when_ownership_unclear() 
     assert proof["fact_type"] == "project_proof"
     assert proof["evidence_level"] == "documented"
     assert proof["attribution_status"] == "unclear"
-    assert outcome["state"] == "REVIEW_REQUIRED"
-    assert outcome["review_flags"] == ["OWNERSHIP_UNCLEAR"]
+    assert outcome["state"] == "COMPLETED"
+    assert "OWNERSHIP_UNCLEAR" not in outcome["review_flags"]
     assert proof["explicit_text"] == "Repository README"
 
 
@@ -294,7 +294,8 @@ def test_unclear_link_higher_order_facts_stay_documented() -> None:
     for fact in higher:
         assert fact["evidence_level"] != "demonstrated"
         assert fact["attribution_status"] == "unclear"
-    assert outcome["review_flags"] == ["OWNERSHIP_UNCLEAR"]
+    assert "OWNERSHIP_UNCLEAR" not in outcome["review_flags"]
+    assert outcome["state"] == "COMPLETED"
 
 
 def test_classification_modules_do_not_import_scoring() -> None:

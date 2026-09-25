@@ -20,6 +20,7 @@ from app.services.anonymous_assessment import (
     ERROR_TOO_MANY_LINKS,
     ERROR_UNSUPPORTED_MEDIA_TYPE,
 )
+from tests.fixtures.cv_extraction.documents import build_text_pdf
 from tests.integration.test_assessment_score import SCORE_PATH, _completed_request, _load
 from tests.unit.services.test_anonymous_assessment import (
     IDENTITY,
@@ -31,7 +32,11 @@ from tests.unit.services.test_anonymous_assessment import (
     da_docx,
     se_pdf,
 )
-from tests.unit.services.test_assessment_pipeline import ASSESSED_AT, _blocked_retrieve
+from tests.unit.services.test_assessment_pipeline import (
+    ASSESSED_AT,
+    _accessible_retrieve,
+    _blocked_retrieve,
+)
 
 ANON_PATH = "/api/v1/assessments"
 MEDIA_PDF = "application/pdf"
@@ -203,19 +208,35 @@ def test_file_too_large_returns_422(app_client: tuple[TestClient, Any]) -> None:
 def test_review_required_returns_202_without_preview(
     app_client: tuple[TestClient, Any],
 ) -> None:
-    from tests.unit.services.test_assessment_pipeline import _accessible_retrieve
+    client, application = app_client
+    _bind(application)
+    response = _post(
+        client,
+        file_bytes=build_text_pdf([["Seeking a data analyst role"]]),
+    )
+    assert response.status_code == 202
+    payload = response.json()
+    assert payload["state"] == "REVIEW_REQUIRED"
+    assert payload["preview"] is None
+    assert payload["error_code"] == "REVIEW_REQUIRED"
+    assert payload["claim_token"] == RAW_CLAIM
 
+
+def test_accessible_submitted_link_returns_201_preview(
+    app_client: tuple[TestClient, Any],
+) -> None:
     client, application = app_client
     _bind(application, retrieve_link=_accessible_retrieve)
     response = _post(
         client,
         links=[{"submitted_url": "https://example.com/project", "declared_type": "project"}],
     )
-    assert response.status_code == 202
+    assert response.status_code == 201
     payload = response.json()
-    assert payload["state"] == "REVIEW_REQUIRED"
-    assert payload["preview"] is None
-    assert payload["claim_token"] == RAW_CLAIM
+    assert payload["state"] == "COMPLETED"
+    assert payload["access_state"] == "PREVIEW"
+    assert payload["preview"]["schema_version"] == "readiness.preview.v1"
+    assert payload["error_code"] is None
 
 
 def test_not_scorable_returns_422_without_preview(

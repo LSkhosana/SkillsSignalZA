@@ -34,7 +34,6 @@ from app.engine.evidence.outcomes import (
     MAX_EVIDENCE_FACTS,
     NAMED_ONLY_BOUNDED_CHARS,
     OWNERSHIP_VALUES,
-    REVIEW_FLAG_OWNERSHIP_UNCLEAR,
     SOURCE_TYPE_CV,
     NormalizationFailure,
     canonical_outcome,
@@ -100,15 +99,9 @@ def _normalize_evidence(
         raise NormalizationFailure(ERROR_FACT_LIMIT_EXCEEDED, safe_track)
     assigned = [_with_evidence_id(fact, index) for index, fact in enumerate(facts, start=1)]
     review_flags: list[str] = []
-    state: str = "COMPLETED"
-    error_code: str | None = None
-    if any(fact["attribution_status"] == "unclear" for fact in assigned):
-        state = "REVIEW_REQUIRED"
-        error_code = REVIEW_FLAG_OWNERSHIP_UNCLEAR
-        review_flags = [REVIEW_FLAG_OWNERSHIP_UNCLEAR]
     outcome = canonical_outcome(
-        state=state,  # type: ignore[arg-type]
-        error_code=error_code,
+        state="COMPLETED",
+        error_code=None,
         track=safe_track,
         source_records=source_records,
         evidence_facts=assigned,

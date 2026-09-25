@@ -23,7 +23,6 @@ from app.engine.evidence.outcomes import (
     ERROR_INVALID_LINK_RETRIEVAL,
     ERROR_INVALID_TRACK,
     ERROR_RULESET_INVALID,
-    REVIEW_FLAG_OWNERSHIP_UNCLEAR,
 )
 
 SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
@@ -334,7 +333,7 @@ def test_non_unclear_package_g_ownership_is_invalid_link_retrieval(ownership: st
     assert outcome["source_records"] == []
 
 
-def test_unclear_link_application_is_documented_and_review_required() -> None:
+def test_unclear_link_application_is_documented_without_global_block() -> None:
     outcome = _normalize(
         _cv_completed("Junior Software Engineer"),
         [_link_completed("Built a Flask API in Python")],
@@ -344,9 +343,10 @@ def test_unclear_link_application_is_documented_and_review_required() -> None:
     assert python["evidence_level"] == "documented"
     assert python["attribution_status"] == "unclear"
     assert python["evidence_level"] != "demonstrated"
-    assert outcome["state"] == "REVIEW_REQUIRED"
-    assert outcome["error_code"] == REVIEW_FLAG_OWNERSHIP_UNCLEAR
-    assert outcome["review_flags"] == [REVIEW_FLAG_OWNERSHIP_UNCLEAR]
+    assert outcome["source_records"][1]["ownership_status"] == "unclear"
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["error_code"] is None
+    assert "OWNERSHIP_UNCLEAR" not in outcome["review_flags"]
 
 
 def test_inaccessible_link_creates_no_facts_and_preserves_source() -> None:
