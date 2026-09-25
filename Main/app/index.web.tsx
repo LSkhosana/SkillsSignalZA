@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useEffect, type CSSProperties } from 'react';
 
+import { useEditorialReveal } from '@/hooks/use-editorial-reveal';
+
 import '@/theme/landing.css';
 
 const PRODUCT_FEATURES = {
@@ -37,31 +39,10 @@ const MARQUEE = [
 export default function WebLandingScreen() {
   const router = useRouter();
 
+  useEditorialReveal();
+
   useEffect(() => {
     document.title = 'SkillSignalZA — Entry-level tech readiness, grounded in evidence';
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.ss-reveal'));
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      nodes.forEach((node) => node.classList.add('ss-visible'));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('ss-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
-    );
-
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
   }, []);
 
   const startAssessment = () => router.push('/assessment/new');

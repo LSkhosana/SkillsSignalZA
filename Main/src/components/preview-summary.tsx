@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   lock: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 0,
     padding: Spacing.md,
     gap: Spacing.sm,
     marginTop: Spacing.sm,

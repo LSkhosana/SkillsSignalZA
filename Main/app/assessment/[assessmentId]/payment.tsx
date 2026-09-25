@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Text } from 'react-native';
 
-import { AccountBar } from '@/components/account-bar';
 import { ScreenShell } from '@/components/screen-shell';
 import { StatusBanner } from '@/components/status-banner';
 import { UiButton } from '@/components/ui-button';
@@ -175,7 +174,6 @@ export default function PaymentScreen() {
     <ScreenShell
       title="Unlock full report"
       subtitle="Payment fulfillment is confirmed by the SkillSignalZA report, not by the checkout window closing."
-      headerRight={<AccountBar />}
       testID="payment-screen"
     >
       {phase === 'blocked' || phase === 'error' ? (

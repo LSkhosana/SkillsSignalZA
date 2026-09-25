@@ -1,34 +1,24 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
+import { Stack } from 'expo-router';
 
 import { ScreenShell } from '@/components/screen-shell';
-import { useTheme } from '@/hooks/use-theme';
+import { Button } from '@/components/system/button';
+import { PageState } from '@/components/system/feedback';
+import { Routes } from '@/lib/routes';
 
 export default function NotFoundScreen() {
-  const theme = useTheme();
-
   return (
     <>
-      <Stack.Screen options={{ title: 'Not found' }} />
-      <ScreenShell title="Screen not found">
-        <Text style={[styles.body, { color: theme.textSecondary }]}>
-          That page is not part of the SkillSignalZA customer flow.
-        </Text>
-        <Link href="/" style={[styles.link, { color: theme.accent }]}>
-          Go to start
-        </Link>
+      <Stack.Screen options={{ title: 'Not found', headerShown: false }} />
+      <ScreenShell title="Screen not found" testID="not-found-screen">
+        <PageState
+          tone="warning"
+          happened="This address is not part of SkillSignalZA."
+          meaning="Nothing was opened, scored, or changed."
+          consequence="Nothing was charged and no assessment was lost."
+          action={<Button label="Go to start" href={Routes.home} />}
+          testID="not-found-state"
+        />
       </ScreenShell>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  link: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

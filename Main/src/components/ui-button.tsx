@@ -1,7 +1,4 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
-
-import { useTheme } from '@/hooks/use-theme';
-import { Spacing } from '@/theme';
+import { Button } from '@/components/system/button';
 
 type UiButtonProps = {
   label: string;
@@ -20,46 +17,14 @@ export function UiButton({
   accessibilityHint,
   testID,
 }: UiButtonProps) {
-  const theme = useTheme();
-  const backgroundColor =
-    variant === 'primary' ? (disabled ? theme.border : theme.accent) : theme.surface;
-  const textColor = variant === 'primary' ? '#FFFFFF' : theme.accent;
-
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
+    <Button
+      label={label}
       onPress={onPress}
+      disabled={disabled}
+      variant={variant}
+      accessibilityHint={accessibilityHint}
       testID={testID}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor,
-          borderColor: theme.accent,
-          opacity: pressed && !disabled ? 0.85 : 1,
-        },
-      ]}
-    >
-      <Text style={[styles.label, { color: variant === 'primary' ? textColor : theme.accent }]}>{label}</Text>
-    </Pressable>
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    minHeight: 48,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-});
