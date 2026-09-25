@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 
 import '@/theme/landing.css';
 
@@ -274,7 +274,7 @@ export default function WebLandingScreen() {
                     <div className="ss-bar" key={label}>
                       <span>{label}</span>
                       <div className="ss-bar-track">
-                        <div className="ss-bar-fill" style={{ '--score': score } as React.CSSProperties} />
+                        <div className="ss-bar-fill" style={{ '--score': score } as CSSProperties} />
                       </div>
                       <strong>{value}</strong>
                     </div>
