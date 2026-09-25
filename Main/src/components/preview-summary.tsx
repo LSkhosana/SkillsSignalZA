@@ -1,41 +1,68 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '@/hooks/use-theme';
+import { Badge, Divider, WorkspacePanel } from '@/components/system/surfaces';
 import { REPORT_PRICE_COPY } from '@/lib/constants';
 import type { ReadinessPreview } from '@/services/api';
 import { PAID_REPORT_SECTION_KEYS } from '@/services/api';
-import { Spacing } from '@/theme';
+import { FontFamily, Palette } from '@/theme/tokens';
 
 type PreviewSummaryProps = {
   preview: ReadinessPreview;
 };
 
+const LOCKED_LINES = [
+  'Category scores and how the points are distributed stay in the full report.',
+  'Recorded strengths stay in the full report.',
+  'The areas that still need evidence stay in the full report.',
+  'The ordered actions stay in the full report.',
+  'The recommended project stays in the full report.',
+  'Criterion-level evidence notes stay in the full report.',
+  'The benchmark statement stays in the full report.',
+];
+
 export function PreviewSummary({ preview }: PreviewSummaryProps) {
-  const theme = useTheme();
+  const gapLine = preview.priority_gap
+    ? `Priority gap: ${preview.priority_gap.criterion_label}`
+    : 'No priority gap on this preview.';
 
   return (
     <View style={styles.stack} testID="preview-summary">
-      <Text style={[styles.kicker, { color: theme.textSecondary }]}>{preview.track_label}</Text>
-      <Text style={[styles.score, { color: theme.text }]} testID="preview-score">
-        {preview.final_score} / {preview.score_max}
+      <Badge label="Free preview" tone="green" />
+      <Text style={styles.kicker}>{preview.track_label}</Text>
+      <WorkspacePanel>
+        <Text style={styles.scoreLabel}>Readiness score</Text>
+        <Text style={styles.score} testID="preview-score">
+          {preview.final_score} / {preview.score_max}
+        </Text>
+        <Text style={styles.band} testID="preview-band">
+          {preview.band_label}
+        </Text>
+      </WorkspacePanel>
+      <Text style={styles.body}>
+        This is the free preview. It shows the score, band and track for this assessment, and nothing beyond that.
       </Text>
-      <Text style={[styles.band, { color: theme.text }]} testID="preview-band">
-        {preview.band_label}
-      </Text>
-      <Text style={[styles.meta, { color: theme.textSecondary }]} testID="preview-strongest">
+      <Text style={styles.body} testID="preview-strongest">
         Strongest area: {preview.strongest_area.label}
       </Text>
-      <Text style={[styles.meta, { color: theme.textSecondary }]} testID="preview-gap">
-        {preview.priority_gap
-          ? `Priority gap: ${preview.priority_gap.criterion_label}`
-          : 'No priority gap on this preview.'}
+      <Text style={styles.body} testID="preview-gap">
+        {gapLine}
       </Text>
-      <View style={[styles.lock, { borderColor: theme.border }]} testID="preview-paywall">
-        <Text style={[styles.lockTitle, { color: theme.text }]}>Full Readiness Report is locked</Text>
-        <Text style={[styles.lockBody, { color: theme.textSecondary }]}>
-          Category breakdown, strengths, material gaps, priority actions, project recommendation, and
-          criterion breakdown unlock after a one-time {REPORT_PRICE_COPY} payment.
+      <Text style={styles.body}>
+        On the {preview.track_label} track, the free preview places this submission in {preview.band_label}. The
+        strongest area shown here is {preview.strongest_area.label}.
+      </Text>
+      <Divider />
+      <View testID="preview-paywall" style={styles.lock}>
+        <Text style={styles.lockTitle}>What {REPORT_PRICE_COPY} unlocks</Text>
+        <Text style={styles.body}>
+          One payment of {REPORT_PRICE_COPY} opens the full Readiness Report. Those sections are not part of this free
+          preview.
         </Text>
+        {LOCKED_LINES.map((line) => (
+          <Text key={line} style={styles.lockLine}>
+            {line}
+          </Text>
+        ))}
       </View>
       {PAID_REPORT_SECTION_KEYS.map((key) => (
         <Text key={key} style={styles.hiddenPaidMarker} testID={`preview-absent-${key}`} />
@@ -46,37 +73,56 @@ export function PreviewSummary({ preview }: PreviewSummaryProps) {
 
 const styles = StyleSheet.create({
   stack: {
-    gap: Spacing.sm,
+    gap: 14,
+    minWidth: 0,
   },
   kicker: {
-    fontSize: 14,
-    fontWeight: '600',
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  scoreLabel: {
+    color: Palette.green,
+    fontFamily: FontFamily.sans,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   score: {
-    fontSize: 32,
-    fontWeight: '700',
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 64,
+    lineHeight: 68,
   },
   band: {
-    fontSize: 20,
-    fontWeight: '600',
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
   },
-  meta: {
+  body: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     lineHeight: 24,
   },
   lock: {
-    borderWidth: 1,
-    borderRadius: 0,
-    padding: Spacing.md,
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
+    gap: 8,
+    minWidth: 0,
   },
   lockTitle: {
-    fontSize: 16,
-    fontWeight: '700',
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
   },
-  lockBody: {
+  lockLine: {
+    color: Palette.ink,
+    fontFamily: FontFamily.sans,
     fontSize: 15,
     lineHeight: 22,
   },
