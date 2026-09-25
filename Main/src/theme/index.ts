@@ -1,24 +1,40 @@
 import { Platform } from 'react-native';
 
+import '@/theme/landing.css';
+import '@/theme/foundations.css';
 import '@/theme/global.css';
 
+import { Palette } from '@/theme/tokens';
+
+export { FontFamily, Layout, Palette } from '@/theme/tokens';
+
+const launchColors = {
+  text: Palette.ink,
+  textSecondary: Palette.muted,
+  background: Palette.paper,
+  surface: Palette.surface,
+  border: Palette.divider,
+  accent: Palette.green,
+  danger: Palette.failure,
+  dangerSurface: Palette.failureSurface,
+  success: Palette.greenDark,
+  successSurface: Palette.paleGreen,
+  muted: Palette.muted,
+  ink: Palette.ink,
+  green: Palette.green,
+  greenDark: Palette.greenDark,
+  greenMid: Palette.greenMid,
+  greenSoft: Palette.greenSoft,
+  paleGreen: Palette.paleGreen,
+  paper: Palette.paper,
+  warning: Palette.warning,
+  warningSurface: Palette.warningSurface,
+} as const;
+
 export const Colors = {
-  light: {
-    text: '#111827',
-    textSecondary: '#4B5563',
-    background: '#F8FAFC',
-    surface: '#FFFFFF',
-    border: '#E5E7EB',
-    accent: '#1D4ED8',
-  },
-  dark: {
-    text: '#F9FAFB',
-    textSecondary: '#D1D5DB',
-    background: '#0B1220',
-    surface: '#111827',
-    border: '#374151',
-    accent: '#60A5FA',
-  },
+  light: launchColors,
+  /** Launch stays on the landing palette. A separate dark theme is not part of this pass. */
+  dark: launchColors,
 } as const;
 
 export type ColorSchemeName = keyof typeof Colors;
@@ -31,15 +47,17 @@ export const Spacing = {
   xl: 32,
 } as const;
 
-export const MaxContentWidth = 720;
+export const MaxContentWidth = 1320;
 
 export const Fonts = Platform.select({
   web: {
-    sans: 'var(--font-display)',
+    sans: 'var(--ss-sans)',
+    serif: 'var(--ss-serif)',
     mono: 'var(--font-mono)',
   },
   default: {
-    sans: 'system-ui',
+    sans: 'sans-serif',
+    serif: 'serif',
     mono: 'monospace',
   },
 });
