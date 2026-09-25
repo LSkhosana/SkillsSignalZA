@@ -3,7 +3,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AccountBar } from '@/components/account-bar';
 import { ScreenShell } from '@/components/screen-shell';
 import { StatusBanner } from '@/components/status-banner';
 import { UiButton } from '@/components/ui-button';
@@ -169,7 +168,6 @@ export default function NewAssessmentScreen() {
     <ScreenShell
       title="New assessment"
       subtitle={`Track: ${trackLabel}`}
-      headerRight={<AccountBar />}
       testID="assessment-form-screen"
     >
       <View style={styles.trackRow}>
@@ -278,13 +276,15 @@ const styles = StyleSheet.create({
   },
   trackChip: {
     borderWidth: 2,
-    borderRadius: 10,
+    borderRadius: 0,
+    minHeight: 44,
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
   typeChip: {
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 0,
+    minHeight: 44,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   linkCard: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 0,
     padding: 12,
     gap: 12,
   },

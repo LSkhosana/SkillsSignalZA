@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   criterion: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 0,
     padding: Spacing.sm,
     gap: Spacing.sm,
   },

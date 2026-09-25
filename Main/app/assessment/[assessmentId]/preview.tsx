@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-import { AccountBar } from '@/components/account-bar';
 import { PreviewSummary } from '@/components/preview-summary';
 import { ScreenShell } from '@/components/screen-shell';
 import { StatusBanner } from '@/components/status-banner';
@@ -55,7 +54,6 @@ export default function PreviewScreen() {
     <ScreenShell
       title="Readiness preview"
       subtitle="This is the free preview. Paid report sections stay locked until payment is fulfilled."
-      headerRight={<AccountBar />}
       testID="preview-screen"
     >
       {missing || !preview ? (

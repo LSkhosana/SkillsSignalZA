@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-import { AccountBar } from '@/components/account-bar';
 import { ReadinessReportView } from '@/components/readiness-report-view';
 import { ScreenShell } from '@/components/screen-shell';
 import { StatusBanner } from '@/components/status-banner';
@@ -69,7 +68,7 @@ export default function ReportScreen() {
   }, [assessmentId, auth.status, router]);
 
   return (
-    <ScreenShell title="Readiness Report" headerRight={<AccountBar />} testID="report-screen">
+    <ScreenShell title="Readiness Report" testID="report-screen">
       {report ? <ReadinessReportView report={report} /> : null}
       {locked ? (
         <>

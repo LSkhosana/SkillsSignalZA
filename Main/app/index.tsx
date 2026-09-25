@@ -3,7 +3,6 @@ import type { Href } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AccountBar } from '@/components/account-bar';
 import { ScreenShell } from '@/components/screen-shell';
 import { UiButton } from '@/components/ui-button';
 import { useTheme } from '@/hooks/use-theme';
@@ -18,7 +17,6 @@ export default function LandingScreen() {
     <ScreenShell
       title="SkillSignalZA"
       subtitle="Evaluate demonstrated application-readiness evidence from a CV and candidate-provided links."
-      headerRight={<AccountBar />}
       testID="landing-screen"
     >
       <Text style={[styles.body, { color: theme.textSecondary }]}>
@@ -83,7 +81,8 @@ const styles = StyleSheet.create({
   },
   track: {
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 0,
+    minHeight: 44,
     padding: 16,
     gap: 8,
   },
