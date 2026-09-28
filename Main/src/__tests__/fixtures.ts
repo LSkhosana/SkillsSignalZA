@@ -1,6 +1,9 @@
 import type {
   AnonymousAssessmentOutcome,
+  AssessmentSummariesOutcome,
+  AssessmentSummaryItem,
   PaymentCheckoutOutcome,
+  PriorityActionRow,
   ReadinessPreview,
   ReadinessReport,
 } from '@/services/api';
@@ -111,6 +114,14 @@ export const REPORT_FIXTURE: ReadinessReport = {
       percentage: 90,
       pre_cap_score: 18,
     },
+    {
+      category_id: 'evidence_quality',
+      label: 'Evidence quality',
+      score: 12,
+      max_points: 20,
+      percentage: 60,
+      pre_cap_score: 12,
+    },
   ],
   strengths: [
     {
@@ -124,23 +135,25 @@ export const REPORT_FIXTURE: ReadinessReport = {
       anchor_label: 'Strong',
       evidence_note: 'Shipped project evidence is visible.',
     },
+    {
+      criterion_id: 'se-evidence-depth',
+      criterion_label: 'Evidence depth',
+      category_id: 'evidence_quality',
+      category_label: 'Evidence quality',
+      awarded_points: 4,
+      max_points: 8,
+      anchor: 'partial',
+      anchor_label: 'Partial',
+      evidence_note: 'A walkthrough exists, but the production constraints are thin.',
+    },
   ],
   material_gaps: [PREVIEW_FIXTURE.priority_gap!],
   priority_actions: [
-    {
-      priority_order: 1,
-      action_id: 'action-1',
-      criterion_id: 'se-evidence-depth',
-      criterion_label: 'Evidence depth',
-      current_anchor: 'partial',
-      current_anchor_label: 'Partial',
-      target_anchor: 'strong',
-      target_anchor_label: 'Strong',
-      candidate_instruction: 'Add a production-shaped walkthrough of one shipped project.',
-      required_output: 'A public write-up with decisions and constraints.',
-      completion_check: 'The write-up names the problem, trade-off, and result.',
-      action_type: 'evidence',
-    },
+    priorityAction(1, 'Add a production-shaped walkthrough of one shipped project.'),
+    priorityAction(2, 'Name the trade-off that shaped the implementation.'),
+    priorityAction(3, 'Publish tests that cover the main failure path.'),
+    priorityAction(4, 'Document how a reviewer can run the project locally.'),
+    priorityAction(5, 'Show the result against the original problem statement.'),
   ],
   project_recommendation: {
     status: 'RECOMMENDED',
@@ -166,7 +179,66 @@ export const REPORT_FIXTURE: ReadinessReport = {
       evidence_note: 'Shipped project evidence is visible.',
       flags: [],
     },
+    {
+      criterion_id: 'se-evidence-depth',
+      criterion_label: 'Evidence depth',
+      category_id: 'evidence_quality',
+      category_label: 'Evidence quality',
+      awarded_points: 4,
+      max_points: 8,
+      anchor: 'partial',
+      anchor_label: 'Partial',
+      evidence_note: 'A walkthrough exists, but the production constraints are thin.',
+      flags: [],
+    },
   ],
+};
+
+function priorityAction(order: number, instruction: string): PriorityActionRow {
+  return {
+    priority_order: order,
+    action_id: `action-${order}`,
+    criterion_id: 'se-evidence-depth',
+    criterion_label: 'Evidence depth',
+    current_anchor: 'partial',
+    current_anchor_label: 'Partial',
+    target_anchor: 'strong',
+    target_anchor_label: 'Strong',
+    candidate_instruction: instruction,
+    required_output: 'A public write-up with decisions and constraints.',
+    completion_check: 'The write-up names the problem, trade-off, and result.',
+    action_type: 'evidence',
+  };
+}
+
+export const UNLOCKED_SUMMARY: AssessmentSummaryItem = {
+  assessment_id: 'a-test-1',
+  track: 'software_engineering',
+  final_score: 72,
+  band: 'developing_application_readiness',
+  access_state: 'UNLOCKED',
+  assessed_at: '2026-09-11T08:00:00Z',
+  unlocked_at: '2026-09-12T09:00:00Z',
+};
+
+export const PREVIEW_SUMMARY: AssessmentSummaryItem = {
+  assessment_id: 'a-test-2',
+  track: 'data_analytics',
+  final_score: 59,
+  band: 'foundation_visible',
+  access_state: 'PREVIEW',
+  assessed_at: '2026-09-10T08:00:00Z',
+  unlocked_at: null,
+};
+
+export const LISTED_SUMMARIES: AssessmentSummariesOutcome = {
+  schema_version: 'assessment.summaries.v1',
+  state: 'LISTED',
+  items: [UNLOCKED_SUMMARY, PREVIEW_SUMMARY],
+  limit: 50,
+  offset: 0,
+  has_more: false,
+  error_code: null,
 };
 
 export function jsonResponse(status: number, body: unknown): Response {

@@ -1,223 +1,308 @@
-import { useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
-import { useTheme } from '@/hooks/use-theme';
+import { SectionHeader } from '@/components/system/section-header';
+import { Accordion, Badge, Divider, EditorialCard, ProgressBar } from '@/components/system/surfaces';
+import { formatCustomerDate } from '@/lib/assessment-summaries';
+import { groupCriteriaByCategory, overlappingStrengthIds } from '@/lib/readiness-report';
 import type { ReadinessReport } from '@/services/api';
-import { Spacing } from '@/theme';
+import { FontFamily, Layout, Palette } from '@/theme/tokens';
 
 type ReadinessReportViewProps = {
   report: ReadinessReport;
 };
 
+const OVERLAP_COPY =
+  'A criterion can show useful evidence and still appear under Areas to strengthen. That overlap is expected: the evidence already present is a strength, while remaining points mean more evidence can still be added.';
+
 export function ReadinessReportView({ report }: ReadinessReportViewProps) {
-  const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const compact = width < Layout.mobile;
   const summary = report.score_summary;
+  const overlapIds = overlappingStrengthIds(report.strengths, report.material_gaps);
+  const groups = groupCriteriaByCategory(report.criterion_breakdown);
 
   return (
     <View style={styles.stack} testID="full-report">
-      <Section title="Score and band" testID="report-score-band">
-        <Text style={[styles.score, { color: theme.text }]}>
+      <View style={styles.masthead} testID="report-score-band">
+        <Text style={styles.kicker}>Readiness score</Text>
+        <Text style={[styles.score, compact ? styles.scoreCompact : null]}>
           {summary.final_score} / {summary.score_max}
         </Text>
-        <Text style={[styles.body, { color: theme.text }]}>{summary.band_label}</Text>
-        <Text style={[styles.meta, { color: theme.textSecondary }]}>{report.track_label}</Text>
-      </Section>
+        <Text style={[styles.band, compact ? styles.bandCompact : null]}>{summary.band_label}</Text>
+      </View>
 
-      <Section title="Benchmark and disclaimer" testID="report-benchmark">
-        <Text style={[styles.body, { color: theme.text }]}>{report.benchmark.scope_statement}</Text>
-        <Text style={[styles.meta, { color: theme.textSecondary }]}>{report.benchmark.disclaimer}</Text>
-      </Section>
+      <View testID="report-track-meta" style={styles.metaBlock}>
+        <SectionHeader
+          eyebrow={report.track_label}
+          title="Readiness Report"
+          subtitle={`Assessed ${formatCustomerDate(report.assessed_at)}.`}
+        />
+        <View testID="report-benchmark" style={styles.benchmark}>
+          <Text style={styles.body}>{report.benchmark.scope_statement}</Text>
+          <Text style={styles.quiet}>{report.benchmark.disclaimer}</Text>
+        </View>
+      </View>
 
-      <Section title="Strongest area" testID="report-strongest">
-        <Text style={[styles.body, { color: theme.text }]}>{summary.strongest_area.label}</Text>
-        <Text style={[styles.meta, { color: theme.textSecondary }]}>
-          {summary.strongest_area.score} / {summary.strongest_area.max_points} ({summary.strongest_area.percentage}
-          %)
-        </Text>
-      </Section>
+      <View style={styles.pair}>
+        <View style={styles.pairItem}>
+          <EditorialCard testID="report-strongest">
+            <Text style={styles.kicker}>Strongest area</Text>
+            <Text style={styles.cardTitle}>{summary.strongest_area.label}</Text>
+            <Text style={styles.quiet}>
+              {summary.strongest_area.score} / {summary.strongest_area.max_points} (
+              {summary.strongest_area.percentage}%)
+            </Text>
+          </EditorialCard>
+        </View>
+        <View style={styles.pairItem}>
+          <EditorialCard testID="report-priority-gap">
+            <Text style={styles.kicker}>Priority area</Text>
+            <Text style={styles.cardTitle}>
+              {summary.priority_gap ? summary.priority_gap.criterion_label : 'No priority area on this report.'}
+            </Text>
+            {summary.priority_gap ? (
+              <Text style={styles.quiet}>
+                {summary.priority_gap.awarded_points} / {summary.priority_gap.max_points} ·{' '}
+                {summary.priority_gap.current_anchor_label}
+              </Text>
+            ) : null}
+          </EditorialCard>
+        </View>
+      </View>
 
-      <Section title="Priority gap" testID="report-priority-gap">
-        <Text style={[styles.body, { color: theme.text }]}>
-          {summary.priority_gap ? summary.priority_gap.criterion_label : 'No priority gap on this report.'}
-        </Text>
-      </Section>
-
-      <Section title="Category breakdown" testID="report-category-breakdown">
+      <View testID="report-category-breakdown" style={styles.section}>
+        <Text style={styles.sectionTitle}>Category performance</Text>
         {report.category_breakdown.map((row) => (
-          <Text key={row.category_id} style={[styles.meta, { color: theme.text }]}>
-            {row.label}: {row.score} / {row.max_points} ({row.percentage}%)
-          </Text>
+          <ProgressBar
+            key={row.category_id}
+            label={`${row.label}: ${row.score} / ${row.max_points}`}
+            value={row.percentage}
+            testID={`category-bar-${row.category_id}`}
+          />
         ))}
-      </Section>
+      </View>
 
-      <Section title="Strengths" testID="report-strengths">
+      <View testID="report-strengths" style={styles.section}>
+        <Text style={styles.sectionTitle}>Strengths</Text>
         {report.strengths.length === 0 ? (
-          <Text style={[styles.meta, { color: theme.textSecondary }]}>No strengths listed.</Text>
+          <Text style={styles.quiet}>No strengths listed.</Text>
         ) : (
           report.strengths.map((row) => (
-            <Text key={row.criterion_id} style={[styles.meta, { color: theme.text }]}>
+            <Text key={row.criterion_id} style={styles.line}>
               {row.criterion_label} — {row.anchor_label}
             </Text>
           ))
         )}
-      </Section>
+      </View>
 
-      <Section title="Material gaps" testID="report-material-gaps">
+      <View testID="report-material-gaps" style={styles.section}>
+        <Text style={styles.sectionTitle}>Areas to strengthen</Text>
+        <Text style={styles.overlap} testID="report-overlap-note">
+          {OVERLAP_COPY}
+        </Text>
         {report.material_gaps.length === 0 ? (
-          <Text style={[styles.meta, { color: theme.textSecondary }]}>No material gaps listed.</Text>
+          <Text style={styles.quiet}>No areas to strengthen listed.</Text>
         ) : (
           report.material_gaps.map((row) => (
-            <Text key={row.criterion_id} style={[styles.meta, { color: theme.text }]}>
+            <Text key={row.criterion_id} style={styles.line}>
               {row.criterion_label} — {row.current_anchor_label}
+              {overlapIds.has(row.criterion_id) ? ' · also listed as a strength' : ''}
             </Text>
           ))
         )}
-      </Section>
+      </View>
 
-      <Section title="Priority actions" testID="report-priority-actions">
+      <View testID="report-priority-actions" style={styles.section}>
+        <Text style={styles.sectionTitle}>Five priority actions</Text>
         {report.priority_actions.map((row) => (
-          <View key={row.action_id} style={styles.action}>
-            <Text style={[styles.body, { color: theme.text }]}>
-              {row.priority_order}. {row.candidate_instruction}
-            </Text>
-            <Text style={[styles.meta, { color: theme.textSecondary }]}>Required output: {row.required_output}</Text>
-            <Text style={[styles.meta, { color: theme.textSecondary }]}>
-              Completion check: {row.completion_check}
-            </Text>
-          </View>
+          <EditorialCard key={row.action_id} testID={`priority-action-${row.priority_order}`}>
+            <Badge label={`${row.priority_order}`} tone="green" />
+            <Text style={styles.cardTitle}>{row.candidate_instruction}</Text>
+            <Text style={styles.line}>Required output: {row.required_output}</Text>
+            <Text style={styles.quiet}>Completion check: {row.completion_check}</Text>
+          </EditorialCard>
         ))}
-      </Section>
+      </View>
 
-      <Section title="Project recommendation" testID="report-project-recommendation">
-        <ProjectBlock report={report} />
-      </Section>
+      <View testID="report-project-recommendation" style={styles.section}>
+        <Text style={styles.sectionTitle}>Recommended project</Text>
+        <ProjectBrief report={report} />
+      </View>
 
-      <Section title="Criterion breakdown" testID="report-criterion-breakdown">
-        {report.criterion_breakdown.map((row) => (
-          <CriterionRow
-            key={row.criterion_id}
-            label={row.criterion_label}
-            detail={`${row.category_label} · ${row.anchor_label} · ${row.awarded_points}/${row.max_points}${row.evidence_note ? ` · ${row.evidence_note}` : ''}`}
-          />
+      <View testID="report-criterion-breakdown" style={styles.section}>
+        <Text style={styles.sectionTitle}>Detailed criterion breakdown</Text>
+        {groups.map((group) => (
+          <Accordion
+            key={group.category_id}
+            title={group.category_label}
+            defaultExpanded={false}
+            testID={`criterion-group-${group.category_id}`}
+          >
+            {group.items.map((row) => (
+              <View key={row.criterion_id} style={styles.criterion}>
+                <Text style={styles.line}>
+                  {row.criterion_label} · {row.anchor_label} · {row.awarded_points}/{row.max_points}
+                </Text>
+                {row.evidence_note ? <Text style={styles.quiet}>{row.evidence_note}</Text> : null}
+              </View>
+            ))}
+          </Accordion>
         ))}
-      </Section>
+      </View>
     </View>
   );
 }
 
-function ProjectBlock({ report }: { report: ReadinessReport }) {
-  const theme = useTheme();
+function ProjectBrief({ report }: { report: ReadinessReport }) {
   const project = report.project_recommendation;
 
   if (project == null) {
-    return <Text style={[styles.meta, { color: theme.textSecondary }]}>No project recommendation available.</Text>;
+    return <Text style={styles.quiet}>No project recommendation available.</Text>;
   }
   if (project.status === 'REVIEW_REQUIRED') {
     return (
-      <Text style={[styles.body, { color: theme.text }]}>
+      <Text style={styles.body}>
         A project recommendation is not available until this assessment has been reviewed.
       </Text>
     );
   }
 
   return (
-    <View style={styles.action}>
-      <Text style={[styles.body, { color: theme.text }]}>{project.title}</Text>
-      <Text style={[styles.meta, { color: theme.textSecondary }]}>{project.scenario}</Text>
+    <EditorialCard>
+      <Text style={styles.kicker}>Build brief</Text>
+      <Text style={styles.cardTitle}>{project.title}</Text>
+      <Text style={styles.body}>{project.scenario}</Text>
+      <Divider />
       {project.required_foundations.map((item) => (
-        <Text key={item} style={[styles.meta, { color: theme.text }]}>
+        <Text key={item} style={styles.line}>
           Foundation: {item}
         </Text>
       ))}
       {project.required_outputs.map((item) => (
-        <Text key={item} style={[styles.meta, { color: theme.text }]}>
+        <Text key={item} style={styles.line}>
           Output: {item}
         </Text>
       ))}
       {project.completion_checks.map((item) => (
-        <Text key={item} style={[styles.meta, { color: theme.text }]}>
+        <Text key={item} style={styles.quiet}>
           Check: {item}
         </Text>
       ))}
-    </View>
-  );
-}
-
-function CriterionRow({ label, detail }: { label: string; detail: string }) {
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
-
-  return (
-    <View style={[styles.criterion, { borderColor: theme.border }]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
-        accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${label}`}
-        onPress={() => setOpen((value) => !value)}
-        style={styles.criterionHeader}
-      >
-        <Text style={[styles.body, { color: theme.text, flex: 1 }]}>{label}</Text>
-        <Text style={[styles.meta, { color: theme.accent }]}>{open ? 'Hide' : 'Show'}</Text>
-      </Pressable>
-      {open ? <Text style={[styles.meta, { color: theme.textSecondary }]}>{detail}</Text> : null}
-    </View>
-  );
-}
-
-function Section({
-  title,
-  children,
-  testID,
-}: {
-  title: string;
-  children: ReactNode;
-  testID: string;
-}) {
-  const theme = useTheme();
-  return (
-    <View style={styles.section} testID={testID}>
-      <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
-      {children}
-    </View>
+    </EditorialCard>
   );
 }
 
 const styles = StyleSheet.create({
   stack: {
-    gap: Spacing.lg,
+    gap: 28,
+    minWidth: 0,
   },
-  section: {
-    gap: Spacing.sm,
+  masthead: {
+    minWidth: 0,
+    overflow: 'hidden',
+    backgroundColor: Palette.ink,
+    paddingHorizontal: 22,
+    paddingVertical: 28,
+    gap: 10,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+  kicker: {
+    color: Palette.greenSoft,
+    fontFamily: FontFamily.sans,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
   },
   score: {
-    fontSize: 32,
-    fontWeight: '700',
+    color: Palette.surface,
+    fontFamily: FontFamily.serif,
+    fontSize: 64,
+    lineHeight: 68,
+    letterSpacing: -1.2,
+    maxWidth: '100%',
+    flexShrink: 1,
+  },
+  scoreCompact: {
+    fontSize: 44,
+    lineHeight: 48,
+  },
+  band: {
+    color: Palette.surface,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
+    maxWidth: '100%',
+    flexShrink: 1,
+  },
+  bandCompact: {
+    fontSize: 22,
+    lineHeight: 26,
+  },
+  metaBlock: {
+    gap: 16,
+    minWidth: 0,
+  },
+  benchmark: {
+    gap: 8,
+    minWidth: 0,
+  },
+  pair: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    minWidth: 0,
+  },
+  pairItem: {
+    flexGrow: 1,
+    flexBasis: 280,
+    minWidth: 0,
+  },
+  section: {
+    gap: 12,
+    minWidth: 0,
+  },
+  sectionTitle: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  cardTitle: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 24,
+    lineHeight: 28,
   },
   body: {
+    color: Palette.ink,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     lineHeight: 24,
   },
-  meta: {
+  line: {
+    color: Palette.ink,
+    fontFamily: FontFamily.sans,
     fontSize: 15,
     lineHeight: 22,
   },
-  action: {
-    gap: 4,
+  quiet: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  overlap: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
+    fontSize: 15,
+    lineHeight: 22,
+    maxWidth: 720,
   },
   criterion: {
-    borderWidth: 1,
-    borderRadius: 0,
-    padding: Spacing.sm,
-    gap: Spacing.sm,
-  },
-  criterionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    minHeight: 44,
+    gap: 4,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: Palette.divider,
+    minWidth: 0,
   },
 });

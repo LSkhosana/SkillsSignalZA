@@ -31,6 +31,7 @@ const CUSTOMER_MESSAGES: Record<string, string> = {
   REPORT_LOCKED: 'Payment has not unlocked the report yet. Complete checkout, then check again.',
   REPORT_BUILD_FAILED: 'The report could not be loaded. Try again shortly.',
   REPORT_SERVICE_UNAVAILABLE: 'The report service is temporarily unavailable. Try again shortly.',
+  SUMMARIES_SERVICE_UNAVAILABLE: 'Your reports could not be loaded. Try again shortly.',
   API_URL_MISSING: 'The app is not configured to reach the assessment service.',
 };
 

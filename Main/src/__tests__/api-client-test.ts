@@ -4,10 +4,11 @@ import {
   createApiClient,
   getReport,
   initializePayment,
+  listOwnedAssessments,
   submitAssessment,
 } from '@/services/api';
 
-import { formField, headerMap, jsonResponse, PAYMENT_INITIALIZED } from './fixtures';
+import { formField, headerMap, jsonResponse, LISTED_SUMMARIES, PAYMENT_INITIALIZED } from './fixtures';
 
 describe('API client and assessment operations', () => {
   it('preserves multipart boundary behavior and exact link envelope', async () => {
@@ -165,5 +166,36 @@ describe('API client and assessment operations', () => {
       client: createApiClient({ fetchImpl }),
     });
     expect(result.ok).toBe(true);
+  });
+
+  it('lists owned summaries with bearer auth and drops extra payload fields', async () => {
+    const fetchImpl = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      expect(String(url)).toMatch(/\/api\/v1\/assessments$/);
+      expect(init?.method).toBe('GET');
+      expect(headerMap(init).Authorization).toBe('Bearer tok_list');
+      return jsonResponse(200, {
+        ...LISTED_SUMMARIES,
+        items: [
+          {
+            ...LISTED_SUMMARIES.items[0],
+            claim_token: 'must-not-map',
+            owner_user_id: 'user-other',
+            explicit_text: 'cv text',
+          },
+        ],
+      });
+    });
+    const result = await listOwnedAssessments({
+      accessToken: 'tok_list',
+      client: createApiClient({ fetchImpl }),
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.schema_version).toBe('assessment.summaries.v1');
+      expect(result.data.items[0].assessment_id).toBe('a-test-1');
+      expect(result.data.items[0]).not.toHaveProperty('claim_token');
+      expect(result.data.items[0]).not.toHaveProperty('owner_user_id');
+      expect(result.data.items[0]).not.toHaveProperty('explicit_text');
+    }
   });
 });

@@ -127,6 +127,7 @@ describe('launch foundations', () => {
     expect(screen.getByText('My Reports')).toBeTruthy();
     expect(screen.getByText('Start new assessment')).toBeTruthy();
     expect(screen.getByText('Account')).toBeTruthy();
+    expect(screen.getByText('Sign out')).toBeTruthy();
     await fireEvent.press(screen.getByLabelText('Sign out'));
     expect(mockSignOut).toHaveBeenCalled();
   });

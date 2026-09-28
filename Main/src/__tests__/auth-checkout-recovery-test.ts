@@ -11,6 +11,7 @@ describe('auth resume', () => {
     expect(authResumeHref('a-test-1', 'payment')).toBe('/assessment/a-test-1/payment');
     expect(authResumeHref('a-test-1', 'report')).toBe('/assessment/a-test-1/report');
     expect(authResumeHref('a-test-1', 'preview')).toBe('/assessment/a-test-1/preview');
+    expect(authResumeHref(undefined, 'reports')).toBe('/reports');
     expect(authResumeHref(undefined, 'payment')).toBe('/');
     expect(authResumeParams('a-test-1', 'payment')).toEqual({ assessmentId: 'a-test-1', next: 'payment' });
     expect(JSON.stringify(authResumeParams('a-test-1', 'payment'))).not.toMatch(/claim/i);
