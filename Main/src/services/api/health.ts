@@ -18,7 +18,7 @@ function isHealthResponse(value: unknown): value is HealthResponse {
 /**
  * Calls GET /api/v1/health when an API base URL is configured.
  * Returns a normalized failure instead of throwing so the UI can render
- * while Server/ is not running yet.
+ * while the assessment service is not running yet.
  */
 export async function getHealth(): Promise<ApiResult<HealthResponse>> {
   if (!hasApiBaseUrl()) {

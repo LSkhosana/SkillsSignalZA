@@ -20,7 +20,7 @@ function contextLabel(pathname: string) {
   if (pathname.includes('/report')) {
     return 'Report';
   }
-  if (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up')) {
+  if (pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up') || pathname.startsWith('/forgot-password') || pathname.startsWith('/reset-password') || pathname.startsWith('/session-expired')) {
     return 'Account access';
   }
   if (pathname.startsWith('/dashboard')) {

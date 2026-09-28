@@ -1,40 +1,27 @@
-import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { ScreenShell } from '@/components/screen-shell';
-import { StatusBanner } from '@/components/status-banner';
-import { UiButton } from '@/components/ui-button';
-import { UiTextField } from '@/components/ui-text-field';
-import { useTheme } from '@/hooks/use-theme';
-import { toHref } from '@/lib/href';
-import { signUp } from '@/services/auth';
-
-function firstParam(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
+import { Button } from '@/components/system/button';
+import { StatusPanel } from '@/components/system/feedback';
+import { TextField } from '@/components/system/fields';
+import { authHref, authResumeHref, firstSearchParam } from '@/lib/auth-resume';
+import { resendConfirmationEmail, signUp } from '@/services/auth';
+import { FontFamily, Palette } from '@/theme/tokens';
 
 export default function SignUpScreen() {
-  const theme = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ assessmentId?: string | string[]; next?: string | string[] }>();
-  const assessmentId = firstParam(params.assessmentId);
-  const next = firstParam(params.next);
+  const assessmentId = firstSearchParam(params.assessmentId);
+  const next = firstSearchParam(params.next);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [confirmEmail, setConfirmEmail] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  function continuePath() {
-    if (assessmentId && next === 'report') {
-      return toHref(`/assessment/${assessmentId}/report`);
-    }
-    if (assessmentId) {
-      return toHref(`/assessment/${assessmentId}/payment`);
-    }
-    return toHref('/');
-  }
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function onSubmit() {
     setError(null);
@@ -53,7 +40,7 @@ export default function SignUpScreen() {
         setConfirmEmail(true);
         return;
       }
-      router.replace(continuePath());
+      router.replace(authResumeHref(assessmentId, next));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Sign-up is unavailable right now.');
     } finally {
@@ -61,40 +48,78 @@ export default function SignUpScreen() {
     }
   }
 
+  async function onResend() {
+    setError(null);
+    setResendBusy(true);
+    try {
+      await resendConfirmationEmail(email);
+      setResent(true);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'The confirmation email could not be sent.');
+    } finally {
+      setResendBusy(false);
+    }
+  }
+
   return (
-    <ScreenShell title="Create account" subtitle="Email and password only. Server/ verifies the session token." testID="sign-up-screen">
+    <ScreenShell
+      title="Create account"
+      subtitle="Use an email and password. Confirm the message we send before you continue."
+      testID="sign-up-screen"
+    >
       {confirmEmail ? (
-        <StatusBanner
+        <StatusPanel
           tone="success"
           title="Check your email, then sign in"
-          message="Your account was created. Confirm the email from Supabase, then sign in to claim this assessment."
+          message="Your account was created. Open the confirmation message, then sign in to continue this assessment. Nothing was charged."
           testID="confirm-email"
         />
       ) : null}
-      <UiTextField
+      {resent ? (
+        <StatusPanel
+          tone="success"
+          title="Confirmation email sent"
+          message="If an account exists for this address, another confirmation message is on the way."
+        />
+      ) : null}
+      <TextField
         label="Email"
         value={email}
         onChangeText={setEmail}
         autoComplete="email"
         keyboardType="email-address"
+        editable={!confirmEmail}
         testID="sign-up-email"
       />
-      <UiTextField
+      <TextField
         label="Password"
         value={password}
         onChangeText={setPassword}
         autoComplete="password"
         secureTextEntry
+        editable={!confirmEmail}
         testID="sign-up-password"
       />
-      {error ? <StatusBanner tone="danger" title="Could not create account" message={error} testID="auth-error" /> : null}
-      <UiButton
-        label={busy ? 'Creating account…' : 'Create account'}
-        disabled={busy || confirmEmail}
-        testID="sign-up-submit"
-        onPress={() => void onSubmit()}
-      />
-      <Link href={{ pathname: '/sign-in', params: { assessmentId, next } } as unknown as Href} style={[styles.link, { color: theme.accent }]}>
+      {error ? <StatusPanel tone="danger" title="Could not create account" message={error} testID="auth-error" /> : null}
+      {confirmEmail ? (
+        <Button
+          label="Resend confirmation"
+          variant="secondary"
+          busy={resendBusy}
+          disabled={resendBusy}
+          testID="resend-confirmation"
+          onPress={() => void onResend()}
+        />
+      ) : (
+        <Button
+          label="Create account"
+          busy={busy}
+          disabled={busy}
+          testID="sign-up-submit"
+          onPress={() => void onSubmit()}
+        />
+      )}
+      <Link href={authHref('/sign-in', assessmentId, next)} style={styles.link}>
         Already have an account? Sign in
       </Link>
     </ScreenShell>
@@ -103,6 +128,8 @@ export default function SignUpScreen() {
 
 const styles = StyleSheet.create({
   link: {
+    color: Palette.green,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     fontWeight: '600',
   },

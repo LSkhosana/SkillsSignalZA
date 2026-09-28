@@ -1,39 +1,29 @@
-import { Link, useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { ScreenShell } from '@/components/screen-shell';
-import { StatusBanner } from '@/components/status-banner';
-import { UiButton } from '@/components/ui-button';
-import { UiTextField } from '@/components/ui-text-field';
-import { useTheme } from '@/hooks/use-theme';
+import { Button } from '@/components/system/button';
+import { StatusPanel } from '@/components/system/feedback';
+import { TextField } from '@/components/system/fields';
+import { authHref, authResumeHref, firstSearchParam } from '@/lib/auth-resume';
 import { signIn } from '@/services/auth';
-import { toHref } from '@/lib/href';
-
-function firstParam(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
+import { FontFamily, Palette } from '@/theme/tokens';
 
 export default function SignInScreen() {
-  const theme = useTheme();
   const router = useRouter();
-  const params = useLocalSearchParams<{ assessmentId?: string | string[]; next?: string | string[] }>();
-  const assessmentId = firstParam(params.assessmentId);
-  const next = firstParam(params.next);
+  const params = useLocalSearchParams<{
+    assessmentId?: string | string[];
+    next?: string | string[];
+    reason?: string | string[];
+  }>();
+  const assessmentId = firstSearchParam(params.assessmentId);
+  const next = firstSearchParam(params.next);
+  const sessionExpired = firstSearchParam(params.reason) === 'session-expired';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  function continuePath() {
-    if (assessmentId && next === 'report') {
-      return toHref(`/assessment/${assessmentId}/report`);
-    }
-    if (assessmentId) {
-      return toHref(`/assessment/${assessmentId}/payment`);
-    }
-    return toHref('/');
-  }
 
   async function onSubmit() {
     setError(null);
@@ -48,7 +38,7 @@ export default function SignInScreen() {
     setBusy(true);
     try {
       await signIn(email, password);
-      router.replace(continuePath());
+      router.replace(authResumeHref(assessmentId, next));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Sign-in is unavailable right now.');
     } finally {
@@ -58,7 +48,15 @@ export default function SignInScreen() {
 
   return (
     <ScreenShell title="Sign in" subtitle="Use your SkillSignalZA email and password." testID="sign-in-screen">
-      <UiTextField
+      {sessionExpired ? (
+        <StatusPanel
+          tone="warning"
+          title="Sign in again to continue"
+          message="Your session ended. Nothing was charged. Sign in to resume this assessment."
+          testID="session-expired-notice"
+        />
+      ) : null}
+      <TextField
         label="Email"
         value={email}
         onChangeText={setEmail}
@@ -66,7 +64,7 @@ export default function SignInScreen() {
         keyboardType="email-address"
         testID="sign-in-email"
       />
-      <UiTextField
+      <TextField
         label="Password"
         value={password}
         onChangeText={setPassword}
@@ -74,17 +72,26 @@ export default function SignInScreen() {
         secureTextEntry
         testID="sign-in-password"
       />
-      {error ? <StatusBanner tone="danger" title="Could not sign in" message={error} testID="auth-error" /> : null}
-      <UiButton label={busy ? 'Signing in…' : 'Sign in'} disabled={busy} testID="sign-in-submit" onPress={() => void onSubmit()} />
-      <Link href={{ pathname: '/sign-up', params: { assessmentId, next } } as unknown as Href} style={[styles.link, { color: theme.accent }]}>
+      {error ? <StatusPanel tone="danger" title="Could not sign in" message={error} testID="auth-error" /> : null}
+      <Button
+        label="Sign in"
+        busy={busy}
+        disabled={busy}
+        testID="sign-in-submit"
+        onPress={() => void onSubmit()}
+      />
+      <Link href={authHref('/sign-up', assessmentId, next)} style={styles.link}>
         Create an account
       </Link>
-      <Link href="/" style={[styles.link, { color: theme.accent }]}>
+      <Link href={authHref('/forgot-password', assessmentId, next)} style={styles.link}>
+        Forgot password
+      </Link>
+      <Link href="/" style={styles.link}>
         Back to start
       </Link>
-      <Text style={[styles.body, { color: theme.textSecondary }]}>
-        After you sign in, SkillSignalZA claims the same assessment and continues checkout. Tokens are never placed in
-        the URL.
+      <Text style={styles.body}>
+        After you sign in, SkillSignalZA continues the same assessment and checkout. Closing this page does not unlock
+        a report.
       </Text>
     </ScreenShell>
   );
@@ -92,10 +99,14 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   body: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
     fontSize: 15,
     lineHeight: 22,
   },
   link: {
+    color: Palette.green,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     fontWeight: '600',
   },

@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 
 import { ReadinessReportView } from '@/components/readiness-report-view';
 import { ScreenShell } from '@/components/screen-shell';
-import { StatusBanner } from '@/components/status-banner';
-import { UiButton } from '@/components/ui-button';
+import { Button } from '@/components/system/button';
+import { PageState } from '@/components/system/feedback';
+import { ReportSkeleton } from '@/components/system/skeleton';
+import { authHref, firstSearchParam } from '@/lib/auth-resume';
 import { toHref } from '@/lib/href';
 import { getAccessToken } from '@/services/auth';
 import { useAuth } from '@/services/auth/provider';
@@ -15,21 +17,19 @@ export default function ReportScreen() {
   const router = useRouter();
   const auth = useAuth();
   const params = useLocalSearchParams<{ assessmentId?: string | string[] }>();
-  const assessmentId = Array.isArray(params.assessmentId) ? params.assessmentId[0] : params.assessmentId;
+  const assessmentId = firstSearchParam(params.assessmentId);
   const [report, setReport] = useState<ReadinessReport | null>(null);
   const [message, setMessage] = useState('Loading report…');
   const [locked, setLocked] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!assessmentId || auth.status === 'loading') {
       return;
     }
     if (auth.status !== 'signed_in') {
-      router.replace({
-        pathname: '/sign-in',
-        params: { assessmentId, next: 'report' },
-      });
+      router.replace(authHref('/sign-in', assessmentId, 'report'));
       return;
     }
 
@@ -40,6 +40,7 @@ export default function ReportScreen() {
       if (cancelled) {
         return;
       }
+      setLoading(false);
       if (result.status === 'unlocked') {
         setReport(result.report);
         setLocked(false);
@@ -47,10 +48,7 @@ export default function ReportScreen() {
         return;
       }
       if (result.status === 'needs_auth') {
-        router.replace({
-          pathname: '/sign-in',
-          params: { assessmentId, next: 'report' },
-        });
+        router.replace(authHref('/session-expired', assessmentId, 'report'));
         return;
       }
       if (result.status === 'locked') {
@@ -69,21 +67,36 @@ export default function ReportScreen() {
 
   return (
     <ScreenShell title="Readiness Report" testID="report-screen">
+      {loading && !report && !locked && !failed ? <ReportSkeleton /> : null}
       {report ? <ReadinessReportView report={report} /> : null}
       {locked ? (
-        <>
-          <StatusBanner title="Report locked" message={message} />
-          <UiButton
-            label="Check payment"
-            onPress={() => {
-              if (assessmentId) {
-                router.replace(toHref(`/assessment/${assessmentId}/payment`));
-              }
-            }}
-          />
-        </>
+        <PageState
+          tone="warning"
+          happened={message}
+          meaning="Closing checkout or returning from payment does not unlock this report. SkillSignalZA unlocks it only after payment is confirmed."
+          consequence="Nothing extra was charged by opening this page. Continue to payment and check payment there."
+          testID="report-locked"
+          action={
+            <Button
+              label="Check payment"
+              onPress={() => {
+                if (assessmentId) {
+                  router.replace(toHref(`/assessment/${assessmentId}/payment`));
+                }
+              }}
+            />
+          }
+        />
       ) : null}
-      {failed ? <StatusBanner tone="danger" title="Report unavailable" message={message} /> : null}
+      {failed ? (
+        <PageState
+          tone="danger"
+          happened={message}
+          meaning="This report cannot be opened on this account right now."
+          consequence="Nothing was changed by this attempt. Sign in with the owning account or start a new assessment."
+          testID="report-unavailable"
+        />
+      ) : null}
     </ScreenShell>
   );
 }

@@ -1,6 +1,8 @@
 import {
   getAccessToken,
   getCachedAccessToken,
+  requestPasswordReset,
+  resendConfirmationEmail,
   setCachedAccessToken,
   signIn,
   signOut,
@@ -12,6 +14,9 @@ const mockSignUp = jest.fn();
 const mockSignIn = jest.fn();
 const mockSignOut = jest.fn();
 const mockGetSession = jest.fn();
+const mockResend = jest.fn();
+const mockResetPasswordForEmail = jest.fn();
+const mockUpdateUser = jest.fn();
 const mockOnAuthStateChange = jest.fn(() => ({
   data: { subscription: { unsubscribe: jest.fn() } },
 }));
@@ -23,12 +28,15 @@ jest.mock('@supabase/supabase-js', () => ({
       signInWithPassword: mockSignIn,
       signOut: mockSignOut,
       getSession: mockGetSession,
+      resend: mockResend,
+      resetPasswordForEmail: mockResetPasswordForEmail,
+      updateUser: mockUpdateUser,
       onAuthStateChange: mockOnAuthStateChange,
     },
   }),
 }));
 
-describe('Supabase auth service', () => {
+describe('auth service', () => {
   beforeEach(() => {
     resetSupabaseClientForTests();
     setCachedAccessToken(null);
@@ -36,6 +44,9 @@ describe('Supabase auth service', () => {
     mockSignIn.mockReset();
     mockSignOut.mockReset();
     mockGetSession.mockReset();
+    mockResend.mockReset();
+    mockResetPasswordForEmail.mockReset();
+    mockUpdateUser.mockReset();
   });
 
   it('signs in and caches the access token', async () => {
@@ -70,5 +81,16 @@ describe('Supabase auth service', () => {
     expect(getCachedAccessToken()).toBeNull();
     expect(await getAccessToken()).toBeNull();
     expect(mockSignOut).toHaveBeenCalled();
+  });
+
+  it('requests a confirmation resend and a password reset without exposing internals', async () => {
+    mockResend.mockResolvedValue({ error: null });
+    mockResetPasswordForEmail.mockResolvedValue({ error: null });
+    await resendConfirmationEmail('a@b.test');
+    await requestPasswordReset('a@b.test', 'https://app.example/reset-password');
+    expect(mockResend).toHaveBeenCalledWith({ type: 'signup', email: 'a@b.test' });
+    expect(mockResetPasswordForEmail).toHaveBeenCalledWith('a@b.test', {
+      redirectTo: 'https://app.example/reset-password',
+    });
   });
 });

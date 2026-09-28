@@ -10,6 +10,7 @@ import {
   setClaimTokenStoreForTests,
   setPendingAssessmentStorageForTests,
   startCheckout,
+  resetCheckoutInFlightForTests,
 } from '@/services/flow';
 
 import {
@@ -43,6 +44,7 @@ describe('pending assessment and checkout continuation', () => {
     secrets.snapshot().clear();
     setPendingAssessmentStorageForTests(pending);
     setClaimTokenStoreForTests(secrets);
+    resetCheckoutInFlightForTests();
     await savePendingAssessment({
       assessment_id: 'a-test-1',
       preview: PREVIEW_FIXTURE,
@@ -176,5 +178,46 @@ describe('pending assessment and checkout continuation', () => {
     });
     expect(unlocked.status).toBe('unlocked');
     expect(unlocked.status === 'unlocked' && unlocked.report.schema_version).toBe('readiness.report.v1');
+  });
+
+  it('does not start a second payment initialization while one is in flight', async () => {
+    let release: (value: Response) => void = () => undefined;
+    const fetchImpl = jest.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          release = resolve;
+        }),
+    );
+    const client = createApiClient({ fetchImpl });
+    const first = startCheckout('a-test-1', { accessToken: 'tok', client });
+    const second = await startCheckout('a-test-1', { accessToken: 'tok', client });
+    expect(second.status).toBe('waiting');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    release(jsonResponse(200, PAYMENT_INITIALIZED));
+    const firstResult = await first;
+    expect(firstResult.status).toBe('payment_initialized');
+  });
+
+  it('treats PAYMENT_INITIALIZING as waiting without a new checkout URL', async () => {
+    const result = await startCheckout('a-test-1', {
+      accessToken: 'tok',
+      client: createApiClient({
+        fetchImpl: async () =>
+          jsonResponse(409, {
+            schema_version: 'payment.checkout.v1',
+            state: 'FAILED',
+            assessment_id: 'a-test-1',
+            payment_id: null,
+            access_state: 'PREVIEW',
+            amount_minor: null,
+            currency: null,
+            provider: null,
+            provider_reference: null,
+            authorization_url: null,
+            error_code: 'PAYMENT_INITIALIZING',
+          }),
+      }),
+    });
+    expect(result.status).toBe('waiting');
   });
 });

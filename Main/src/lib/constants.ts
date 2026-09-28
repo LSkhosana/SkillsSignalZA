@@ -45,6 +45,16 @@ export const DOCX_MEDIA_TYPE =
 export const SUPPORTED_CV_MEDIA_TYPES = [PDF_MEDIA_TYPE, DOCX_MEDIA_TYPE] as const;
 
 export const REPORT_PRICE_COPY = 'R159';
+export const REPORT_PRODUCT_NAME = 'Readiness Report';
+export const REPORT_UNLOCK_LINES = [
+  'Category scores and how the points are distributed',
+  'Recorded strengths',
+  'Areas that still need evidence',
+  'Ordered actions',
+  'Recommended project',
+  'Criterion-level evidence notes',
+  'Benchmark statement',
+] as const;
 export const ASSESSMENTS_PATH = '/api/v1/assessments';
 
 export const REPORT_POLL_INTERVAL_MS = 3000;
