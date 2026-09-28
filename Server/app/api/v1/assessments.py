@@ -48,6 +48,14 @@ from app.services.assessment_payment import (
     payment_service_unavailable,
 )
 from app.services.assessment_scoring import score_frozen_assessment
+from app.services.assessment_summaries import (
+    DEFAULT_LIMIT,
+    MAX_LIMIT,
+    list_owned_assessment_summaries,
+    summaries_failed_outcome,
+    summaries_http_status,
+    summaries_service_unavailable,
+)
 
 router = APIRouter()
 
@@ -125,6 +133,54 @@ async def post_anonymous_assessment(request: Request) -> JSONResponse:
         outcome = anonymous_service_unavailable()
         return JSONResponse(content=outcome, status_code=503)
     return JSONResponse(content=outcome, status_code=anonymous_http_status(outcome))
+
+
+@router.get(
+    "",
+    summary="List owned assessment summaries",
+    description=(
+        "Return safe metadata for assessments owned by the verified caller. "
+        "Identity is derived from the bearer token only. Newest first."
+    ),
+    responses={
+        200: {"description": "Owner-scoped assessment.summaries.v1 page."},
+        401: {"description": "Missing or invalid Authorization bearer token."},
+        503: {"description": "Auth or persistence infrastructure unavailable."},
+    },
+)
+@router.get("/")
+async def get_owned_assessment_summaries(request: Request) -> JSONResponse:
+    access_token, auth_error = parse_bearer_authorization(request.headers.get("Authorization"))
+    if auth_error is not None:
+        payload = summaries_failed_outcome(auth_error)
+        return JSONResponse(content=payload, status_code=summaries_http_status(payload))
+    repository, verifier = await resolve_claim_resources(request.app)
+    if repository is None or verifier is None:
+        payload = summaries_service_unavailable()
+        return JSONResponse(content=payload, status_code=503)
+    try:
+        principal = await verifier.verify_access_token(access_token or "")
+    except AuthServiceUnavailable:
+        payload = summaries_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE)
+        return JSONResponse(content=payload, status_code=503)
+    except Exception:
+        payload = summaries_failed_outcome(ERROR_AUTH_SERVICE_UNAVAILABLE)
+        return JSONResponse(content=payload, status_code=503)
+    if principal is None or not principal.subject:
+        payload = summaries_failed_outcome(ERROR_AUTH_INVALID)
+        return JSONResponse(content=payload, status_code=401)
+    limit, offset = _parse_summary_page(request)
+    try:
+        outcome = await list_owned_assessment_summaries(
+            repository=repository,
+            owner_user_id=principal.subject,
+            limit=limit,
+            offset=offset,
+        )
+    except Exception:
+        outcome = summaries_service_unavailable(limit=limit, offset=offset)
+        return JSONResponse(content=outcome, status_code=503)
+    return JSONResponse(content=outcome, status_code=summaries_http_status(outcome))
 
 
 @router.post(
@@ -330,3 +386,20 @@ async def _parse_claim_json(request: Request) -> str | JSONResponse:
 def _invalid_claim_response() -> JSONResponse:
     payload = claim_failed_outcome(ERROR_INVALID_CLAIM_REQUEST)
     return JSONResponse(content=payload, status_code=422)
+
+
+def _parse_summary_page(request: Request) -> tuple[int, int]:
+    """Clamp V1 offset pagination. Client-supplied user identifiers are ignored."""
+    limit = _optional_int(request.query_params.get("limit"), DEFAULT_LIMIT)
+    offset = _optional_int(request.query_params.get("offset"), 0)
+    return min(max(limit, 1), MAX_LIMIT), max(offset, 0)
+
+
+def _optional_int(value: str | None, default: int) -> int:
+    if value is None or not str(value).strip():
+        return default
+    try:
+        parsed = int(str(value).strip(), 10)
+    except ValueError:
+        return default
+    return parsed

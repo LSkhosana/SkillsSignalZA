@@ -102,6 +102,19 @@ class AssessmentRecord:
 
 
 @dataclass(frozen=True)
+class OwnedAssessmentSummary:
+    """Safe owner-scoped listing row. No CV, evidence, tokens, or payment secrets."""
+
+    assessment_id: str
+    track: str
+    access_state: AccessState
+    assessed_at: datetime | None
+    final_score: int | None
+    band: str | None
+    unlocked_at: datetime | None
+
+
+@dataclass(frozen=True)
 class PaymentRecord:
     """One payment attempt. Email, webhook bodies, and secrets are never stored."""
 

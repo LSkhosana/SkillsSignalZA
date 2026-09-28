@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsignalza.invalid/schemas/assessment-summaries.json",
+  "title": "SkillSignalZA owned assessment summaries",
+  "description": "Authenticated owner-scoped listing of safe assessment metadata for My Reports recovery. Does not include CV text, evidence, claim tokens, payment secrets, or scoring payloads.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "state",
+    "items",
+    "limit",
+    "offset",
+    "has_more",
+    "error_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "assessment.summaries.v1"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["LISTED", "FAILED"]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assessment_id",
+          "track",
+          "final_score",
+          "band",
+          "access_state",
+          "assessed_at",
+          "unlocked_at"
+        ],
+        "properties": {
+          "assessment_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "track": {
+            "type": "string",
+            "minLength": 1
+          },
+          "final_score": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "maximum": 100
+          },
+          "band": {
+            "type": ["string", "null"],
+            "enum": [
+              "limited_application_evidence",
+              "foundation_visible",
+              "developing_application_readiness",
+              "strong_application_evidence",
+              null
+            ]
+          },
+          "access_state": {
+            "type": "string",
+            "enum": ["PREVIEW", "UNLOCKED"]
+          },
+          "assessed_at": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1
+          },
+          "unlocked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "has_more": {
+      "type": "boolean"
+    },
+    "error_code": {
+      "type": ["string", "null"],
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "LISTED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "FAILED" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "error_code": { "type": "string", "minLength": 1 },
+          "items": { "maxItems": 0 },
+          "has_more": { "const": false }
+        }
+      }
+    }
+  ]
+}

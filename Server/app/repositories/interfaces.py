@@ -15,6 +15,7 @@ from app.repositories.records import (
     CheckoutBeginResult,
     ClaimWriteResult,
     FulfillmentResult,
+    OwnedAssessmentSummary,
     PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
@@ -35,6 +36,19 @@ class AssessmentRepository(Protocol):
 
     async def get_latest_run(self, assessment_id: str) -> AssessmentRunRecord | None:
         """Return the run referenced by assessments.latest_run_id."""
+
+    async def list_owned_assessment_summaries(
+        self,
+        *,
+        owner_user_id: str,
+        limit: int,
+        offset: int,
+    ) -> list[OwnedAssessmentSummary]:
+        """Return owned assessment summaries, newest first, for one verified owner.
+
+        Identity must be the authenticated subject. Callers must not pass a
+        client-supplied user id. Results never include unowned rows.
+        """
 
     async def claim_assessment(
         self,

@@ -890,3 +890,75 @@ def test_begin_checkout_recovers_stale_initializing_attempt() -> None:
     joined = "\n".join(cursor.statements)
     assert "INITIALIZATION_FAILED" in joined
     assert "INSERT INTO assessment_payments" in joined
+
+
+def test_list_owned_summaries_filters_owner_and_maps_safe_scalars() -> None:
+    assessed = datetime(2026, 9, 5, 10, 0, tzinfo=UTC)
+    created = datetime(2026, 9, 4, 10, 0, tzinfo=UTC)
+    paid = datetime(2026, 9, 6, 12, 0, tzinfo=UTC)
+    cursor = ScriptedCursor()
+    cursor.fetchall_queue = [
+        [
+            {
+                "assessment_id": "owned-unlocked",
+                "track": "software_engineering",
+                "access_state": "UNLOCKED",
+                "created_at": created,
+                "assessed_at": assessed,
+                "run_state": "COMPLETED",
+                "final_score": "82",
+                "band": "strong_application_evidence",
+                "paid_at": paid,
+            },
+            {
+                "assessment_id": "owned-preview",
+                "track": "data_analytics",
+                "access_state": "PREVIEW",
+                "created_at": created,
+                "assessed_at": assessed,
+                "run_state": "COMPLETED",
+                "final_score": "59",
+                "band": "foundation_visible",
+                "paid_at": paid,
+            },
+            {
+                "assessment_id": "owned-review",
+                "track": "software_engineering",
+                "access_state": "PREVIEW",
+                "created_at": created,
+                "assessed_at": assessed,
+                "run_state": "REVIEW_REQUIRED",
+                "final_score": "70",
+                "band": "developing_application_readiness",
+                "paid_at": None,
+            },
+        ]
+    ]
+    repo = PostgresAssessmentRepository(FakePool(cursor))  # type: ignore[arg-type]
+    rows = asyncio.run(
+        repo.list_owned_assessment_summaries(
+            owner_user_id="user-verified-a",
+            limit=50,
+            offset=0,
+        )
+    )
+    sql = cursor.statements[0]
+    assert "WHERE a.owner_user_id = %s" in sql
+    assert "ORDER BY COALESCE(r.assessed_at, a.created_at) DESC, a.assessment_id DESC" in sql
+    assert "assessment_result ->> 'final_score'" in sql
+    assert "assessment_result ->> 'band'" in sql
+    assert "claim_token" not in sql
+    assert "authorization_url" not in sql
+    assert "scoring_context" not in sql
+    assert "evidence" not in sql
+    by_id = {row.assessment_id: row for row in rows}
+    unlocked = by_id["owned-unlocked"]
+    assert unlocked.final_score == 82
+    assert unlocked.band == "strong_application_evidence"
+    assert unlocked.unlocked_at == paid
+    preview = by_id["owned-preview"]
+    assert preview.final_score == 59
+    assert preview.unlocked_at is None
+    review = by_id["owned-review"]
+    assert review.final_score is None
+    assert review.band is None
