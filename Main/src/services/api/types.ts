@@ -209,3 +209,32 @@ export const PAID_REPORT_SECTION_KEYS = [
   'criterion_breakdown',
   'benchmark',
 ] as const;
+
+export const BAND_IDS = [
+  'limited_application_evidence',
+  'foundation_visible',
+  'developing_application_readiness',
+  'strong_application_evidence',
+] as const;
+
+export type BandId = (typeof BAND_IDS)[number];
+
+export type AssessmentSummaryItem = {
+  assessment_id: string;
+  track: string;
+  final_score: number | null;
+  band: BandId | null;
+  access_state: 'PREVIEW' | 'UNLOCKED';
+  assessed_at: string;
+  unlocked_at: string | null;
+};
+
+export type AssessmentSummariesOutcome = {
+  schema_version: 'assessment.summaries.v1';
+  state: 'LISTED' | 'FAILED';
+  items: AssessmentSummaryItem[];
+  limit: number;
+  offset: number;
+  has_more: boolean;
+  error_code: string | null;
+};

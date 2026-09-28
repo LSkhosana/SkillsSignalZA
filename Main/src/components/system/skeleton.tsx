@@ -49,16 +49,34 @@ export function PreviewSkeleton() {
 export function ReportSkeleton() {
   return (
     <View accessibilityLabel="Loading report" accessibilityState={{ busy: true }} style={styles.frame}>
+      <View style={styles.scoreWell}>
+        <SkeletonBlock height={12} width={80} />
+        <SkeletonBlock height={64} width={180} />
+        <SkeletonBlock height={24} width={220} />
+      </View>
+      <SkeletonBlock height={12} width={140} />
+      <SkeletonBlock height={28} width="64%" />
+      <SkeletonCopy lines={2} />
       <View style={styles.reportRow}>
-        <View style={styles.scoreWell}>
-          <SkeletonBlock height={12} width={80} />
-          <SkeletonBlock height={72} width={100} />
+        <View style={styles.reportCard}>
+          <SkeletonBlock height={12} width={90} />
+          <SkeletonCopy lines={2} />
         </View>
-        <View style={styles.reportMain}>
-          <SkeletonBlock height={36} width="80%" />
-          <SkeletonCopy lines={4} />
+        <View style={styles.reportCard}>
+          <SkeletonBlock height={12} width={90} />
+          <SkeletonCopy lines={2} />
         </View>
       </View>
+      <SkeletonBlock height={12} width={180} />
+      <SkeletonBlock height={7} width="100%" />
+      <SkeletonBlock height={7} width="88%" />
+      <SkeletonBlock height={7} width="74%" />
+      {[0, 1, 2, 3].map((item) => (
+        <View key={item} style={styles.reportLine}>
+          <SkeletonBlock height={18} width="62%" />
+          <SkeletonCopy lines={2} />
+        </View>
+      ))}
     </View>
   );
 }
@@ -94,16 +112,21 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   scoreWell: {
-    width: 180,
-    minHeight: 160,
+    minWidth: 0,
+    minHeight: 148,
     gap: 12,
-    padding: 16,
+    paddingHorizontal: 22,
+    paddingVertical: 28,
     backgroundColor: Palette.ink,
   },
-  reportMain: {
+  reportCard: {
     flex: 1,
     minWidth: 220,
-    gap: 12,
+    gap: 10,
+    padding: 16,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.divider,
   },
   reportLine: {
     gap: 8,

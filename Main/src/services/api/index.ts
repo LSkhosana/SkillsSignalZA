@@ -19,7 +19,9 @@ export {
   claimAssessment,
   getReport,
   initializePayment,
+  isAssessmentSummariesOutcome,
   isReadinessReport,
+  listOwnedAssessments,
   submitAssessment,
 } from './assessments';
 export type { AssessmentRequestOptions, SubmitAssessmentInput } from './assessments';
@@ -27,6 +29,9 @@ export type {
   AnonymousAssessmentOutcome,
   AssessmentClaimOutcome,
   AssessmentReportError,
+  AssessmentSummariesOutcome,
+  AssessmentSummaryItem,
+  BandId,
   CandidateLinkInput,
   CategoryBreakdownRow,
   CriterionBreakdownRow,
@@ -41,4 +46,4 @@ export type {
   StrengthRow,
   StrongestArea,
 } from './types';
-export { PAID_REPORT_SECTION_KEYS } from './types';
+export { BAND_IDS, PAID_REPORT_SECTION_KEYS } from './types';

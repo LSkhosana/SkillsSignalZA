@@ -2,7 +2,7 @@ import { toHref } from '@/lib/href';
 import { Routes } from '@/lib/routes';
 import type { Href } from 'expo-router';
 
-export type AuthResumeNext = 'payment' | 'report' | 'preview';
+export type AuthResumeNext = 'payment' | 'report' | 'preview' | 'reports';
 
 export function firstSearchParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -12,7 +12,7 @@ export function firstSearchParam(value: string | string[] | undefined): string |
 }
 
 export function isAuthResumeNext(value: string | undefined): value is AuthResumeNext {
-  return value === 'payment' || value === 'report' || value === 'preview';
+  return value === 'payment' || value === 'report' || value === 'preview' || value === 'reports';
 }
 
 export function authResumeParams(assessmentId?: string, next?: string): Record<string, string> {
@@ -27,6 +27,9 @@ export function authResumeParams(assessmentId?: string, next?: string): Record<s
 }
 
 export function authResumeHref(assessmentId?: string, next?: string): Href {
+  if (next === 'reports') {
+    return Routes.reports;
+  }
   if (!assessmentId) {
     return Routes.home;
   }

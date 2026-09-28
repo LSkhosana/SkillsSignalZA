@@ -6,6 +6,7 @@ import { ApiError } from './errors';
 import type {
   AnonymousAssessmentOutcome,
   AssessmentClaimOutcome,
+  AssessmentSummariesOutcome,
   CandidateLinkInput,
   PaymentCheckoutOutcome,
   PickedCvDocument,
@@ -144,5 +145,143 @@ export function isReadinessReport(value: unknown): value is ReadinessReport {
     value &&
       typeof value === 'object' &&
       (value as { schema_version?: unknown }).schema_version === 'readiness.report.v1',
+  );
+}
+
+export async function listOwnedAssessments(
+  options: AssessmentRequestOptions = {},
+): Promise<ApiResult<AssessmentSummariesOutcome>> {
+  const client = options.client ?? apiClient;
+  const accessToken = await resolveAccessToken(options.accessToken);
+  const result = await client.requestResult<unknown>(ASSESSMENTS_PATH, {
+    method: 'GET',
+    accessToken,
+    signal: options.signal,
+  });
+
+  if (!result.ok) {
+    return result;
+  }
+
+  const mapped = mapSummariesOutcome(result.data);
+  if (!mapped) {
+    return {
+      ok: false,
+      status: result.status,
+      error: new ApiError({
+        message: 'The reports list could not be read.',
+        status: result.status,
+        code: 'SUMMARIES_SERVICE_UNAVAILABLE',
+        details: result.data,
+      }),
+    };
+  }
+
+  if (mapped.state === 'FAILED') {
+    return {
+      ok: false,
+      status: result.status,
+      error: new ApiError({
+        message: 'The reports list could not be loaded.',
+        status: result.status,
+        code: mapped.error_code ?? 'SUMMARIES_SERVICE_UNAVAILABLE',
+        details: mapped,
+      }),
+    };
+  }
+
+  return { ok: true, data: mapped, status: result.status };
+}
+
+export function isAssessmentSummariesOutcome(value: unknown): value is AssessmentSummariesOutcome {
+  return mapSummariesOutcome(value) != null;
+}
+
+function mapSummariesOutcome(value: unknown): AssessmentSummariesOutcome | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  if (record.schema_version !== 'assessment.summaries.v1') {
+    return null;
+  }
+  if (record.state !== 'LISTED' && record.state !== 'FAILED') {
+    return null;
+  }
+  if (!Array.isArray(record.items)) {
+    return null;
+  }
+  const items: AssessmentSummariesOutcome['items'] = [];
+  for (const row of record.items) {
+    const item = mapSummaryItem(row);
+    if (!item) {
+      return null;
+    }
+    items.push(item);
+  }
+  if (typeof record.limit !== 'number' || typeof record.offset !== 'number' || typeof record.has_more !== 'boolean') {
+    return null;
+  }
+  const errorCode = record.error_code;
+  if (errorCode != null && (typeof errorCode !== 'string' || !errorCode.trim())) {
+    return null;
+  }
+  return {
+    schema_version: 'assessment.summaries.v1',
+    state: record.state,
+    items,
+    limit: record.limit,
+    offset: record.offset,
+    has_more: record.has_more,
+    error_code: typeof errorCode === 'string' ? errorCode : null,
+  };
+}
+
+function mapSummaryItem(value: unknown): AssessmentSummariesOutcome['items'][number] | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  if (typeof record.assessment_id !== 'string' || !record.assessment_id.trim()) {
+    return null;
+  }
+  if (typeof record.track !== 'string' || !record.track.trim()) {
+    return null;
+  }
+  if (record.access_state !== 'PREVIEW' && record.access_state !== 'UNLOCKED') {
+    return null;
+  }
+  if (typeof record.assessed_at !== 'string' || !record.assessed_at.trim()) {
+    return null;
+  }
+  const score = record.final_score;
+  if (score != null && (typeof score !== 'number' || !Number.isInteger(score) || score < 0 || score > 100)) {
+    return null;
+  }
+  const band = record.band;
+  if (band != null && !isBandId(band)) {
+    return null;
+  }
+  const unlocked = record.unlocked_at;
+  if (unlocked != null && (typeof unlocked !== 'string' || !unlocked.trim())) {
+    return null;
+  }
+  return {
+    assessment_id: record.assessment_id,
+    track: record.track,
+    final_score: typeof score === 'number' ? score : null,
+    band: isBandId(band) ? band : null,
+    access_state: record.access_state,
+    assessed_at: record.assessed_at,
+    unlocked_at: typeof unlocked === 'string' ? unlocked : null,
+  };
+}
+
+function isBandId(value: unknown): value is AssessmentSummariesOutcome['items'][number]['band'] {
+  return (
+    value === 'limited_application_evidence' ||
+    value === 'foundation_visible' ||
+    value === 'developing_application_readiness' ||
+    value === 'strong_application_evidence'
   );
 }

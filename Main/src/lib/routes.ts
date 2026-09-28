@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-/** Shared customer paths. Legal and My Reports screens are later packages. */
+/** Shared customer paths. Legal screens are a later package. */
 export const Routes = {
   home: '/' as Href,
   assessmentNew: '/assessment/new' as Href,
