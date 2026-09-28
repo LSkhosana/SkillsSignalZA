@@ -19,6 +19,7 @@ export {
   checkReportUnlock,
   continuationFromCheckout,
   continueAfterAuthentication,
+  resetCheckoutInFlightForTests,
   startCheckout,
 } from './checkout';
 export type { CheckoutContinuation, ClaimContinuation, ReportContinuation } from './checkout';

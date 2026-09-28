@@ -48,7 +48,7 @@ function customerAuthError(message: string): Error {
   return new Error(message);
 }
 
-function mapSupabaseAuthError(message: string): Error {
+function mapAuthError(message: string, fallback: string): Error {
   const lowered = message.toLowerCase();
   if (lowered.includes('invalid login') || lowered.includes('invalid credentials')) {
     return customerAuthError('Email or password is incorrect.');
@@ -56,13 +56,23 @@ function mapSupabaseAuthError(message: string): Error {
   if (lowered.includes('already registered') || lowered.includes('already been registered')) {
     return customerAuthError('An account with this email already exists. Sign in instead.');
   }
+  if (lowered.includes('not confirmed') || lowered.includes('email not confirmed')) {
+    return customerAuthError('Confirm your email, then sign in.');
+  }
+  if (lowered.includes('expired') || lowered.includes('invalid token') || lowered.includes('otp')) {
+    return customerAuthError('This link has expired. Request a new email and try again.');
+  }
   if (lowered.includes('password')) {
     return customerAuthError('Choose a stronger password of at least 6 characters.');
   }
   if (lowered.includes('email')) {
     return customerAuthError('Enter a valid email address.');
   }
-  return customerAuthError('Sign-in is unavailable right now. Try again shortly.');
+  return customerAuthError(fallback);
+}
+
+function mapSupabaseAuthError(message: string): Error {
+  return mapAuthError(message, 'Sign-in is unavailable right now. Try again shortly.');
 }
 
 export async function getAccessToken(): Promise<AccessToken | null> {
@@ -172,6 +182,39 @@ export async function signOut(): Promise<void> {
     await getSupabaseClient().auth.signOut();
   } finally {
     cachedAccessToken = null;
+  }
+}
+
+export async function resendConfirmationEmail(email: string): Promise<void> {
+  if (!hasSupabaseConfig()) {
+    throw customerAuthError('Email confirmation is unavailable right now. Try again shortly.');
+  }
+  const { error } = await getSupabaseClient().auth.resend({
+    type: 'signup',
+    email: email.trim(),
+  });
+  if (error) {
+    throw mapAuthError(error.message, 'The confirmation email could not be sent. Try again shortly.');
+  }
+}
+
+export async function requestPasswordReset(email: string, redirectTo: string): Promise<void> {
+  if (!hasSupabaseConfig()) {
+    throw customerAuthError('Password reset is unavailable right now. Try again shortly.');
+  }
+  const { error } = await getSupabaseClient().auth.resetPasswordForEmail(email.trim(), { redirectTo });
+  if (error) {
+    throw mapAuthError(error.message, 'The reset email could not be sent. Try again shortly.');
+  }
+}
+
+export async function updatePassword(password: string): Promise<void> {
+  if (!hasSupabaseConfig()) {
+    throw customerAuthError('Password reset is unavailable right now. Try again shortly.');
+  }
+  const { error } = await getSupabaseClient().auth.updateUser({ password });
+  if (error) {
+    throw mapAuthError(error.message, 'The password could not be updated. Request a new reset email.');
   }
 }
 

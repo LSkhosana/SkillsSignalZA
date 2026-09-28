@@ -16,7 +16,7 @@ export function getSupabaseClient(): SupabaseClient {
       storage: createAuthSessionStorage(),
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false,
+      detectSessionInUrl: typeof window !== 'undefined',
     },
   });
 

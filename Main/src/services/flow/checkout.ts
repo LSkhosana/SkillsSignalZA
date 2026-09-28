@@ -47,6 +47,12 @@ type FlowClientOptions = {
   client?: ApiClient;
 };
 
+const checkoutInFlight = new Set<string>();
+
+export function resetCheckoutInFlightForTests(): void {
+  checkoutInFlight.clear();
+}
+
 export async function continueAfterAuthentication(
   assessmentId: string,
   options: FlowClientOptions = {},
@@ -99,33 +105,48 @@ export async function startCheckout(
     return { status: 'needs_auth' };
   }
 
-  const result = await initializePayment(assessmentId, options);
-  if (!result.ok) {
-    if (isAuthError(result.error)) {
-      return { status: 'needs_auth' };
-    }
-    const code = result.error.code ?? 'PAYMENT_SERVICE_UNAVAILABLE';
-    if (code === 'ASSESSMENT_NOT_OWNED' || code === 'ASSESSMENT_ALREADY_CLAIMED') {
-      return {
-        status: 'blocked',
-        code,
-        message: customerMessageFromError(result.error, 'This assessment is not available on this account.'),
-      };
-    }
-    if (code === 'PAYMENT_INITIALIZING') {
-      return {
-        status: 'waiting',
-        message: customerMessageFromError(result.error, 'Checkout is already in progress.'),
-      };
-    }
+  if (checkoutInFlight.has(assessmentId)) {
     return {
-      status: 'error',
-      code,
-      message: customerMessageFromError(result.error, 'Payment could not be started.'),
+      status: 'waiting',
+      message: customerMessageForCode(
+        'PAYMENT_INITIALIZING',
+        'Checkout is already in progress. Wait a moment, then check payment.',
+      ),
     };
   }
 
-  return continuationFromCheckout(result.data);
+  checkoutInFlight.add(assessmentId);
+  try {
+    const result = await initializePayment(assessmentId, options);
+    if (!result.ok) {
+      if (isAuthError(result.error)) {
+        return { status: 'needs_auth' };
+      }
+      const code = result.error.code ?? 'PAYMENT_SERVICE_UNAVAILABLE';
+      if (code === 'ASSESSMENT_NOT_OWNED' || code === 'ASSESSMENT_ALREADY_CLAIMED') {
+        return {
+          status: 'blocked',
+          code,
+          message: customerMessageFromError(result.error, 'This assessment is not available on this account.'),
+        };
+      }
+      if (code === 'PAYMENT_INITIALIZING') {
+        return {
+          status: 'waiting',
+          message: customerMessageFromError(result.error, 'Checkout is already in progress. Do not pay again.'),
+        };
+      }
+      return {
+        status: 'error',
+        code,
+        message: customerMessageFromError(result.error, 'Payment could not be started.'),
+      };
+    }
+
+    return continuationFromCheckout(result.data);
+  } finally {
+    checkoutInFlight.delete(assessmentId);
+  }
 }
 
 export function continuationFromCheckout(outcome: PaymentCheckoutOutcome): CheckoutContinuation {
