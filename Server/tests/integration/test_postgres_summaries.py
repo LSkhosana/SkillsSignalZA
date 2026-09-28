@@ -20,24 +20,52 @@ OLDER = "2026-09-01T10:00:00Z"
 NEWER = "2026-09-05T10:00:00Z"
 
 
+async def _seed_owned(
+    repository: PostgresAssessmentRepository,
+    *,
+    assessment_id: str,
+    run_id: str,
+    owner_user_id: str,
+    assessed_at: str,
+) -> dict:
+    """Persist one unclaimed row, then claim it so the one-time hash can be reused."""
+    outcome = await _seed(
+        repository,
+        assessment_id=assessment_id,
+        run_id=run_id,
+        assessed_at=assessed_at,
+    )
+    claimed = await repository.claim_assessment(
+        assessment_id=outcome["assessment_id"],
+        authenticated_user_id=owner_user_id,
+        presented_claim_token_hash=_digest(),
+        claimed_at=CLAIMED_AT,
+    )
+    assert claimed.status == "claimed"
+    return outcome
+
+
 def test_list_owned_summaries_excludes_other_owners_and_orders_newest_first() -> None:
     async def body(repository: PostgresAssessmentRepository) -> None:
-        older = await _seed(
+        await _seed_owned(
             repository,
             assessment_id="sum-old",
             run_id="run-old",
+            owner_user_id=USER_A,
             assessed_at=OLDER,
         )
-        newer = await _seed(
+        await _seed_owned(
             repository,
             assessment_id="sum-new",
             run_id="run-new",
+            owner_user_id=USER_A,
             assessed_at=NEWER,
         )
-        other = await _seed(
+        await _seed_owned(
             repository,
             assessment_id="sum-b",
             run_id="run-b",
+            owner_user_id=USER_B,
             assessed_at=NEWER,
         )
         await _seed(
@@ -46,27 +74,6 @@ def test_list_owned_summaries_excludes_other_owners_and_orders_newest_first() ->
             run_id="run-anon",
             assessed_at=NEWER,
         )
-        claimed_old = await repository.claim_assessment(
-            assessment_id=older["assessment_id"],
-            authenticated_user_id=USER_A,
-            presented_claim_token_hash=_digest(),
-            claimed_at=CLAIMED_AT,
-        )
-        claimed_new = await repository.claim_assessment(
-            assessment_id=newer["assessment_id"],
-            authenticated_user_id=USER_A,
-            presented_claim_token_hash=_digest(),
-            claimed_at=CLAIMED_AT,
-        )
-        claimed_other = await repository.claim_assessment(
-            assessment_id=other["assessment_id"],
-            authenticated_user_id=USER_B,
-            presented_claim_token_hash=_digest(),
-            claimed_at=CLAIMED_AT,
-        )
-        assert claimed_old.status == "claimed"
-        assert claimed_new.status == "claimed"
-        assert claimed_other.status == "claimed"
         rows = await repository.list_owned_assessment_summaries(
             owner_user_id=USER_A,
             limit=50,
