@@ -23,6 +23,7 @@ from app.repositories.records import (
     ClaimWriteResult,
     DocumentMetadata,
     FulfillmentResult,
+    OwnedAssessmentSummary,
     PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
@@ -171,6 +172,50 @@ class PostgresAssessmentRepository:
         if row is None:
             return None
         return _assessment_from_row(row)
+
+    async def list_owned_assessment_summaries(
+        self,
+        *,
+        owner_user_id: str,
+        limit: int,
+        offset: int,
+    ) -> list[OwnedAssessmentSummary]:
+        owner = owner_user_id.strip()
+        page_size = max(limit, 0)
+        start = max(offset, 0)
+        async with self._pool.connection() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    """
+                    SELECT a.assessment_id,
+                           a.track,
+                           a.access_state,
+                           a.created_at,
+                           r.assessed_at,
+                           r.state AS run_state,
+                           r.assessment_result ->> 'final_score' AS final_score,
+                           r.assessment_result ->> 'band' AS band,
+                           p.paid_at
+                    FROM assessments a
+                    LEFT JOIN assessment_runs r ON r.run_id = a.latest_run_id
+                    LEFT JOIN LATERAL (
+                        SELECT paid_at
+                        FROM assessment_payments
+                        WHERE assessment_id = a.assessment_id
+                          AND owner_user_id = a.owner_user_id
+                          AND status = 'SUCCEEDED'
+                          AND paid_at IS NOT NULL
+                        ORDER BY paid_at DESC, payment_id DESC
+                        LIMIT 1
+                    ) p ON TRUE
+                    WHERE a.owner_user_id = %s
+                    ORDER BY COALESCE(r.assessed_at, a.created_at) DESC, a.assessment_id DESC
+                    LIMIT %s OFFSET %s
+                    """,
+                    (owner, page_size, start),
+                )
+                rows = await cursor.fetchall()
+        return [_summary_from_row(row) for row in rows]
 
     async def claim_assessment(
         self,
@@ -1082,6 +1127,51 @@ def _assessment_from_row(row: dict[str, Any]) -> AssessmentRecord:
         updated_at=row["updated_at"],
         owner_user_id=_text(row.get("owner_user_id")),
     )
+
+
+def _summary_from_row(row: dict[str, Any]) -> OwnedAssessmentSummary:
+    access_state = str(row["access_state"])
+    run_state = _text(row.get("run_state"))
+    score = _optional_score(row.get("final_score")) if run_state == "COMPLETED" else None
+    band = _optional_band(row.get("band")) if run_state == "COMPLETED" else None
+    paid_at = row.get("paid_at")
+    unlocked_at = paid_at if access_state == "UNLOCKED" else None
+    return OwnedAssessmentSummary(
+        assessment_id=str(row["assessment_id"]),
+        track=str(row["track"]),
+        access_state=access_state,  # type: ignore[arg-type]
+        assessed_at=row.get("assessed_at") or row.get("created_at"),
+        final_score=score,
+        band=band,
+        unlocked_at=unlocked_at,
+    )
+
+
+def _optional_score(value: object) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value if 0 <= value <= 100 else None
+    if isinstance(value, float) and value.is_integer():
+        number = int(value)
+        return number if 0 <= number <= 100 else None
+    if isinstance(value, str) and value.strip().isdigit():
+        number = int(value.strip())
+        return number if 0 <= number <= 100 else None
+    return None
+
+
+def _optional_band(value: object) -> str | None:
+    if not isinstance(value, str):
+        return None
+    band = value.strip()
+    allowed = {
+        "limited_application_evidence",
+        "foundation_visible",
+        "developing_application_readiness",
+        "strong_application_evidence",
+    }
+    return band if band in allowed else None
 
 
 def _payment_from_row(row: dict[str, Any]) -> PaymentRecord:

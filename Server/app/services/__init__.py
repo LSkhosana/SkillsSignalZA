@@ -11,12 +11,14 @@ from app.services.assessment_persistence import persist_assessment_outcome
 from app.services.assessment_pipeline import run_assessment_pipeline
 from app.services.assessment_report import deliver_unlocked_readiness_report
 from app.services.assessment_scoring import score_frozen_assessment
+from app.services.assessment_summaries import list_owned_assessment_summaries
 from app.services.readiness_reporting import get_readiness_report
 
 __all__ = [
     "claim_assessment_for_user",
     "deliver_unlocked_readiness_report",
     "get_readiness_report",
+    "list_owned_assessment_summaries",
     "persist_assessment_outcome",
     "run_assessment_pipeline",
     "score_frozen_assessment",
