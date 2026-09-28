@@ -105,6 +105,7 @@ export function SelectField<T extends string>({
   onChange,
   hint,
   error,
+  disabled = false,
   testID,
 }: {
   label: string;
@@ -113,6 +114,7 @@ export function SelectField<T extends string>({
   onChange: (value: T) => void;
   hint?: string;
   error?: string;
+  disabled?: boolean;
   testID?: string;
 }) {
   return (
@@ -126,9 +128,14 @@ export function SelectField<T extends string>({
             key={option.value}
             accessibilityRole="radio"
             accessibilityLabel={option.label}
-            accessibilityState={{ selected }}
-            onPress={() => onChange(option.value)}
-            style={[styles.option, selected ? styles.optionSelected : null]}
+            accessibilityState={{ selected, disabled }}
+            disabled={disabled}
+            onPress={() => {
+              if (!disabled) {
+                onChange(option.value);
+              }
+            }}
+            style={[styles.option, selected ? styles.optionSelected : null, disabled ? styles.locked : null]}
             testID={testID ? `${testID}-${option.value}` : undefined}
           >
             <Text style={styles.optionLabel}>
