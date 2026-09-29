@@ -15,7 +15,7 @@ export default function NotFoundScreen() {
           happened="This address is not part of SkillSignalZA."
           meaning="Nothing was opened, scored, or changed."
           consequence="Nothing was charged and no assessment was lost."
-          action={<Button label="Go to start" href={Routes.home} />}
+          action={<Button label="Go to start" href={Routes.home} testID="not-found-home" />}
           testID="not-found-state"
         />
       </ScreenShell>

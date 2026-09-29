@@ -64,9 +64,12 @@ export default function ForgotPasswordScreen() {
         onChangeText={setEmail}
         autoComplete="email"
         keyboardType="email-address"
+        error={error?.startsWith('Enter a valid email') ? error : undefined}
         testID="forgot-email"
       />
-      {error ? <StatusPanel tone="danger" title="Could not send reset email" message={error} testID="auth-error" /> : null}
+      {error && !error.startsWith('Enter a valid email') ? (
+        <StatusPanel tone="danger" title="Could not send reset email" message={error} testID="auth-error" />
+      ) : null}
       <Button
         label="Send reset email"
         busy={busy}

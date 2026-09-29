@@ -62,6 +62,7 @@ export default function SignInScreen() {
         onChangeText={setEmail}
         autoComplete="email"
         keyboardType="email-address"
+        error={error?.startsWith('Enter a valid email') ? error : undefined}
         testID="sign-in-email"
       />
       <TextField
@@ -70,9 +71,12 @@ export default function SignInScreen() {
         onChangeText={setPassword}
         autoComplete="password"
         secureTextEntry
+        error={error === 'Enter your password.' ? error : undefined}
         testID="sign-in-password"
       />
-      {error ? <StatusPanel tone="danger" title="Could not sign in" message={error} testID="auth-error" /> : null}
+      {error && !error.startsWith('Enter a valid email') && error !== 'Enter your password.' ? (
+        <StatusPanel tone="danger" title="Could not sign in" message={error} testID="auth-error" />
+      ) : null}
       <Button
         label="Sign in"
         busy={busy}

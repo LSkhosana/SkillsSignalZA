@@ -30,7 +30,7 @@ export default function LandingScreen() {
           <Pressable
             key={option.id}
             accessibilityRole="radio"
-            accessibilityState={{ selected }}
+            accessibilityState={{ checked: selected }}
             accessibilityLabel={option.label}
             onPress={() => setTrack(option.id)}
             testID={`track-${option.id}`}

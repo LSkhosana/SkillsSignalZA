@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SkeletonBlock } from '@/components/system/skeleton';
@@ -28,6 +28,24 @@ export function AccountMenu() {
   const auth = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const signedIn = auth.status === 'signed_in';
+
+  useEffect(() => {
+    if (!open || !signedIn || typeof window === 'undefined' || typeof window.addEventListener !== 'function') {
+      return;
+    }
+    const onKeyDown = (event: { key: string }) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      if (typeof window.removeEventListener === 'function') {
+        window.removeEventListener('keydown', onKeyDown);
+      }
+    };
+  }, [open, signedIn]);
 
   if (auth.status === 'loading') {
     return (
@@ -70,6 +88,7 @@ export function AccountMenu() {
             <Pressable
               key={item.label}
               accessibilityRole="menuitem"
+              accessibilityLabel={item.label}
               onPress={() => {
                 setOpen(false);
                 router.push(item.href);

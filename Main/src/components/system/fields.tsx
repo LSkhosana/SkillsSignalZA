@@ -8,17 +8,17 @@ export function InlineFieldError({ message, testID }: { message?: string; testID
     return null;
   }
 
-  const body = (
-    <Text accessibilityRole="alert" style={styles.error} testID={testID}>
+  return (
+    <Text
+      accessibilityRole="alert"
+      nativeID={testID}
+      testID={testID}
+      {...(Platform.OS === 'web' ? { className: 'ss-field-error' } : {})}
+      style={styles.error}
+    >
       {message}
     </Text>
   );
-
-  if (Platform.OS === 'web') {
-    return <span className="ss-field-error">{message}</span>;
-  }
-
-  return body;
 }
 
 type TextFieldProps = {
@@ -51,6 +51,7 @@ export function TextField({
   testID,
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
+  const errorId = testID ? `${testID}-error` : undefined;
 
   return (
     <View style={styles.field} {...(Platform.OS === 'web' ? { className: 'ss-field' } : {})}>
@@ -61,6 +62,7 @@ export function TextField({
       <TextInput
         accessibilityLabel={label}
         accessibilityHint={error ?? hint}
+        accessibilityState={{ disabled: !editable }}
         autoCapitalize={autoCapitalize}
         autoComplete={autoComplete}
         autoCorrect={false}
@@ -80,8 +82,15 @@ export function TextField({
         ]}
         testID={testID}
         value={value}
+        {...(Platform.OS === 'web'
+          ? {
+              className: 'ss-input',
+              'aria-invalid': Boolean(error) || undefined,
+              'aria-describedby': error && errorId ? errorId : undefined,
+            }
+          : {})}
       />
-      <InlineFieldError message={error} testID={error && testID ? `${testID}-error` : undefined} />
+      <InlineFieldError message={error} testID={error ? errorId : undefined} />
     </View>
   );
 }
@@ -128,7 +137,7 @@ export function SelectField<T extends string>({
             key={option.value}
             accessibilityRole="radio"
             accessibilityLabel={option.label}
-            accessibilityState={{ selected, disabled }}
+            accessibilityState={{ checked: selected, disabled }}
             disabled={disabled}
             onPress={() => {
               if (!disabled) {
@@ -184,7 +193,7 @@ export function UploadDropzone({
       >
         <Text style={styles.eyebrow}>File</Text>
         <Text style={styles.dropTitle}>{label}</Text>
-        <Text style={styles.hint}>{fileName || hint}</Text>
+        <Text style={styles.fileName}>{fileName || hint}</Text>
       </Pressable>
       {action}
       <InlineFieldError message={error} />
@@ -208,6 +217,15 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.sans,
     fontSize: 13,
     lineHeight: 18,
+    maxWidth: '100%',
+  },
+  fileName: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
+    fontSize: 13,
+    lineHeight: 18,
+    maxWidth: '100%',
+    flexShrink: 1,
   },
   input: {
     minHeight: Layout.touch,
@@ -280,5 +298,7 @@ const styles = StyleSheet.create({
     color: Palette.ink,
     fontFamily: FontFamily.serif,
     fontSize: 22,
+    maxWidth: '100%',
+    flexShrink: 1,
   },
 });

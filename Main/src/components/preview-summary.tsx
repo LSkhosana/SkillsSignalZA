@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { Badge, Divider, WorkspacePanel } from '@/components/system/surfaces';
 import { REPORT_PRICE_COPY } from '@/lib/constants';
 import type { ReadinessPreview } from '@/services/api';
 import { PAID_REPORT_SECTION_KEYS } from '@/services/api';
-import { FontFamily, Palette } from '@/theme/tokens';
+import { FontFamily, Layout, Palette } from '@/theme/tokens';
 
 type PreviewSummaryProps = {
   preview: ReadinessPreview;
@@ -21,6 +21,8 @@ const LOCKED_LINES = [
 ];
 
 export function PreviewSummary({ preview }: PreviewSummaryProps) {
+  const { width } = useWindowDimensions();
+  const compact = width < Layout.mobile;
   const gapLine = preview.priority_gap
     ? `Priority gap: ${preview.priority_gap.criterion_label}`
     : 'No priority gap on this preview.';
@@ -31,10 +33,10 @@ export function PreviewSummary({ preview }: PreviewSummaryProps) {
       <Text style={styles.kicker}>{preview.track_label}</Text>
       <WorkspacePanel>
         <Text style={styles.scoreLabel}>Readiness score</Text>
-        <Text style={styles.score} testID="preview-score">
+        <Text style={[styles.score, compact ? styles.scoreCompact : null]} testID="preview-score">
           {preview.final_score} / {preview.score_max}
         </Text>
-        <Text style={styles.band} testID="preview-band">
+        <Text style={[styles.band, compact ? styles.bandCompact : null]} testID="preview-band">
           {preview.band_label}
         </Text>
       </WorkspacePanel>
@@ -97,18 +99,31 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.serif,
     fontSize: 64,
     lineHeight: 68,
+    maxWidth: '100%',
+    flexShrink: 1,
+  },
+  scoreCompact: {
+    fontSize: 44,
+    lineHeight: 48,
   },
   band: {
     color: Palette.ink,
     fontFamily: FontFamily.serif,
     fontSize: 28,
     lineHeight: 32,
+    maxWidth: '100%',
+    flexShrink: 1,
+  },
+  bandCompact: {
+    fontSize: 22,
+    lineHeight: 26,
   },
   body: {
     color: Palette.muted,
     fontFamily: FontFamily.sans,
     fontSize: 16,
     lineHeight: 24,
+    maxWidth: '100%',
   },
   lock: {
     gap: 8,

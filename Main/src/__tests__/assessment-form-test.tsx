@@ -70,6 +70,7 @@ describe('assessment form', () => {
   it('keeps the selected track visible', async () => {
     await render(<NewAssessmentScreen />);
     expect(screen.getByText(/Track: Software Engineering/)).toBeTruthy();
+    expect(screen.getByLabelText('Privacy notice')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('form-track-data_analytics'));
     expect(screen.getByText(/Track: Data Analytics/)).toBeTruthy();
   });
