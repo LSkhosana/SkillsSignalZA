@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, type CSSProperties } from 'react';
 
 import { useEditorialReveal } from '@/hooks/use-editorial-reveal';
+import { MARKETING_FOOTER_LINKS } from '@/lib/routes';
 
 import '@/theme/landing.css';
 
@@ -50,6 +51,9 @@ export default function WebLandingScreen() {
   return (
     <div className="ss-site">
       <div className="ss-top-rule" />
+      <a className="ss-skip" href="#top">
+        Skip to content
+      </a>
 
       <header className="ss-header">
         <div className="ss-container ss-header-main">
@@ -339,12 +343,11 @@ export default function WebLandingScreen() {
             </p>
           </div>
           <div className="ss-footer-links">
-            <a href="#benchmark">About the benchmark</a>
-            <a href="#career-map-pack">Career Map Pack</a>
-            <a href="#top">Privacy</a>
-            <a href="#top">Terms</a>
-            <a href="#top">Refunds</a>
-            <a href="#top">Support</a>
+            {MARKETING_FOOTER_LINKS.map((link) => (
+              <a key={link.label} href={link.href}>
+                {link.label}
+              </a>
+            ))}
           </div>
         </div>
       </footer>

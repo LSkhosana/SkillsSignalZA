@@ -1,5 +1,5 @@
 import { usePathname, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { AccountMenu } from '@/components/system/account-menu';
 import { BrandMark } from '@/components/system/brand-mark';
@@ -29,6 +29,17 @@ function contextLabel(pathname: string) {
   if (pathname.startsWith('/dashboard')) {
     return 'Account';
   }
+  if (
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/terms') ||
+    pathname.startsWith('/refunds') ||
+    pathname.startsWith('/support')
+  ) {
+    return 'Legal';
+  }
+  if (pathname.startsWith('/map-pack')) {
+    return 'Career Map Pack';
+  }
   return null;
 }
 
@@ -42,6 +53,11 @@ export function AppHeader() {
 
   return (
     <View accessibilityRole="header" style={styles.header} testID="app-header">
+      {Platform.OS === 'web' ? (
+        <a className="ss-skip" href="#main-content">
+          Skip to content
+        </a>
+      ) : null}
       <View style={[styles.inner, compact ? styles.innerCompact : null]}>
         <Pressable
           accessibilityRole="link"
@@ -112,6 +128,8 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.serif,
     fontSize: 22,
     letterSpacing: -0.4,
+    flexShrink: 1,
+    maxWidth: '100%',
   },
   actions: {
     flexDirection: 'row',

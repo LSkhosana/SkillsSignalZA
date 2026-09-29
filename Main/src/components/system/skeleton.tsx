@@ -26,7 +26,7 @@ function SkeletonCopy({ lines = 3 }: { lines?: number }) {
 
 export function AppBootSkeleton() {
   return (
-    <View accessibilityLabel="Loading SkillSignalZA" accessibilityState={{ busy: true }} style={styles.frame}>
+    <View accessibilityLabel="Loading SkillSignalZA" accessibilityState={{ busy: true }} pointerEvents="none" style={styles.frame}>
       <SkeletonBlock height={18} width={160} />
       <SkeletonBlock height={42} width="86%" />
       <SkeletonCopy />
@@ -36,7 +36,7 @@ export function AppBootSkeleton() {
 
 export function PreviewSkeleton() {
   return (
-    <View accessibilityLabel="Loading preview" accessibilityState={{ busy: true }} style={styles.frame}>
+    <View accessibilityLabel="Loading preview" accessibilityState={{ busy: true }} pointerEvents="none" style={styles.frame}>
       <SkeletonBlock height={12} width={120} />
       <SkeletonBlock height={64} width={140} />
       <SkeletonBlock height={28} width="70%" />
@@ -48,7 +48,7 @@ export function PreviewSkeleton() {
 
 export function ReportSkeleton() {
   return (
-    <View accessibilityLabel="Loading report" accessibilityState={{ busy: true }} style={styles.frame}>
+    <View accessibilityLabel="Loading report" accessibilityState={{ busy: true }} pointerEvents="none" style={styles.frame}>
       <View style={styles.scoreWell}>
         <SkeletonBlock height={12} width={80} />
         <SkeletonBlock height={64} width={180} />
@@ -83,7 +83,7 @@ export function ReportSkeleton() {
 
 export function MyReportsSkeleton() {
   return (
-    <View accessibilityLabel="Loading reports" accessibilityState={{ busy: true }} style={styles.frame}>
+    <View accessibilityLabel="Loading reports" accessibilityState={{ busy: true }} pointerEvents="none" style={styles.frame}>
       <SkeletonBlock height={32} width="56%" />
       {[0, 1, 2].map((item) => (
         <View key={item} style={styles.reportLine}>

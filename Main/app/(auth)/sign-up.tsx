@@ -89,6 +89,7 @@ export default function SignUpScreen() {
         autoComplete="email"
         keyboardType="email-address"
         editable={!confirmEmail}
+        error={error?.startsWith('Enter a valid email') ? error : undefined}
         testID="sign-up-email"
       />
       <TextField
@@ -98,9 +99,12 @@ export default function SignUpScreen() {
         autoComplete="password"
         secureTextEntry
         editable={!confirmEmail}
+        error={error?.includes('at least 6 characters') ? error : undefined}
         testID="sign-up-password"
       />
-      {error ? <StatusPanel tone="danger" title="Could not create account" message={error} testID="auth-error" /> : null}
+      {error && !error.startsWith('Enter a valid email') && !error.includes('at least 6 characters') ? (
+        <StatusPanel tone="danger" title="Could not create account" message={error} testID="auth-error" />
+      ) : null}
       {confirmEmail ? (
         <Button
           label="Resend confirmation"

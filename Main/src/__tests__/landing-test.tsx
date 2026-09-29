@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+import { LEGAL_PATHS, MARKETING_FOOTER_LINKS } from '@/lib/routes';
+
 import LandingScreen from '../../app/index';
 
 const mockPush = jest.fn();
@@ -41,5 +43,14 @@ describe('landing screen', () => {
     await render(<LandingScreen />);
     expect(screen.getByText(/full Readiness Report costs R159/i)).toBeTruthy();
     expect(screen.getByText(/does not estimate hiring probability/i)).toBeTruthy();
+  });
+
+  it('points marketing legal links at real routes', () => {
+    expect([...LEGAL_PATHS]).toEqual(['/privacy', '/terms', '/refunds', '/support']);
+    expect(
+      MARKETING_FOOTER_LINKS.filter((link) => ['Privacy', 'Terms', 'Refunds', 'Support'].includes(link.label)).map(
+        (link) => link.href,
+      ),
+    ).toEqual([...LEGAL_PATHS]);
   });
 });

@@ -59,9 +59,12 @@ export default function ResetPasswordScreen() {
         onChangeText={setPassword}
         autoComplete="password"
         secureTextEntry
+        error={error?.includes('at least 6 characters') ? error : undefined}
         testID="reset-password"
       />
-      {error ? <StatusPanel tone="danger" title="Could not reset password" message={error} testID="auth-error" /> : null}
+      {error && !error.includes('at least 6 characters') ? (
+        <StatusPanel tone="danger" title="Could not reset password" message={error} testID="auth-error" />
+      ) : null}
       <Button
         label="Save new password"
         busy={busy}

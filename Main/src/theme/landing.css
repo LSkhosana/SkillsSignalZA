@@ -41,6 +41,7 @@ button, a {
   min-height: 100vh;
   font-family: var(--ss-sans);
   overflow: clip;
+  overflow-wrap: anywhere;
 }
 
 .ss-top-rule {
@@ -125,6 +126,7 @@ button, a {
 
 .ss-link-button {
   position: relative;
+  min-height: 44px;
   padding: 10px 0;
   font-size: 12px;
   font-weight: 800;
@@ -211,6 +213,17 @@ button, a {
   text-decoration: none;
   font-family: var(--ss-serif);
   font-size: 14px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ss-nav a:focus-visible,
+.ss-brand-small:focus-visible,
+.ss-footer-links a:focus-visible,
+.ss-skip:focus-visible {
+  outline: 2px solid var(--ss-green);
+  outline-offset: 3px;
 }
 
 .ss-marquee {
@@ -278,6 +291,7 @@ button, a {
   letter-spacing: -.065em;
   line-height: .87;
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .ss-hero h1 em {
@@ -426,6 +440,7 @@ button, a {
   padding: 32px 34px 34px 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .ss-product + .ss-product {
@@ -802,9 +817,36 @@ button, a {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 18px;
+  gap: 8px 18px;
   color: #e0e5e2;
   font-size: 11px;
+}
+
+.ss-footer-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ss-skip {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 80;
+  min-height: 44px;
+  padding: 10px 14px;
+  background: var(--ss-ink);
+  color: #fff;
+  font-family: var(--ss-sans);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ss-skip:focus {
+  top: 12px;
 }
 
 .ss-reveal {
@@ -837,6 +879,7 @@ button, a {
     transition: none;
   }
   .ss-bar-fill { transform: none; transition: none; }
+  .ss-link-button,
   .ss-primary,
   .ss-secondary,
   .ss-trust-card,
@@ -899,7 +942,11 @@ button, a {
 
   .ss-header-actions .ss-link-button { display: none; }
 
-  .ss-wordmark { font-size: 34px; }
+  .ss-wordmark {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 34px;
+  }
 
   .ss-hero { padding-top: 44px; }
 
@@ -919,7 +966,7 @@ button, a {
     gap: 7px;
   }
 
-  .ss-product-index { font-size: 110px; }
+  .ss-product-index { font-size: clamp(64px, 28vw, 110px); }
 
   .ss-footer-inner {
     align-items: flex-start;

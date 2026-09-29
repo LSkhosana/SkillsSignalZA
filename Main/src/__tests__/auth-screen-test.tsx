@@ -42,7 +42,7 @@ describe('auth forms', () => {
   it('validates sign-in fields before calling the auth service', async () => {
     await render(<SignInScreen />);
     await fireEvent.press(screen.getByTestId('sign-in-submit'));
-    expect(screen.getByTestId('auth-error')).toHaveTextContent(/Enter a valid email address/);
+    expect(screen.getByTestId('sign-in-email-error')).toHaveTextContent(/Enter a valid email address/);
   });
 
   it('resumes payment for the original assessment after sign-in', async () => {
@@ -62,7 +62,7 @@ describe('auth forms', () => {
     await fireEvent.changeText(screen.getByTestId('sign-up-email'), 'user@example.com');
     await fireEvent.changeText(screen.getByTestId('sign-up-password'), '123');
     await fireEvent.press(screen.getByTestId('sign-up-submit'));
-    expect(screen.getByTestId('auth-error')).toHaveTextContent(/at least 6 characters/);
+    expect(screen.getByTestId('sign-up-password-error')).toHaveTextContent(/at least 6 characters/);
   });
 
   it('shows confirmation-required when signup returns no session', async () => {
@@ -88,6 +88,6 @@ describe('auth forms', () => {
   it('validates forgot-password email before sending a reset message', async () => {
     await render(<ForgotPasswordScreen />);
     await fireEvent.press(screen.getByTestId('forgot-submit'));
-    expect(screen.getByTestId('auth-error')).toHaveTextContent(/Enter a valid email address/);
+    expect(screen.getByTestId('forgot-email-error')).toHaveTextContent(/Enter a valid email address/);
   });
 });

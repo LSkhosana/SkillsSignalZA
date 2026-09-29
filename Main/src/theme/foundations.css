@@ -3,6 +3,7 @@
 .ss-app {
   min-height: 100%;
   overflow-x: clip;
+  overflow-wrap: anywhere;
   background: transparent;
   color: var(--ss-ink);
   font-family: var(--ss-sans);
@@ -205,6 +206,9 @@
 .ss-footer-links a:focus-visible,
 .ss-app a:focus-visible,
 .ss-app button:focus-visible,
+.ss-app [role="button"]:focus-visible,
+.ss-app [role="radio"]:focus-visible,
+.ss-app [role="menuitem"]:focus-visible,
 .ss-field input:focus-visible,
 .ss-input:focus-visible {
   outline: 2px solid var(--ss-green);

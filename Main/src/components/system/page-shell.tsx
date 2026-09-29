@@ -23,7 +23,9 @@ export function PageShell({
       contentContainerStyle={styles.content}
       testID={testID}
     >
-      <View style={[styles.main, { paddingHorizontal: padding }]}>{children}</View>
+      <View style={[styles.main, { paddingHorizontal: padding }]} nativeID="main-content">
+        {children}
+      </View>
       {footer ? <GlobalFooter /> : null}
     </ScrollView>
   );

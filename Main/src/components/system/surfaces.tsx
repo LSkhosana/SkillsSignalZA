@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     flexShrink: 1,
+    maxWidth: '100%',
     color: Palette.ink,
     fontFamily: FontFamily.sans,
     fontSize: 13,
@@ -202,6 +203,7 @@ const styles = StyleSheet.create({
   },
   accordionTitle: {
     flex: 1,
+    minWidth: 0,
     color: Palette.ink,
     fontFamily: FontFamily.serif,
     fontSize: 22,
