@@ -181,7 +181,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Python, R, and relevant libraries scored from locked named_only evidence.",
+          "evidence_note": "Python, R, and relevant libraries is named only in the CV: \"Python\".",
           "flags": [],
           "max_points": 6,
           "rule_ids": [

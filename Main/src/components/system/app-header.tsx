@@ -52,7 +52,12 @@ export function AppHeader() {
   const context = marketing ? null : contextLabel(pathname);
 
   return (
-    <View accessibilityRole="header" style={styles.header} testID="app-header">
+    <View
+      accessibilityRole="header"
+      style={styles.header}
+      testID="app-header"
+      {...(Platform.OS === 'web' ? { className: 'ss-no-print' } : {})}
+    >
       {Platform.OS === 'web' ? (
         <a className="ss-skip" href="#main-content">
           Skip to content

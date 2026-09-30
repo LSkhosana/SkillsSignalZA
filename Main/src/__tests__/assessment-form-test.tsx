@@ -104,6 +104,7 @@ describe('assessment form', () => {
     await render(<NewAssessmentScreen />);
     expect(screen.getByTestId('submit-assessment').props.accessibilityState.disabled).toBe(true);
     await fireEvent.press(screen.getByTestId('add-link'));
+    expect(screen.getByTestId('link-handle-0')).toBeTruthy();
     await fireEvent.changeText(screen.getByTestId('link-url-0'), 'notaurl');
     expect(screen.getByText('Enter a full public URL starting with https://.')).toBeTruthy();
     validCvPicker();
@@ -112,6 +113,28 @@ describe('assessment form', () => {
     await fireEvent.press(screen.getByTestId('submit-assessment'));
     expect(submitAssessmentMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId('unlock-report')).toBeNull();
+  });
+
+  it('sends a repository profile handle when one is entered', async () => {
+    submitAssessmentMock.mockImplementation(() => new Promise(() => undefined));
+    await render(<NewAssessmentScreen />);
+    validCvPicker();
+    await fireEvent.press(screen.getByTestId('pick-cv'));
+    await fireEvent.press(screen.getByTestId('add-link'));
+    await fireEvent.changeText(screen.getByTestId('link-url-0'), 'https://github.com/ada/workflow');
+    await fireEvent.changeText(screen.getByTestId('link-handle-0'), 'ada');
+    await fireEvent.press(screen.getByTestId('submit-assessment'));
+    expect(submitAssessmentMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        links: [
+          {
+            submitted_url: 'https://github.com/ada/workflow',
+            declared_type: 'repository',
+            profile_handle: 'ada',
+          },
+        ],
+      }),
+    );
   });
 
   it('submits once while the request is in flight', async () => {

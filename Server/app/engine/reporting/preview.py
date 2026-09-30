@@ -44,6 +44,8 @@ def _build(report_payload: Mapping[str, Any] | None) -> dict[str, Any]:
         "score_max": summary["score_max"],
         "band_id": summary["band_id"],
         "band_label": summary["band_label"],
+        "band_statement": summary["band_statement"],
+        "disclaimer": report_payload["benchmark"]["disclaimer"],
         "strongest_area": summary["strongest_area"],
         "priority_gap": summary["priority_gap"],
     }

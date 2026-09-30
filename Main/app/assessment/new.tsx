@@ -7,7 +7,7 @@ import { PageShell } from '@/components/system/page-shell';
 import { SectionHeader } from '@/components/system/section-header';
 import { Button } from '@/components/system/button';
 import { PageState, StatusPanel } from '@/components/system/feedback';
-import { SelectField, UploadDropzone, UrlField } from '@/components/system/fields';
+import { SelectField, TextField, UploadDropzone, UrlField } from '@/components/system/fields';
 import { Badge, WorkspacePanel } from '@/components/system/surfaces';
 import { WorkspaceShell } from '@/components/system/workspace-shell';
 import {
@@ -44,7 +44,21 @@ import { FontFamily, Palette } from '@/theme/tokens';
 type LinkDraft = {
   submitted_url: string;
   declared_type: DeclaredLinkType;
+  profile_handle: string;
 };
+
+const PROFILE_HANDLE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
+
+function profileHandleError(link: LinkDraft): string | null {
+  if (link.declared_type !== 'repository') {
+    return null;
+  }
+  const handle = link.profile_handle.trim();
+  if (!handle || PROFILE_HANDLE_PATTERN.test(handle)) {
+    return null;
+  }
+  return 'Use the public username: letters, numbers, and hyphens only.';
+}
 
 type Recovery = {
   phase: Extract<WorkspacePhase, 'review_required' | 'not_scorable' | 'service_failure'>;
@@ -72,7 +86,11 @@ export default function NewAssessmentScreen() {
     [track],
   );
   const linkErrors = links.map((link) => validateEvidenceUrl(link.submitted_url));
-  const linksValid = linkErrors.every((error) => error === null) && links.length <= MAX_LINKS;
+  const handleErrors = links.map((link) => profileHandleError(link));
+  const linksValid =
+    linkErrors.every((error) => error === null) &&
+    handleErrors.every((error) => error === null) &&
+    links.length <= MAX_LINKS;
   const cvValid = Boolean(cv) && validatePickedCv(cv as PickedCvDocument) === null && cvError === null;
   const ready = cvValid && linksValid;
   const editable = editingAllowed(phase);
@@ -131,7 +149,7 @@ export default function NewAssessmentScreen() {
       return;
     }
     const validationError = validatePickedCv(cv);
-    if (validationError || linkErrors.some((error) => error !== null)) {
+    if (validationError || linkErrors.some((error) => error !== null) || handleErrors.some((error) => error !== null)) {
       setCvError(validationError);
       return;
     }
@@ -144,6 +162,14 @@ export default function NewAssessmentScreen() {
       }
       if (validateEvidenceUrl(submitted_url)) {
         return;
+      }
+      const profile_handle = link.profile_handle.trim();
+      if (link.declared_type === 'repository' && profile_handle) {
+        if (!PROFILE_HANDLE_PATTERN.test(profile_handle)) {
+          return;
+        }
+        preparedLinks.push({ submitted_url, declared_type: link.declared_type, profile_handle });
+        continue;
       }
       preparedLinks.push({ submitted_url, declared_type: link.declared_type });
     }
@@ -333,6 +359,18 @@ export default function NewAssessmentScreen() {
                 onChange={(declared_type) => updateLink(index, { declared_type })}
                 testID={`link-type-${index}`}
               />
+              {link.declared_type === 'repository' ? (
+                <TextField
+                  label={`Link ${index + 1} profile handle`}
+                  value={link.profile_handle}
+                  editable={editable}
+                  error={handleErrors[index] ?? undefined}
+                  hint="GitHub or GitLab username. Leave blank if this is not your repository."
+                  onChangeText={(profile_handle) => updateLink(index, { profile_handle })}
+                  placeholder="octocat"
+                  testID={`link-handle-${index}`}
+                />
+              ) : null}
               <Button
                 label="Remove link"
                 variant="ghost"
@@ -349,7 +387,10 @@ export default function NewAssessmentScreen() {
               disabled={!editable}
               testID="add-link"
               onPress={() =>
-                setLinks((current) => [...current, { submitted_url: '', declared_type: 'repository' }])
+                setLinks((current) => [
+                  ...current,
+                  { submitted_url: '', declared_type: 'repository', profile_handle: '' },
+                ])
               }
             />
           ) : null}

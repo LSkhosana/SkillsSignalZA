@@ -297,7 +297,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Qualification and market-access evidence scored from locked se.qual.completed evidence.",
+          "evidence_note": "Qualification and market-access evidence is recorded in the CV: \"Synthetic documented evidence for qualification.\".",
           "flags": [],
           "max_points": 10,
           "rule_ids": [

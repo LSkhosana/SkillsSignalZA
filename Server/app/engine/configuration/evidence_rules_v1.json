@@ -611,6 +611,109 @@
       "kind": "tool",
       "rule_id": "normalize.v1.tool.cypress",
       "aliases": [{ "text": "Cypress", "case_sensitive": false }]
+    },
+    {
+      "subject": "command_line",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.command_line",
+      "aliases": [
+        { "text": "command line", "case_sensitive": false },
+        { "text": "terminal", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "go",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.go",
+      "aliases": [
+        { "text": "Golang", "case_sensitive": false },
+        { "text": "Go", "case_sensitive": true }
+      ]
+    },
+    {
+      "subject": "kotlin",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.kotlin",
+      "aliases": [{ "text": "Kotlin", "case_sensitive": false }]
+    },
+    {
+      "subject": "delphi",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.delphi",
+      "aliases": [{ "text": "Delphi", "case_sensitive": false }]
+    },
+    {
+      "subject": "sas",
+      "kind": "skill",
+      "rule_id": "normalize.v1.skill.sas",
+      "aliases": [{ "text": "SAS", "case_sensitive": true }]
+    },
+    {
+      "subject": "graphql",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.graphql",
+      "aliases": [{ "text": "GraphQL", "case_sensitive": false }]
+    },
+    {
+      "subject": "dbt",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.dbt",
+      "aliases": [{ "text": "dbt", "case_sensitive": false }]
+    },
+    {
+      "subject": "laravel",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.laravel",
+      "aliases": [{ "text": "Laravel", "case_sensitive": false }]
+    },
+    {
+      "subject": "airflow",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.airflow",
+      "aliases": [
+        { "text": "Apache Airflow", "case_sensitive": false },
+        { "text": "Airflow", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "bigquery",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.bigquery",
+      "aliases": [
+        { "text": "Google BigQuery", "case_sensitive": false },
+        { "text": "BigQuery", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "snowflake",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.snowflake",
+      "aliases": [{ "text": "Snowflake", "case_sensitive": false }]
+    },
+    {
+      "subject": "scikit_learn",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.scikit_learn",
+      "aliases": [
+        { "text": "scikit-learn", "case_sensitive": false },
+        { "text": "scikit learn", "case_sensitive": false },
+        { "text": "sklearn", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "jupyter",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.jupyter",
+      "aliases": [
+        { "text": "Jupyter Notebook", "case_sensitive": false },
+        { "text": "Jupyter", "case_sensitive": false }
+      ]
+    },
+    {
+      "subject": "qlik",
+      "kind": "tool",
+      "rule_id": "normalize.v1.tool.qlik",
+      "aliases": [{ "text": "Qlik", "case_sensitive": false }]
     }
   ],
   "qualifications": [

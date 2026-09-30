@@ -292,6 +292,30 @@ def test_repeated_builds_are_byte_equivalent() -> None:
     assert hashlib.sha256(_dump(second).encode("utf-8")).hexdigest() == digest
 
 
+def test_action_leads_quote_the_candidate_and_count_open_points_once() -> None:
+    first = build_readiness_report(_golden("c03_se_no_language_cap.json"))
+    second = build_readiness_report(_golden("c08_da_named_sql.json"))
+    selected = {item["criterion_id"] for item in first["priority_actions"]}
+    expected = sum(
+        item["point_gap"] for item in first["material_gaps"] if item["criterion_id"] in selected
+    )
+    assert first["score_summary"]["open_points"] == expected
+    assert first["score_summary"]["band_statement"]
+    notes = {row["criterion_id"]: row["evidence_note"] for row in first["criterion_breakdown"]}
+    for action in first["priority_actions"]:
+        note = notes[action["criterion_id"]]
+        assert note in action["evidence_lead"]
+        gap = next(
+            item
+            for item in first["material_gaps"]
+            if item["criterion_id"] == action["criterion_id"]
+        )
+        assert f"{gap['point_gap']} points are still open." in action["evidence_lead"]
+    assert [item["evidence_lead"] for item in first["priority_actions"]] != [
+        item["evidence_lead"] for item in second["priority_actions"]
+    ]
+
+
 def test_reporting_engine_does_not_import_scorer_or_pipeline() -> None:
     root = Path(__file__).resolve().parents[3] / "app" / "engine" / "reporting"
     text = "".join(path.read_text(encoding="utf-8") for path in root.glob("*.py"))

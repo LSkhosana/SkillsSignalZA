@@ -2,8 +2,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import { ReadinessReportView } from '@/components/readiness-report-view';
-import { ScreenShell } from '@/components/screen-shell';
 import { Button } from '@/components/system/button';
+import { PageShell } from '@/components/system/page-shell';
 import { PageState } from '@/components/system/feedback';
 import { ReportSkeleton } from '@/components/system/skeleton';
 import { authHref, firstSearchParam } from '@/lib/auth-resume';
@@ -66,7 +66,7 @@ export default function ReportScreen() {
   }, [assessmentId, auth.status, router]);
 
   return (
-    <ScreenShell title="Readiness Report" testID="report-screen">
+    <PageShell testID="report-screen">
       {loading && !report && !locked && !failed ? <ReportSkeleton /> : null}
       {report ? <ReadinessReportView report={report} /> : null}
       {locked ? (
@@ -97,6 +97,6 @@ export default function ReportScreen() {
           testID="report-unavailable"
         />
       ) : null}
-    </ScreenShell>
+    </PageShell>
   );
 }

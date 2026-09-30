@@ -25,6 +25,7 @@ from app.engine.reporting.outcomes import (
     ERROR_REPORT_VERSION_NOT_FOUND,
     REPORT_SCHEMA_VERSION,
     REPORT_VERSION,
+    REQUIRED_BAND_IDS,
     REQUIRED_CAP_RULE_IDS,
     REQUIRED_EVIDENCE_ANCHORS,
     REQUIRED_QUALIFICATION_ROUTES,
@@ -142,9 +143,13 @@ def _build(
         for item in assessment_result["strengths"]
     ]
     priority_actions = [
-        _action_row(item, criterion_by_id, actions_doc, copy)
+        _action_row(item, criterion_by_id, criterion_result_by_id, actions_doc, copy)
         for item in assessment_result["priority_actions"]
     ]
+    open_points = _open_points(
+        list(assessment_result["priority_actions"]),
+        list(assessment_result["material_gaps"]),
+    )
     payload = {
         "schema_version": REPORT_SCHEMA_VERSION,
         "report_version": report_version,
@@ -165,6 +170,8 @@ def _build(
             "raw_total": int(assessment_result["raw_total"]),
             "band_id": band_id,
             "band_label": str(band["label"]),
+            "band_statement": str(copy["band_statements"][band_id]),
+            "open_points": open_points,
             "strongest_area": strongest_area,
             "priority_gap": priority_gap,
             "category_caps": [
@@ -206,9 +213,12 @@ def _validated_copy(document: Mapping[str, Any]) -> dict[str, Any]:
     routes = copy.get("qualification_route_labels")
     caps = copy.get("cap_rule_labels")
     benchmark = copy.get("benchmark")
+    bands = copy.get("band_statements")
     if not isinstance(anchors, Mapping) or not isinstance(routes, Mapping):
         raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
     if not isinstance(caps, Mapping) or not isinstance(benchmark, Mapping):
+        raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    if not isinstance(bands, Mapping):
         raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
     for key in REQUIRED_EVIDENCE_ANCHORS:
         if not _nonempty_text(anchors.get(key)):
@@ -219,10 +229,24 @@ def _validated_copy(document: Mapping[str, Any]) -> dict[str, Any]:
     for key in REQUIRED_CAP_RULE_IDS:
         if not _nonempty_text(caps.get(key)):
             raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    for key in REQUIRED_BAND_IDS:
+        if not _nonempty_text(bands.get(key)):
+            raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
     if not _nonempty_text(benchmark.get("scope_statement")):
         raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
     if not _nonempty_text(benchmark.get("disclaimer")):
         raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    statements = copy.get("band_statements")
+    if not isinstance(statements, Mapping):
+        raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    for key in (
+        "limited_application_evidence",
+        "foundation_visible",
+        "developing_application_readiness",
+        "strong_application_evidence",
+    ):
+        if not _nonempty_text(statements.get(key)):
+            raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
     return copy
 
 
@@ -375,9 +399,18 @@ def _gap_row(
     }
 
 
+def _open_points(
+    actions: Sequence[Mapping[str, Any]],
+    gaps: Sequence[Mapping[str, Any]],
+) -> int:
+    selected = {str(item["criterion_id"]) for item in actions}
+    return sum(int(item["point_gap"]) for item in gaps if str(item["criterion_id"]) in selected)
+
+
 def _action_row(
     item: Mapping[str, Any],
     criterion_by_id: Mapping[str, Mapping[str, Any]],
+    criterion_results: Mapping[str, Mapping[str, Any]],
     action_catalog: Mapping[str, Any],
     copy: Mapping[str, Any],
 ) -> dict[str, Any]:
@@ -395,11 +428,19 @@ def _action_row(
     criterion = criterion_by_id.get(str(item["criterion_id"]))
     if not isinstance(criterion, Mapping):
         raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    result = criterion_results.get(str(item["criterion_id"]))
+    if not isinstance(result, Mapping):
+        raise ReportingHalt(ERROR_REPORT_RULESET_INVALID)
+    evidence_lead = str(result["evidence_note"]).strip()
+    point_gap = int(result["max_points"]) - int(result["awarded_points"])
+    if point_gap > 0:
+        evidence_lead = f"{evidence_lead} {point_gap} points are still open."
     return {
         "priority_order": int(item["priority_order"]),
         "action_id": action_id,
         "criterion_id": str(item["criterion_id"]),
         "criterion_label": str(criterion["display_name"]),
+        "evidence_lead": evidence_lead,
         "current_anchor": str(item["current_anchor"]),
         "current_anchor_label": _anchor_label(str(item["current_anchor"]), copy),
         "target_anchor": str(item["target_anchor"]),

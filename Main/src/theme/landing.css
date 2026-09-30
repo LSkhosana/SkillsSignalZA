@@ -975,3 +975,42 @@ button, a {
 
   .ss-footer-links { justify-content: flex-start; }
 }
+
+.ss-edition-print-criteria {
+  display: none;
+}
+
+@media print {
+  body:has(.ss-edition) .ss-no-print,
+  body:has(.ss-edition) .ss-footer,
+  body:has(.ss-edition) .ss-app-header,
+  body:has(.ss-edition) .ss-edition-screen-criteria,
+  body:has(.ss-edition) .ss-edition-noprint,
+  body:has(.ss-edition) button,
+  body:has(.ss-edition) .ss-primary,
+  body:has(.ss-edition) .ss-secondary,
+  body:has(.ss-edition) .ss-link-button {
+    display: none !important;
+  }
+
+  .ss-edition,
+  .ss-edition-masthead,
+  .ss-edition-score {
+    overflow: visible !important;
+    break-inside: avoid;
+  }
+
+  .ss-edition-score {
+    font-size: 42pt !important;
+    line-height: 1 !important;
+  }
+
+  .ss-edition-print-criteria {
+    display: block !important;
+  }
+
+  .ss-edition-brief,
+  .ss-editorial-step {
+    break-inside: avoid;
+  }
+}

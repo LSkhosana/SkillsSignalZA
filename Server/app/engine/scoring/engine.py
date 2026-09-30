@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -253,7 +254,13 @@ def _score_completed(
         awarded, rule_ids = _award_points(criterion, anchor, routes, triggers)
         if criterion_id != qualification_id and binding is None:
             anchor = "missing_unverifiable"
-        note = _evidence_note(criterion["display_name"], anchor, evidence_ids)
+        note = _evidence_note(
+            criterion["display_name"],
+            anchor,
+            evidence_ids,
+            facts,
+            source_records,
+        )
         criterion_results.append(
             {
                 "criterion_id": criterion_id,
@@ -372,10 +379,52 @@ def _award_points(
     return min(awarded, criterion["max_points"]), rule_ids
 
 
-def _evidence_note(display_name: str, anchor: str, evidence_ids: list[str]) -> str:
+_ANCHOR_PHRASE = {
+    "demonstrated": "shown directly",
+    "documented": "described",
+    "named_only": "named only",
+    "missing_unverifiable": "missing",
+}
+_QUOTE_LIMIT = 180
+
+
+def _evidence_note(
+    display_name: str,
+    anchor: str,
+    evidence_ids: list[str],
+    facts: Mapping[str, Mapping[str, Any]],
+    source_records: Sequence[Mapping[str, Any]],
+) -> str:
     if not evidence_ids and anchor in {"missing_unverifiable", *NONE_ROUTES.values()}:
         return f"No accepted evidence was present for {display_name}."
-    return f"{display_name} scored from locked {anchor} evidence."
+    fact = next((facts[item] for item in evidence_ids if item in facts), None)
+    phrase = _ANCHOR_PHRASE.get(anchor, "recorded")
+    if fact is None:
+        return f"{display_name} is {phrase}."
+    quote = _bounded_quote(str(fact.get("explicit_text") or ""))
+    source = _source_label(str(fact.get("source_id") or ""), source_records)
+    if not quote:
+        return f"{display_name} is {phrase} in the {source}."
+    return f'{display_name} is {phrase} in the {source}: "{quote}".'
+
+
+def _bounded_quote(text: str) -> str:
+    collapsed = " ".join(text.split())
+    if len(collapsed) <= _QUOTE_LIMIT:
+        return collapsed.replace('"', "'")
+    return collapsed[:_QUOTE_LIMIT].rstrip().replace('"', "'") + "..."
+
+
+def _source_label(source_id: str, source_records: Sequence[Mapping[str, Any]]) -> str:
+    record = next((item for item in source_records if item.get("source_id") == source_id), None)
+    if record is None:
+        return "submitted evidence"
+    if record.get("source_type") == "cv":
+        return "CV"
+    host = urlsplit(str(record.get("locator") or "")).hostname
+    if host:
+        return host.removeprefix("www.")
+    return "submitted link"
 
 
 def _triggered_category_cap(

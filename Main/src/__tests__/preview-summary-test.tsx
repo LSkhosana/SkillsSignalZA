@@ -10,8 +10,16 @@ describe('preview rendering', () => {
     await render(<PreviewSummary preview={PREVIEW_FIXTURE} />);
     expect(screen.getByTestId('preview-score')).toHaveTextContent(/72 \/ 100/);
     expect(screen.getByTestId('preview-band')).toHaveTextContent(/Developing application readiness/);
+    expect(screen.getByText(/largest gaps are still open/)).toBeTruthy();
+    expect(screen.getByText(/does not predict hiring/)).toBeTruthy();
+    expect(screen.queryByText(/On the Software Engineering track/)).toBeNull();
     expect(screen.getByTestId('preview-strongest')).toHaveTextContent(/Applied build/);
     expect(screen.getByTestId('preview-gap')).toHaveTextContent(/Evidence depth/);
+    expect(screen.getByText(/largest gaps are still open/)).toBeTruthy();
+    expect(screen.getByText(/does not predict hiring/)).toBeTruthy();
+    expect(screen.getByTestId('preview-paywall')).toHaveTextContent(/Category scores/);
+    expect(screen.getByTestId('preview-paywall')).toHaveTextContent(/Five priority actions/);
+    expect(screen.queryByText(/nothing beyond that/)).toBeNull();
     expect(screen.queryByText('Category breakdown')).toBeNull();
     expect(screen.queryByText('Priority actions')).toBeNull();
     expect(screen.queryByText('Project recommendation')).toBeNull();

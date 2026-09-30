@@ -52,6 +52,27 @@ describe('API client and assessment operations', () => {
     expect(Object.keys(links[0]).sort()).toEqual(['declared_type', 'submitted_url']);
   });
 
+  it('keeps a repository profile handle when one was supplied', async () => {
+    const form = await buildAssessmentFormData({
+      track: 'software_engineering',
+      cv: { uri: 'file:///tmp/cv.pdf', name: 'cv.pdf', mimeType: 'application/pdf', size: 100 },
+      links: [
+        {
+          submitted_url: 'https://github.com/example/app',
+          declared_type: 'repository',
+          profile_handle: 'example',
+        },
+      ],
+    });
+    expect(JSON.parse(formField(form, 'links') ?? '[]')).toEqual([
+      {
+        submitted_url: 'https://github.com/example/app',
+        declared_type: 'repository',
+        profile_handle: 'example',
+      },
+    ]);
+  });
+
   it('buildAssessmentFormData keeps only submitted_url and declared_type', async () => {
     const form = await buildAssessmentFormData({
       track: 'data_analytics',

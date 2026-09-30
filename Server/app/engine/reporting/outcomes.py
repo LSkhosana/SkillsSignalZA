@@ -37,6 +37,12 @@ REQUIRED_QUALIFICATION_ROUTES = (
     "da.qual.adjacent",
     "da.qual.none",
 )
+REQUIRED_BAND_IDS = (
+    "limited_application_evidence",
+    "foundation_visible",
+    "developing_application_readiness",
+    "strong_application_evidence",
+)
 REQUIRED_CAP_RULE_IDS = (
     "rubric.v2.se.cap.cv_only_projects",
     "rubric.v2.da.cap.cv_only_projects",

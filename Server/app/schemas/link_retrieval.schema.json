@@ -195,7 +195,7 @@
         },
         "ownership_status": {
           "type": "string",
-          "const": "unclear"
+          "enum": ["attributed", "unclear", "conflicting"]
         },
         "retrieved_at": {
           "type": "string"

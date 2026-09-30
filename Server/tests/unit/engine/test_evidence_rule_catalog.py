@@ -17,7 +17,7 @@ from app.engine.configuration import (
 )
 from app.engine.evidence.matching import KIND_SKILL, KIND_TOOL, load_compiled_registry
 
-APPROVED_EVIDENCE_RULES_SHA256 = "cbdadd6ee1f73caf65679faf316c8a12ef75b2be6cf4af48e21186d5ca5a7a6d"
+APPROVED_EVIDENCE_RULES_SHA256 = "5fb51a40e4dbc244d292fb6fb618f28e6a1b65ee5778086621bc439f950227bb"
 EXPECTED_SKILL_SUBJECTS = {
     "python",
     "java",
@@ -52,6 +52,11 @@ EXPECTED_SKILL_SUBJECTS = {
     "data_modelling",
     "reporting",
     "dashboarding",
+    "command_line",
+    "go",
+    "kotlin",
+    "delphi",
+    "sas",
 }
 EXPECTED_TOOL_SUBJECTS = {
     "dotnet",
@@ -94,6 +99,15 @@ EXPECTED_TOOL_SUBJECTS = {
     "vitest",
     "playwright",
     "cypress",
+    "graphql",
+    "dbt",
+    "laravel",
+    "airflow",
+    "bigquery",
+    "snowflake",
+    "scikit_learn",
+    "jupyter",
+    "qlik",
 }
 EXPECTED_QUALIFICATION_SUBJECTS = {
     "bachelor_degree",
@@ -126,7 +140,7 @@ def test_registry_subjects_and_aliases_are_exact(registry: Mapping[str, Any]) ->
     assert skills == EXPECTED_SKILL_SUBJECTS
     assert tools == EXPECTED_TOOL_SUBJECTS
     assert qualifications == EXPECTED_QUALIFICATION_SUBJECTS
-    assert len(registry["subjects"]) == 73
+    assert len(registry["subjects"]) == 87
     assert len(registry["qualifications"]) == 6
 
 
@@ -141,7 +155,7 @@ def test_registry_has_no_alias_collisions(registry: Mapping[str, Any]) -> None:
             owner = owners.get(key)
             assert owner is None or owner == entry["subject"]
             owners[key] = entry["subject"]
-    assert alias_count == 130
+    assert alias_count == 151
     load_compiled_registry(dict(registry))
 
 

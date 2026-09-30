@@ -6,6 +6,7 @@ import { usePathname } from 'expo-router';
 import { AppHeader } from '@/components/system/app-header';
 import { ToastProvider } from '@/components/system/feedback';
 import { useEditorialReveal } from '@/hooks/use-editorial-reveal';
+import '@/theme/app-styles';
 import { Palette } from '@/theme/tokens';
 
 export function AppFrame({ children }: { children: ReactNode }) {
@@ -20,7 +21,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.frame} testID="app-frame">
-        <View style={styles.rule} />
+        <View style={styles.rule} {...(Platform.OS === 'web' ? { className: 'ss-no-print' } : {})} />
         <AppHeader />
         <View style={styles.body}>{children}</View>
       </SafeAreaView>

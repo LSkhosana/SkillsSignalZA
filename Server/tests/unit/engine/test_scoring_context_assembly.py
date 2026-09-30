@@ -19,7 +19,7 @@ from app.engine.context.provenance import load_provenance_allowlist, rule_id_for
 from app.engine.schema_registry import draft_validator
 
 CONTEXT_DIR = Path(__file__).resolve().parents[3] / "app" / "engine" / "context"
-APPROVED_BINDING_RULES_SHA256 = "5d93ee05fa8c8dcff7b331eee04356ed085360bd1c0de93267c1ec307ffe1de3"
+APPROVED_BINDING_RULES_SHA256 = "1fe9bbbd4d2461445c823009ca4036f729f78d4bd47fb2a81aadd908d7403fcf"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 
@@ -472,7 +472,7 @@ def test_binding_registry_structure_and_h1_dev_environment_gap() -> None:
         for item in rules["tracks"]["software_engineering"]["criteria"]
         if item["criterion_id"] == "se.tools.dev_environment"
     )
-    assert se_dev["subjects"] == []
+    assert se_dev["subjects"] == ["command_line"]
     assert _binding(_assemble([]), "se.tools.dev_environment")["anchor"] == "missing_unverifiable"
 
 

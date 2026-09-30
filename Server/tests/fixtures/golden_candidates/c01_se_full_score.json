@@ -385,7 +385,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Programming language evidence scored from locked demonstrated evidence.",
+          "evidence_note": "Programming language evidence is shown directly in the CV: \"Synthetic demonstrated evidence for programming language.\".",
           "flags": [],
           "max_points": 12,
           "rule_ids": [
@@ -400,7 +400,7 @@
           "evidence_ids": [
             "ev-002"
           ],
-          "evidence_note": "Programming concepts and technical problem-solving scored from locked demonstrated evidence.",
+          "evidence_note": "Programming concepts and technical problem-solving is shown directly in the CV: \"Synthetic demonstrated evidence for programming concepts.\".",
           "flags": [],
           "max_points": 8,
           "rule_ids": [
@@ -415,7 +415,7 @@
           "evidence_ids": [
             "ev-003"
           ],
-          "evidence_note": "Application, API, and system fundamentals scored from locked demonstrated evidence.",
+          "evidence_note": "Application, API, and system fundamentals is shown directly in the CV: \"Synthetic demonstrated evidence for application systems.\".",
           "flags": [],
           "max_points": 6,
           "rule_ids": [
@@ -430,7 +430,7 @@
           "evidence_ids": [
             "ev-004"
           ],
-          "evidence_note": "Database fundamentals scored from locked demonstrated evidence.",
+          "evidence_note": "Database fundamentals is shown directly in the CV: \"Synthetic demonstrated evidence for database fundamentals.\".",
           "flags": [],
           "max_points": 5,
           "rule_ids": [
@@ -445,7 +445,7 @@
           "evidence_ids": [
             "ev-005"
           ],
-          "evidence_note": "Debugging and testing awareness scored from locked demonstrated evidence.",
+          "evidence_note": "Debugging and testing awareness is shown directly in the CV: \"Synthetic demonstrated evidence for debugging testing.\".",
           "flags": [],
           "max_points": 4,
           "rule_ids": [
@@ -460,7 +460,7 @@
           "evidence_ids": [
             "ev-006"
           ],
-          "evidence_note": "Version-control workflow scored from locked demonstrated evidence.",
+          "evidence_note": "Version-control workflow is shown directly in the CV: \"Synthetic demonstrated evidence for version control.\".",
           "flags": [],
           "max_points": 6,
           "rule_ids": [
@@ -475,7 +475,7 @@
           "evidence_ids": [
             "ev-007"
           ],
-          "evidence_note": "Framework or library scored from locked demonstrated evidence.",
+          "evidence_note": "Framework or library is shown directly in the CV: \"Synthetic demonstrated evidence for framework library.\".",
           "flags": [],
           "max_points": 5,
           "rule_ids": [
@@ -490,7 +490,7 @@
           "evidence_ids": [
             "ev-008"
           ],
-          "evidence_note": "Database platform or tool scored from locked demonstrated evidence.",
+          "evidence_note": "Database platform or tool is shown directly in the CV: \"Synthetic demonstrated evidence for database platform.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -505,7 +505,7 @@
           "evidence_ids": [
             "ev-009"
           ],
-          "evidence_note": "Development environment or command line scored from locked demonstrated evidence.",
+          "evidence_note": "Development environment or command line is shown directly in the CV: \"Synthetic demonstrated evidence for dev environment.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -520,7 +520,7 @@
           "evidence_ids": [
             "ev-010"
           ],
-          "evidence_note": "Collaborative repository platform scored from locked demonstrated evidence.",
+          "evidence_note": "Collaborative repository platform is shown directly in the CV: \"Synthetic demonstrated evidence for repository platform.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -535,7 +535,7 @@
           "evidence_ids": [
             "ev-011"
           ],
-          "evidence_note": "Deployment, container, or cloud awareness scored from locked demonstrated evidence.",
+          "evidence_note": "Deployment, container, or cloud awareness is shown directly in the CV: \"Synthetic demonstrated evidence for deployment cloud.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -550,7 +550,7 @@
           "evidence_ids": [
             "ev-012"
           ],
-          "evidence_note": "Proof and accessibility scored from locked demonstrated evidence.",
+          "evidence_note": "Proof and accessibility is shown directly in the CV: \"Synthetic demonstrated evidence for accessibility.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -565,7 +565,7 @@
           "evidence_ids": [
             "ev-013"
           ],
-          "evidence_note": "Problem definition and track relevance scored from locked demonstrated evidence.",
+          "evidence_note": "Problem definition and track relevance is shown directly in the CV: \"Synthetic demonstrated evidence for problem relevance.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -580,7 +580,7 @@
           "evidence_ids": [
             "ev-014"
           ],
-          "evidence_note": "Technical depth and ownership scored from locked demonstrated evidence.",
+          "evidence_note": "Technical depth and ownership is shown directly in the CV: \"Synthetic demonstrated evidence for depth ownership.\".",
           "flags": [],
           "max_points": 4,
           "rule_ids": [
@@ -595,7 +595,7 @@
           "evidence_ids": [
             "ev-015"
           ],
-          "evidence_note": "Documentation and organisation scored from locked demonstrated evidence.",
+          "evidence_note": "Documentation and organisation is shown directly in the CV: \"Synthetic demonstrated evidence for documentation.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -610,7 +610,7 @@
           "evidence_ids": [
             "ev-016"
           ],
-          "evidence_note": "Demonstrability or outcome scored from locked demonstrated evidence.",
+          "evidence_note": "Demonstrability or outcome is shown directly in the CV: \"Synthetic demonstrated evidence for outcome.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -625,7 +625,7 @@
           "evidence_ids": [
             "ev-017"
           ],
-          "evidence_note": "Qualification and market-access evidence scored from locked se.qual.completed evidence.",
+          "evidence_note": "Qualification and market-access evidence is recorded in the CV: \"Synthetic documented evidence for qualification.\".",
           "flags": [],
           "max_points": 10,
           "rule_ids": [
@@ -640,7 +640,7 @@
           "evidence_ids": [
             "ev-018"
           ],
-          "evidence_note": "Target-role alignment scored from locked demonstrated evidence.",
+          "evidence_note": "Target-role alignment is shown directly in the CV: \"Synthetic demonstrated evidence for target role.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -655,7 +655,7 @@
           "evidence_ids": [
             "ev-019"
           ],
-          "evidence_note": "Specificity of skills and claims scored from locked demonstrated evidence.",
+          "evidence_note": "Specificity of skills and claims is shown directly in the CV: \"Synthetic demonstrated evidence for claim specificity.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -670,7 +670,7 @@
           "evidence_ids": [
             "ev-020"
           ],
-          "evidence_note": "Evidence and outcomes in descriptions scored from locked demonstrated evidence.",
+          "evidence_note": "Evidence and outcomes in descriptions is shown directly in the CV: \"Synthetic demonstrated evidence for description evidence.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -685,7 +685,7 @@
           "evidence_ids": [
             "ev-021"
           ],
-          "evidence_note": "Structure and readability scored from locked demonstrated evidence.",
+          "evidence_note": "Structure and readability is shown directly in the CV: \"Synthetic demonstrated evidence for readability.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -700,7 +700,7 @@
           "evidence_ids": [
             "ev-022"
           ],
-          "evidence_note": "Communication or documentation scored from locked demonstrated evidence.",
+          "evidence_note": "Communication or documentation is shown directly in the CV: \"Synthetic demonstrated evidence for communication.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -715,7 +715,7 @@
           "evidence_ids": [
             "ev-023"
           ],
-          "evidence_note": "Collaboration or teamwork scored from locked demonstrated evidence.",
+          "evidence_note": "Collaboration or teamwork is shown directly in the CV: \"Synthetic demonstrated evidence for collaboration.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -730,7 +730,7 @@
           "evidence_ids": [
             "ev-024"
           ],
-          "evidence_note": "Professional exposure or responsibility scored from locked demonstrated evidence.",
+          "evidence_note": "Professional exposure or responsibility is shown directly in the CV: \"Synthetic demonstrated evidence for professional exposure.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -745,7 +745,7 @@
           "evidence_ids": [
             "ev-025"
           ],
-          "evidence_note": "Initiative and continued learning scored from locked demonstrated evidence.",
+          "evidence_note": "Initiative and continued learning is shown directly in the CV: \"Synthetic demonstrated evidence for initiative.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [
@@ -760,7 +760,7 @@
           "evidence_ids": [
             "ev-026"
           ],
-          "evidence_note": "Self-management or applied problem-solving scored from locked demonstrated evidence.",
+          "evidence_note": "Self-management or applied problem-solving is shown directly in the CV: \"Synthetic demonstrated evidence for self management.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [

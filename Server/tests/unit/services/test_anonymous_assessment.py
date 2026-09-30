@@ -787,6 +787,46 @@ def test_links_receive_server_ids_and_preserve_url_and_type() -> None:
     ]
 
 
+def test_repository_profile_handle_is_stored_when_it_matches() -> None:
+    repository = RecordingRepository()
+    outcome = _submit(
+        repository=repository,
+        links=[
+            {
+                "submitted_url": "https://github.com/ada/workflow",
+                "declared_type": "repository",
+                "profile_handle": "ada",
+            }
+        ],
+        retrieve_link=_failed_retrieve,
+    )
+    assert outcome["state"] == "COMPLETED"
+    assert repository.bundles[0].assessment_input["links"] == [
+        {
+            "link_id": "link-001",
+            "submitted_url": "https://github.com/ada/workflow",
+            "declared_type": "repository",
+            "profile_handle": "ada",
+        }
+    ]
+
+
+def test_invalid_profile_handle_is_rejected() -> None:
+    spy = PipelineSpy()
+    outcome = _submit(
+        links=[
+            {
+                "submitted_url": "https://github.com/ada/workflow",
+                "declared_type": "repository",
+                "profile_handle": "not a handle",
+            }
+        ],
+        run_pipeline=spy,
+    )
+    assert outcome["error_code"] == ERROR_INVALID_SUBMISSION
+    assert spy.calls == []
+
+
 def test_more_than_five_links_rejected_before_pipeline_and_storage() -> None:
     storage = FakeStorage()
     spy = PipelineSpy()

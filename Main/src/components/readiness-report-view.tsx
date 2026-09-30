@@ -1,9 +1,16 @@
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
-import { SectionHeader } from '@/components/system/section-header';
-import { Accordion, Badge, Divider, EditorialCard, ProgressBar } from '@/components/system/surfaces';
+import { EditionMasthead } from '@/components/edition-masthead';
+import { Accordion } from '@/components/system/surfaces';
 import { formatCustomerDate } from '@/lib/assessment-summaries';
-import { groupCriteriaByCategory, overlappingStrengthIds } from '@/lib/readiness-report';
+import {
+  evidenceNoteForCategory,
+  evidenceNoteForCriterion,
+  gapsOutsideStrengths,
+  groupCriteriaByCategory,
+  openPointsOnStrength,
+  overlappingStrengthIds,
+} from '@/lib/readiness-report';
 import type { ReadinessReport } from '@/services/api';
 import { FontFamily, Layout, Palette } from '@/theme/tokens';
 
@@ -11,54 +18,81 @@ type ReadinessReportViewProps = {
   report: ReadinessReport;
 };
 
-const OVERLAP_COPY =
-  'A criterion can show useful evidence and still appear under Areas to strengthen. That overlap is expected: the evidence already present is a strength, while remaining points mean more evidence can still be added.';
+function webClass(className: string) {
+  return Platform.OS === 'web' ? { className } : {};
+}
 
 export function ReadinessReportView({ report }: ReadinessReportViewProps) {
   const { width } = useWindowDimensions();
-  const compact = width < Layout.mobile;
+  const columns = width >= Layout.tablet;
   const summary = report.score_summary;
   const overlapIds = overlappingStrengthIds(report.strengths, report.material_gaps);
+  const remainingGaps = gapsOutsideStrengths(report.strengths, report.material_gaps);
   const groups = groupCriteriaByCategory(report.criterion_breakdown);
+  const strongestQuote = evidenceNoteForCategory(
+    summary.strongest_area.category_id,
+    report.strengths,
+    report.criterion_breakdown,
+  );
+  const gapQuote = summary.priority_gap
+    ? evidenceNoteForCriterion(report.criterion_breakdown, summary.priority_gap.criterion_id)
+    : null;
 
   return (
-    <View style={styles.stack} testID="full-report">
-      <View style={styles.masthead} testID="report-score-band">
-        <Text style={styles.kicker}>Readiness score</Text>
-        <Text style={[styles.score, compact ? styles.scoreCompact : null]}>
-          {summary.final_score} / {summary.score_max}
-        </Text>
-        <Text style={[styles.band, compact ? styles.bandCompact : null]}>{summary.band_label}</Text>
-      </View>
+    <View {...webClass('ss-edition')} style={styles.stack} testID="full-report">
+      <EditionMasthead
+        dateline={`${report.track_label} · ${formatCustomerDate(report.assessed_at)}`}
+        score={summary.final_score}
+        scoreMax={summary.score_max}
+        bandLabel={summary.band_label}
+        bandStatement={summary.band_statement}
+        scopeStatement={report.benchmark.scope_statement}
+        disclaimer={report.benchmark.disclaimer}
+        testID="report-score-band"
+        disclaimerTestID="report-benchmark"
+      />
+      <Text style={styles.track} testID="report-track-meta">
+        {report.track_label}
+      </Text>
 
-      <View testID="report-track-meta" style={styles.metaBlock}>
-        <SectionHeader
-          eyebrow={report.track_label}
-          title="Readiness Report"
-          subtitle={`Assessed ${formatCustomerDate(report.assessed_at)}.`}
-        />
-        <View testID="report-benchmark" style={styles.benchmark}>
-          <Text style={styles.body}>{report.benchmark.scope_statement}</Text>
-          <Text style={styles.quiet}>{report.benchmark.disclaimer}</Text>
+      <View style={[styles.columns, columns ? styles.columnsWide : null]}>
+        <View style={styles.column} testID="report-category-breakdown">
+          <Text style={styles.kicker}>Category scores</Text>
+          {report.category_breakdown.map((row) => (
+            <View
+              key={row.category_id}
+              accessibilityRole="progressbar"
+              accessibilityLabel={`${row.label}: ${row.score} / ${row.max_points}`}
+              accessibilityValue={{ min: 0, max: 100, now: row.percentage }}
+              style={styles.category}
+              testID={`category-bar-${row.category_id}`}
+            >
+              <View style={styles.categoryMeta}>
+                <Text style={styles.categoryLabel}>{row.label}</Text>
+                <Text style={styles.categoryFigure}>
+                  {row.score}
+                  <Text style={styles.categoryMax}> / {row.max_points}</Text>
+                </Text>
+              </View>
+              <View style={styles.categoryTrack}>
+                <View style={[styles.categoryFill, { width: `${row.percentage}%` }]} />
+              </View>
+            </View>
+          ))}
         </View>
-      </View>
-
-      <View style={styles.pair}>
-        <View style={styles.pairItem}>
-          <EditorialCard testID="report-strongest">
+        <View style={styles.column}>
+          <View testID="report-strongest" style={styles.lead}>
             <Text style={styles.kicker}>Strongest area</Text>
-            <Text style={styles.cardTitle}>{summary.strongest_area.label}</Text>
+            <Text style={styles.leadTitle}>{summary.strongest_area.label}</Text>
             <Text style={styles.quiet}>
-              {summary.strongest_area.score} / {summary.strongest_area.max_points} (
-              {summary.strongest_area.percentage}%)
+              {summary.strongest_area.score} / {summary.strongest_area.max_points}
             </Text>
-          </EditorialCard>
-        </View>
-        <View style={styles.pairItem}>
-          <EditorialCard testID="report-priority-gap">
-            <Text style={styles.kicker}>Priority area</Text>
-            <Text style={styles.cardTitle}>
-              {summary.priority_gap ? summary.priority_gap.criterion_label : 'No priority area on this report.'}
+            {strongestQuote ? <Text style={styles.pull}>{strongestQuote}</Text> : null}
+          </View>
+          <View testID="report-priority-gap" style={styles.lead}>
+            <Text style={styles.kicker}>Priority gap</Text>
+            <Text style={styles.leadTitle}>
+              {summary.priority_gap ? summary.priority_gap.criterion_label : 'No priority gap on this report.'}
             </Text>
             {summary.priority_gap ? (
               <Text style={styles.quiet}>
@@ -66,20 +100,9 @@ export function ReadinessReportView({ report }: ReadinessReportViewProps) {
                 {summary.priority_gap.current_anchor_label}
               </Text>
             ) : null}
-          </EditorialCard>
+            {gapQuote ? <Text style={styles.pull}>{gapQuote}</Text> : null}
+          </View>
         </View>
-      </View>
-
-      <View testID="report-category-breakdown" style={styles.section}>
-        <Text style={styles.sectionTitle}>Category performance</Text>
-        {report.category_breakdown.map((row) => (
-          <ProgressBar
-            key={row.category_id}
-            label={`${row.label}: ${row.score} / ${row.max_points}`}
-            value={row.percentage}
-            testID={`category-bar-${row.category_id}`}
-          />
-        ))}
       </View>
 
       <View testID="report-strengths" style={styles.section}>
@@ -87,26 +110,29 @@ export function ReadinessReportView({ report }: ReadinessReportViewProps) {
         {report.strengths.length === 0 ? (
           <Text style={styles.quiet}>No strengths listed.</Text>
         ) : (
-          report.strengths.map((row) => (
-            <Text key={row.criterion_id} style={styles.line}>
-              {row.criterion_label} — {row.anchor_label}
-            </Text>
-          ))
+          report.strengths.map((row) => {
+            const open = overlapIds.has(row.criterion_id) ? openPointsOnStrength(row, report.material_gaps) : null;
+            return (
+              <View key={row.criterion_id} style={styles.row}>
+                <Text style={styles.line}>
+                  {row.criterion_label} — {row.anchor_label}
+                  {open != null ? ` · ${open} points still open` : ''}
+                </Text>
+                {row.evidence_note ? <Text style={styles.quiet}>{row.evidence_note}</Text> : null}
+              </View>
+            );
+          })
         )}
       </View>
 
       <View testID="report-material-gaps" style={styles.section}>
         <Text style={styles.sectionTitle}>Areas to strengthen</Text>
-        <Text style={styles.overlap} testID="report-overlap-note">
-          {OVERLAP_COPY}
-        </Text>
-        {report.material_gaps.length === 0 ? (
+        {remainingGaps.length === 0 ? (
           <Text style={styles.quiet}>No areas to strengthen listed.</Text>
         ) : (
-          report.material_gaps.map((row) => (
+          remainingGaps.map((row) => (
             <Text key={row.criterion_id} style={styles.line}>
               {row.criterion_label} — {row.current_anchor_label}
-              {overlapIds.has(row.criterion_id) ? ' · also listed as a strength' : ''}
             </Text>
           ))
         )}
@@ -114,22 +140,32 @@ export function ReadinessReportView({ report }: ReadinessReportViewProps) {
 
       <View testID="report-priority-actions" style={styles.section}>
         <Text style={styles.sectionTitle}>Five priority actions</Text>
+        <Text style={styles.quiet}>these actions target {summary.open_points} open points.</Text>
         {report.priority_actions.map((row) => (
-          <EditorialCard key={row.action_id} testID={`priority-action-${row.priority_order}`}>
-            <Badge label={`${row.priority_order}`} tone="green" />
-            <Text style={styles.cardTitle}>{row.candidate_instruction}</Text>
-            <Text style={styles.line}>Required output: {row.required_output}</Text>
-            <Text style={styles.quiet}>Completion check: {row.completion_check}</Text>
-          </EditorialCard>
+          <View
+            key={row.action_id}
+            {...webClass('ss-editorial-step')}
+            style={styles.step}
+            testID={`priority-action-${row.priority_order}`}
+          >
+            <Text {...webClass('ss-step-index')} style={styles.stepIndex}>
+              {String(row.priority_order).padStart(2, '0')}
+            </Text>
+            <View style={styles.stepCopy}>
+              <Text style={styles.stepTitle}>{row.candidate_instruction}</Text>
+              <Text style={styles.body}>{row.evidence_lead}</Text>
+              <Text style={styles.line}>Required output: {row.required_output}</Text>
+              <Text style={styles.quiet}>Completion check: {row.completion_check}</Text>
+            </View>
+          </View>
         ))}
       </View>
 
       <View testID="report-project-recommendation" style={styles.section}>
-        <Text style={styles.sectionTitle}>Recommended project</Text>
         <ProjectBrief report={report} />
       </View>
 
-      <View testID="report-criterion-breakdown" style={styles.section}>
+      <View {...webClass('ss-edition-screen-criteria')} testID="report-criterion-breakdown" style={styles.section}>
         <Text style={styles.sectionTitle}>Detailed criterion breakdown</Text>
         {groups.map((group) => (
           <Accordion
@@ -143,12 +179,27 @@ export function ReadinessReportView({ report }: ReadinessReportViewProps) {
                 <Text style={styles.line}>
                   {row.criterion_label} · {row.anchor_label} · {row.awarded_points}/{row.max_points}
                 </Text>
-                {row.evidence_note ? <Text style={styles.quiet}>{row.evidence_note}</Text> : null}
+                {row.evidence_note ? (
+                  <Text style={styles.quiet} testID={`criterion-note-${row.criterion_id}`}>
+                    {row.evidence_note}
+                  </Text>
+                ) : null}
               </View>
             ))}
           </Accordion>
         ))}
       </View>
+
+      {Platform.OS === 'web' ? (
+        <View {...webClass('ss-edition-print-criteria')} testID="report-print-criteria">
+          <Text style={styles.sectionTitle}>Criterion record</Text>
+          {report.criterion_breakdown.map((row) => (
+            <Text key={row.criterion_id} style={styles.line}>
+              {row.criterion_label} · {row.anchor_label} · {row.awarded_points}/{row.max_points}. {row.evidence_note}
+            </Text>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -168,27 +219,22 @@ function ProjectBrief({ report }: { report: ReadinessReport }) {
   }
 
   return (
-    <EditorialCard>
+    <View {...webClass('ss-edition-brief')} style={styles.brief}>
       <Text style={styles.kicker}>Build brief</Text>
-      <Text style={styles.cardTitle}>{project.title}</Text>
-      <Text style={styles.body}>{project.scenario}</Text>
-      <Divider />
-      {project.required_foundations.map((item) => (
+      <Text style={styles.leadTitle}>{project.title}</Text>
+      <Text style={styles.deck}>{project.scenario}</Text>
+      {project.required_foundations.length > 0 ? (
+        <Text style={styles.line}>Prerequisites: {project.required_foundations.join('; ')}.</Text>
+      ) : null}
+      {project.required_outputs.map((item, index) => (
         <Text key={item} style={styles.line}>
-          Foundation: {item}
+          {index + 1}. {item}
         </Text>
       ))}
-      {project.required_outputs.map((item) => (
-        <Text key={item} style={styles.line}>
-          Output: {item}
-        </Text>
-      ))}
-      {project.completion_checks.map((item) => (
-        <Text key={item} style={styles.quiet}>
-          Check: {item}
-        </Text>
-      ))}
-    </EditorialCard>
+      {project.completion_checks.length > 0 ? (
+        <Text style={styles.body}>{project.completion_checks.join(' ')}</Text>
+      ) : null}
+    </View>
   );
 }
 
@@ -196,66 +242,96 @@ const styles = StyleSheet.create({
   stack: {
     gap: 28,
     minWidth: 0,
+    backgroundColor: Palette.paper,
   },
-  masthead: {
+  track: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+  },
+  columns: {
+    gap: 28,
     minWidth: 0,
-    overflow: 'hidden',
-    backgroundColor: Palette.ink,
-    paddingHorizontal: 22,
-    paddingVertical: 28,
-    gap: 10,
+  },
+  columnsWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  column: {
+    flexGrow: 1,
+    flexBasis: 280,
+    gap: 16,
+    minWidth: 0,
   },
   kicker: {
-    color: Palette.greenSoft,
+    color: Palette.green,
     fontFamily: FontFamily.sans,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
-  score: {
-    color: Palette.surface,
-    fontFamily: FontFamily.serif,
-    fontSize: 64,
-    lineHeight: 68,
-    letterSpacing: -1.2,
-    maxWidth: '100%',
-    flexShrink: 1,
-  },
-  scoreCompact: {
-    fontSize: 44,
-    lineHeight: 48,
-  },
-  band: {
-    color: Palette.surface,
-    fontFamily: FontFamily.serif,
-    fontSize: 28,
-    lineHeight: 32,
-    maxWidth: '100%',
-    flexShrink: 1,
-  },
-  bandCompact: {
-    fontSize: 22,
-    lineHeight: 26,
-  },
-  metaBlock: {
-    gap: 16,
-    minWidth: 0,
-  },
-  benchmark: {
+  category: {
     gap: 8,
     minWidth: 0,
   },
-  pair: {
+  categoryMeta: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    minWidth: 0,
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: 12,
   },
-  pairItem: {
-    flexGrow: 1,
-    flexBasis: 280,
+  categoryLabel: {
+    color: Palette.ink,
+    fontFamily: FontFamily.sans,
+    fontSize: 15,
+    lineHeight: 22,
+    flexShrink: 1,
+  },
+  categoryFigure: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  categoryMax: {
+    color: Palette.muted,
+    fontFamily: FontFamily.serif,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  categoryTrack: {
+    height: 2,
+    backgroundColor: Palette.divider,
+  },
+  categoryFill: {
+    height: 2,
+    backgroundColor: Palette.green,
+  },
+  lead: {
+    gap: 8,
     minWidth: 0,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: Palette.ink,
+  },
+  leadTitle: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  pull: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 18,
+    lineHeight: 26,
+    borderLeftWidth: 3,
+    borderLeftColor: Palette.green,
+    paddingLeft: 12,
   },
   section: {
     gap: 12,
@@ -267,11 +343,52 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 32,
   },
-  cardTitle: {
+  row: {
+    gap: 4,
+    minWidth: 0,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.divider,
+  },
+  step: {
+    flexDirection: 'row',
+    gap: 12,
+    minWidth: 0,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.divider,
+  },
+  stepIndex: {
+    width: 48,
+    color: '#b8bbb7',
+    fontFamily: FontFamily.serif,
+    fontSize: 32,
+    lineHeight: 36,
+  },
+  stepCopy: {
+    flex: 1,
+    gap: 6,
+    minWidth: 0,
+  },
+  stepTitle: {
     color: Palette.ink,
     fontFamily: FontFamily.serif,
-    fontSize: 24,
+    fontSize: 22,
+    lineHeight: 26,
+  },
+  deck: {
+    color: Palette.ink,
+    fontFamily: FontFamily.serif,
+    fontSize: 20,
     lineHeight: 28,
+  },
+  brief: {
+    gap: 10,
+    minWidth: 0,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: Palette.ink,
+    backgroundColor: Palette.surface,
   },
   body: {
     color: Palette.ink,
@@ -290,13 +407,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.sans,
     fontSize: 15,
     lineHeight: 22,
-  },
-  overlap: {
-    color: Palette.muted,
-    fontFamily: FontFamily.sans,
-    fontSize: 15,
-    lineHeight: 22,
-    maxWidth: 720,
   },
   criterion: {
     gap: 4,

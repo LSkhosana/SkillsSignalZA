@@ -19,6 +19,8 @@ export const PREVIEW_FIXTURE: ReadinessPreview = {
   score_max: 100,
   band_id: 'developing_application_readiness',
   band_label: 'Developing application readiness',
+  band_statement: 'The bundle shows real evidence, and the largest gaps are still open.',
+  disclaimer: 'This measures submitted application evidence only. It does not predict hiring, interviews, or hidden ability.',
   strongest_area: {
     category_id: 'applied_build',
     label: 'Applied build',
@@ -91,7 +93,7 @@ export const REPORT_FIXTURE: ReadinessReport = {
   assessed_at: '2026-09-11T08:00:00Z',
   benchmark: {
     scope_statement: 'This report evaluates demonstrated application-readiness evidence.',
-    disclaimer: 'It does not predict hiring outcomes.',
+    disclaimer: 'This measures submitted application evidence only. It does not predict hiring, interviews, or hidden ability.',
   },
   score_summary: {
     final_score: 72,
@@ -99,6 +101,8 @@ export const REPORT_FIXTURE: ReadinessReport = {
     raw_total: 74,
     band_id: 'developing_application_readiness',
     band_label: 'Developing application readiness',
+    band_statement: PREVIEW_FIXTURE.band_statement,
+    open_points: 4,
     strongest_area: PREVIEW_FIXTURE.strongest_area,
     priority_gap: PREVIEW_FIXTURE.priority_gap,
     category_caps: [],
@@ -191,6 +195,18 @@ export const REPORT_FIXTURE: ReadinessReport = {
       evidence_note: 'A walkthrough exists, but the production constraints are thin.',
       flags: [],
     },
+    {
+      criterion_id: 'se-local-run',
+      criterion_label: 'Local run notes',
+      category_id: 'applied_build',
+      category_label: 'Applied build',
+      awarded_points: 1,
+      max_points: 2,
+      anchor: 'named_only',
+      anchor_label: 'Named only',
+      evidence_note: 'Only the criterion table quotes this line.',
+      flags: [],
+    },
   ],
 };
 
@@ -200,6 +216,8 @@ function priorityAction(order: number, instruction: string): PriorityActionRow {
     action_id: `action-${order}`,
     criterion_id: 'se-evidence-depth',
     criterion_label: 'Evidence depth',
+    evidence_lead:
+      'A walkthrough exists, but the production constraints are thin. 4 points are still open.',
     current_anchor: 'partial',
     current_anchor_label: 'Partial',
     target_anchor: 'strong',

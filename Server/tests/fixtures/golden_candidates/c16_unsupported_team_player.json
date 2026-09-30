@@ -371,7 +371,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Collaboration or teamwork scored from locked named_only evidence.",
+          "evidence_note": "Collaboration or teamwork is named only in the CV: \"team player\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [

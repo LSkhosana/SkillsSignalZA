@@ -3,6 +3,7 @@ import type { DeclaredLinkType, TrackId } from '@/lib/constants';
 export type CandidateLinkInput = {
   submitted_url: string;
   declared_type: DeclaredLinkType;
+  profile_handle?: string;
 };
 
 export type StrongestArea = {
@@ -37,6 +38,8 @@ export type ReadinessPreview = {
   score_max: 100;
   band_id: string;
   band_label: string;
+  band_statement: string;
+  disclaimer: string;
   strongest_area: StrongestArea;
   priority_gap: PriorityGap | null;
 };
@@ -110,6 +113,7 @@ export type PriorityActionRow = {
   action_id: string;
   criterion_id: string;
   criterion_label: string;
+  evidence_lead: string;
   current_anchor: string;
   current_anchor_label: string;
   target_anchor: string;
@@ -169,6 +173,8 @@ export type ReadinessReport = {
     raw_total: number;
     band_id: string;
     band_label: string;
+    band_statement: string;
+    open_points: number;
     strongest_area: StrongestArea;
     priority_gap: PriorityGap | null;
     category_caps: {

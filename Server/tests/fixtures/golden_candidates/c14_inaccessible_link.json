@@ -144,7 +144,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Programming language evidence scored from locked documented evidence.",
+          "evidence_note": "Programming language evidence is described in the CV: \"Implemented the service in Python.\".",
           "flags": [],
           "max_points": 12,
           "rule_ids": [
@@ -302,7 +302,7 @@
           "evidence_ids": [
             "ev-002"
           ],
-          "evidence_note": "Problem definition and track relevance scored from locked documented evidence.",
+          "evidence_note": "Problem definition and track relevance is described in the CV: \"Synthetic documented evidence for problem relevance.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -317,7 +317,7 @@
           "evidence_ids": [
             "ev-003"
           ],
-          "evidence_note": "Technical depth and ownership scored from locked documented evidence.",
+          "evidence_note": "Technical depth and ownership is described in the CV: \"Synthetic documented evidence for depth ownership.\".",
           "flags": [],
           "max_points": 4,
           "rule_ids": [
@@ -332,7 +332,7 @@
           "evidence_ids": [
             "ev-004"
           ],
-          "evidence_note": "Documentation and organisation scored from locked documented evidence.",
+          "evidence_note": "Documentation and organisation is described in the CV: \"Synthetic documented evidence for documentation.\".",
           "flags": [],
           "max_points": 3,
           "rule_ids": [
@@ -347,7 +347,7 @@
           "evidence_ids": [
             "ev-005"
           ],
-          "evidence_note": "Demonstrability or outcome scored from locked documented evidence.",
+          "evidence_note": "Demonstrability or outcome is described in the CV: \"Synthetic documented evidence for outcome.\".",
           "flags": [],
           "max_points": 2,
           "rule_ids": [

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import re
 import secrets
 import uuid
 from collections.abc import Awaitable, Callable
@@ -54,7 +55,9 @@ ALLOWED_DECLARED_TYPES = frozenset(
         "other_professional",
     }
 )
-LINK_OBJECT_KEYS = frozenset({"submitted_url", "declared_type"})
+LINK_OBJECT_KEYS = frozenset({"submitted_url", "declared_type", "profile_handle"})
+LINK_REQUIRED_KEYS = frozenset({"submitted_url", "declared_type"})
+_PROFILE_HANDLE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9-]{0,38}$")
 
 ERROR_INVALID_SUBMISSION = "INVALID_SUBMISSION"
 ERROR_UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE"
@@ -401,7 +404,7 @@ def _validated_links(links: object) -> list[dict[str, Any]]:
     for index, item in enumerate(links, start=1):
         if not isinstance(item, dict):
             raise SubmissionHalt(ERROR_INVALID_SUBMISSION)
-        if set(item) != LINK_OBJECT_KEYS:
+        if not LINK_REQUIRED_KEYS <= set(item) <= LINK_OBJECT_KEYS:
             raise SubmissionHalt(ERROR_INVALID_SUBMISSION)
         submitted_url = item.get("submitted_url")
         declared_type = item.get("declared_type")
@@ -409,13 +412,17 @@ def _validated_links(links: object) -> list[dict[str, Any]]:
             raise SubmissionHalt(ERROR_INVALID_SUBMISSION)
         if declared_type not in ALLOWED_DECLARED_TYPES:
             raise SubmissionHalt(ERROR_INVALID_SUBMISSION)
-        validated.append(
-            {
-                "link_id": f"link-{index:03d}",
-                "submitted_url": submitted_url.strip(),
-                "declared_type": declared_type,
-            }
-        )
+        stored = {
+            "link_id": f"link-{index:03d}",
+            "submitted_url": submitted_url.strip(),
+            "declared_type": declared_type,
+        }
+        if "profile_handle" in item:
+            handle = item.get("profile_handle")
+            if not isinstance(handle, str) or _PROFILE_HANDLE_RE.fullmatch(handle) is None:
+                raise SubmissionHalt(ERROR_INVALID_SUBMISSION)
+            stored["profile_handle"] = handle
+        validated.append(stored)
     return validated
 
 

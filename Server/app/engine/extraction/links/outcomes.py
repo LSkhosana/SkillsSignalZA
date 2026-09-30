@@ -113,6 +113,8 @@ def link_source_record(
     retrieved_at: str,
     access_status: str,
     content_hash: str | None,
+    ownership_status: str = "unclear",
+    notes: str = "Candidate-submitted link retrieved without classification or scoring.",
 ) -> dict[str, Any]:
     """Return a Contract 1.2 source record for one candidate-submitted link."""
     return {
@@ -120,12 +122,12 @@ def link_source_record(
         "source_type": declared_type,
         "submitted_by_candidate": True,
         "access_status": access_status,
-        "ownership_status": "unclear",
+        "ownership_status": ownership_status,
         "retrieved_at": retrieved_at,
         "content_hash": content_hash,
         "extractor_version": LINK_EXTRACTOR_VERSION,
         "locator": submitted_url,
-        "notes": "Candidate-submitted link retrieved without classification or scoring.",
+        "notes": notes,
     }
 
 
