@@ -51,6 +51,9 @@ def test_preview_matches_full_report_locked_fields() -> None:
     assert preview["final_score"] == report["score_summary"]["final_score"]
     assert preview["band_id"] == report["score_summary"]["band_id"]
     assert preview["band_label"] == report["score_summary"]["band_label"]
+    assert preview["band_statement"] == report["score_summary"]["band_statement"]
+    assert preview["disclaimer"] == report["benchmark"]["disclaimer"]
+    assert preview["disclaimer"] == report["benchmark"]["disclaimer"]
     assert preview["strongest_area"] == report["score_summary"]["strongest_area"]
     assert preview["priority_gap"] == report["score_summary"]["priority_gap"]
     assert (SCHEMA_DIR / "readiness_preview.schema.json").is_file()

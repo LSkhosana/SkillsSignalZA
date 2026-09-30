@@ -1,9 +1,6 @@
-import { Colors, type ColorSchemeName } from '@/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors } from '@/theme';
 
+/** The merged landing palette is the launch theme, including when the OS is in dark mode. */
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme: ColorSchemeName = scheme === 'dark' ? 'dark' : 'light';
-
-  return Colors[theme];
+  return Colors.light;
 }

@@ -52,6 +52,8 @@
         "raw_total",
         "band_id",
         "band_label",
+        "band_statement",
+        "open_points",
         "strongest_area",
         "priority_gap",
         "category_caps",
@@ -72,6 +74,8 @@
           ]
         },
         "band_label": { "type": "string", "minLength": 1 },
+        "band_statement": { "type": "string", "minLength": 1 },
+        "open_points": { "type": "integer", "minimum": 0 },
         "strongest_area": { "$ref": "#/$defs/strongest_area" },
         "priority_gap": {
           "type": ["object", "null"],
@@ -266,6 +270,7 @@
         "action_id",
         "criterion_id",
         "criterion_label",
+        "evidence_lead",
         "current_anchor",
         "current_anchor_label",
         "target_anchor",
@@ -280,6 +285,7 @@
         "action_id": { "type": "string", "minLength": 1 },
         "criterion_id": { "type": "string", "minLength": 1 },
         "criterion_label": { "type": "string", "minLength": 1 },
+        "evidence_lead": { "type": "string", "minLength": 1 },
         "current_anchor": { "type": "string", "minLength": 1 },
         "current_anchor_label": { "type": "string", "minLength": 1 },
         "target_anchor": { "type": "string", "minLength": 1 },

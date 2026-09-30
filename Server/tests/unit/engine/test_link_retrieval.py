@@ -696,3 +696,120 @@ def test_redirect_without_location_is_unsafe(
     outcome = _retrieve()
     _assert_safe(outcome)
     assert outcome["error_code"] == ERROR_UNSAFE_REDIRECT
+
+
+def _json_hop(url: str, body: bytes) -> HopResponse:
+    return HopResponse(200, {"content-type": "application/json"}, body, url)
+
+
+def _github_dispatch(readme: bytes) -> Any:
+    def send(hop: PinnedHop, accept: str | None = None) -> HopResponse:
+        url = hop.url
+        if url.endswith("/languages"):
+            return _json_hop(url, b'{"Python": 12}')
+        if "/commits?" in url:
+            return _json_hop(url, b"[{},{}]")
+        if "raw.githubusercontent.com" in url and url.endswith("/README.md"):
+            return HopResponse(200, {"content-type": "text/plain"}, readme, url)
+        if url == "https://api.github.com/repos/ada/workflow":
+            return _json_hop(url, b'{"owner":{"login":"Ada"},"default_branch":"main"}')
+        raise AssertionError(url)
+
+    return send
+
+
+def test_matching_handle_attributes_public_github_readme(
+    monkeypatch: pytest.MonkeyPatch,
+    allow_safe_dns: None,
+) -> None:
+    readme = b"Built a Flask API in Python with PostgreSQL and pytest.\n"
+    monkeypatch.setattr(
+        "app.engine.extraction.links.http.send_pinned_get",
+        _github_dispatch(readme),
+    )
+    outcome = _retrieve(
+        submitted_url="https://github.com/ada/workflow",
+        declared_type="repository",
+        profile_handle="ada",
+    )
+    _assert_safe(outcome)
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["source_record"]["ownership_status"] == "attributed"
+    texts = [block["text"] for block in outcome["content_blocks"]]
+    assert any("Flask API" in text for text in texts)
+    assert any(text.startswith("Repository owner Ada.") for text in texts)
+    assert "Languages detected: Python." in texts[-1]
+    assert "Recent commit sample: 2." in texts[-1]
+
+
+def test_handle_mismatch_keeps_readme_and_stays_unclear(
+    monkeypatch: pytest.MonkeyPatch,
+    allow_safe_dns: None,
+) -> None:
+    monkeypatch.setattr(
+        "app.engine.extraction.links.http.send_pinned_get",
+        _github_dispatch(b"Used Git to track the service.\n"),
+    )
+    outcome = _retrieve(
+        submitted_url="https://github.com/ada/workflow",
+        declared_type="repository",
+        profile_handle="someone-else",
+    )
+    _assert_safe(outcome)
+    assert outcome["source_record"]["ownership_status"] == "unclear"
+    assert any("Used Git" in block["text"] for block in outcome["content_blocks"])
+
+
+def test_matching_handle_attributes_public_gitlab_readme(
+    monkeypatch: pytest.MonkeyPatch,
+    allow_safe_dns: None,
+) -> None:
+    def send(hop: PinnedHop, accept: str | None = None) -> HopResponse:
+        url = hop.url
+        if url.endswith("/languages"):
+            return _json_hop(url, b'{"Python": 4}')
+        if "/repository/commits?" in url:
+            return _json_hop(url, b"[{}]")
+        if url.endswith("/README.md"):
+            return HopResponse(
+                200,
+                {"content-type": "text/plain"},
+                b"Used pytest in Python.\n",
+                url,
+            )
+        if "/api/v4/projects/" in url:
+            return _json_hop(url, b'{"owner":{"username":"Ada"},"default_branch":"main"}')
+        raise AssertionError(url)
+
+    monkeypatch.setattr("app.engine.extraction.links.http.send_pinned_get", send)
+    outcome = _retrieve(
+        submitted_url="https://gitlab.com/ada/workflow",
+        declared_type="repository",
+        profile_handle="ada",
+    )
+    _assert_safe(outcome)
+    assert outcome["source_record"]["ownership_status"] == "attributed"
+    texts = [block["text"] for block in outcome["content_blocks"]]
+    assert any("pytest" in text for text in texts)
+    assert any(text.startswith("Repository owner Ada.") for text in texts)
+
+
+def test_repository_api_failure_falls_back_to_page_text(
+    monkeypatch: pytest.MonkeyPatch,
+    allow_safe_dns: None,
+) -> None:
+    def send(hop: PinnedHop, accept: str | None = None) -> HopResponse:
+        if "api.github.com" in hop.url or "raw.githubusercontent.com" in hop.url:
+            return HopResponse(404, {}, b"", hop.url)
+        return _ok_html(hop.url)
+
+    monkeypatch.setattr("app.engine.extraction.links.http.send_pinned_get", send)
+    outcome = _retrieve(
+        submitted_url="https://github.com/ada/missing",
+        declared_type="repository",
+        profile_handle="ada",
+    )
+    _assert_safe(outcome)
+    assert outcome["state"] == "COMPLETED"
+    assert outcome["source_record"]["ownership_status"] == "unclear"
+    assert outcome["content_blocks"][0]["text"] == "Project Title"

@@ -1,44 +1,30 @@
 import { Link } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { ScreenShell } from '@/components/screen-shell';
-import { useTheme } from '@/hooks/use-theme';
-import { getHealth } from '@/services/api';
+import { Button } from '@/components/system/button';
+import { maskAccountLabel } from '@/components/system/account-menu';
+import { Routes } from '@/lib/routes';
+import { useAuth } from '@/services/auth/provider';
+import { FontFamily, Palette } from '@/theme/tokens';
 
 export default function DashboardScreen() {
-  const theme = useTheme();
-  const [healthMessage, setHealthMessage] = useState('Checking API health…');
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void getHealth().then((result) => {
-      if (cancelled) {
-        return;
-      }
-
-      if (result.ok) {
-        setHealthMessage(`API health: ${result.data.status}`);
-        return;
-      }
-
-      setHealthMessage(`API unavailable: ${result.error.message}`);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const auth = useAuth();
 
   return (
-    <ScreenShell title="Dashboard">
-      <Text style={[styles.body, { color: theme.textSecondary }]}>
-        Signed-in product screens will live in this route group. Scoring stays in Server/.
+    <ScreenShell
+      title="Account"
+      subtitle="Reports you own stay with this account. They are not stored in the original browser session."
+    >
+      <Text style={styles.body}>
+        {auth.status === 'signed_in'
+          ? `Signed in as ${maskAccountLabel(auth.user?.email)}.`
+          : 'You are signed out.'}
       </Text>
-      <Text style={[styles.body, { color: theme.textSecondary }]}>{healthMessage}</Text>
-      <Link href="/" style={[styles.link, { color: theme.accent }]}>
-        Back to welcome
+      <Button label="My Reports" href={Routes.reports} testID="account-my-reports" />
+      <Button label="Start new assessment" href={Routes.assessmentNew} variant="secondary" />
+      <Link href="/" style={styles.link}>
+        Back to start
       </Link>
     </ScreenShell>
   );
@@ -46,10 +32,14 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   body: {
+    color: Palette.muted,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     lineHeight: 24,
   },
   link: {
+    color: Palette.green,
+    fontFamily: FontFamily.sans,
     fontSize: 16,
     fontWeight: '600',
   },

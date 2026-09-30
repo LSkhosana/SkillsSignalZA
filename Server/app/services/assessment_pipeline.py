@@ -162,12 +162,14 @@ def _run(
         )
     retrieved: list[dict[str, Any]] = []
     for link in links:
+        handle = link.get("profile_handle")
         retrieved.append(
             retrieve_link(
                 link["submitted_url"],
                 link_id=link["link_id"],
                 declared_type=link["declared_type"],
                 retrieved_at=str(assessed_at),
+                profile_handle=handle if isinstance(handle, str) else "",
             )
         )
     stages.append("retrieve_links")

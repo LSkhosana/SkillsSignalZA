@@ -68,14 +68,17 @@ class RetrievalError(Exception):
         self.error_code = error_code
 
 
-def build_httpx_client(transport: httpx.BaseTransport | None = None) -> httpx.Client:
+def build_httpx_client(
+    transport: httpx.BaseTransport | None = None,
+    headers: dict[str, str] | None = None,
+) -> httpx.Client:
     """Return the production client with proxy inheritance disabled."""
     return httpx.Client(
         transport=transport,
         trust_env=False,
         follow_redirects=False,
         timeout=httpx.Timeout(READ_TIMEOUT_SECONDS, connect=CONNECT_TIMEOUT_SECONDS),
-        headers=_FIXED_HEADERS,
+        headers=headers or _FIXED_HEADERS,
         verify=True,
         cert=None,
         proxy=None,
@@ -146,13 +149,17 @@ def validate_hop(url: str, *, previous_scheme: str | None = None) -> PinnedHop:
     )
 
 
-def retrieve_validated_resource(submitted_normalized_url: str) -> HopResponse:
+def retrieve_validated_resource(
+    submitted_normalized_url: str,
+    *,
+    accept: str | None = None,
+) -> HopResponse:
     """Follow redirects only after revalidating every hop."""
     current = submitted_normalized_url
     previous_scheme: str | None = None
     for redirect_count in range(MAX_REDIRECTS + 1):
         hop = validate_hop(current, previous_scheme=previous_scheme)
-        response = send_pinned_get(hop)
+        response = send_pinned_get(hop) if accept is None else send_pinned_get(hop, accept=accept)
         if response.status_code in _REDIRECT_STATUSES:
             if redirect_count >= MAX_REDIRECTS:
                 raise RetrievalError(ERROR_REDIRECT_LIMIT_EXCEEDED)
@@ -166,11 +173,14 @@ def retrieve_validated_resource(submitted_normalized_url: str) -> HopResponse:
     raise RetrievalError(ERROR_REDIRECT_LIMIT_EXCEEDED)
 
 
-def send_pinned_get(hop: PinnedHop) -> HopResponse:
+def send_pinned_get(hop: PinnedHop, *, accept: str | None = None) -> HopResponse:
     """GET one hop by connecting only to the validated address."""
+    headers = dict(_FIXED_HEADERS)
+    if accept is not None:
+        headers["Accept"] = accept
     transport = PinnedIPTransport(hop.pinned_ip, hop.hostname)
     try:
-        with build_httpx_client(transport=transport) as client:
+        with build_httpx_client(transport=transport, headers=headers) as client:
             with client.stream("GET", hop.url) as response:
                 headers = {key.lower(): value for key, value in response.headers.items()}
                 if response.status_code in _REDIRECT_STATUSES or response.status_code >= 400:

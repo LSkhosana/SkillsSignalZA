@@ -17,7 +17,7 @@ from app.engine.reporting.outcomes import (
     RUBRIC_VERSION,
 )
 
-APPROVED_REPORT_COPY_SHA256 = "bbd74d7116facb863e917fc875e0cae28d9de492ca850de9b38b42141a9d362a"
+APPROVED_REPORT_COPY_SHA256 = "0fbedfd64e0429cc3c095c5a2deb99d046ac0501ad66ca261c92e98c5d590ec0"
 FORBIDDEN_COPY = (
     "hiring guarantee",
     "guaranteed job",

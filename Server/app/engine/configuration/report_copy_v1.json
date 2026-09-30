@@ -32,6 +32,12 @@
   },
   "benchmark": {
     "scope_statement": "This result measures how strongly the submitted application bundle communicates entry-level readiness against the current SkillSignalZA Rubric V2 benchmark for Software Engineering and Data Analytics.",
-    "disclaimer": "The result measures submitted application evidence only. It does not predict hiring outcomes, employment probability, interview performance, or hidden ability."
+    "disclaimer": "This measures submitted application evidence only. It does not predict hiring, interviews, or hidden ability."
+  },
+  "band_statements": {
+    "limited_application_evidence": "The submitted bundle shows little evidence a reviewer can check.",
+    "foundation_visible": "Some foundations are visible, and several claims still lack evidence a reviewer can check.",
+    "developing_application_readiness": "The bundle shows real evidence, and the largest gaps are still open.",
+    "strong_application_evidence": "The bundle shows checkable evidence across the areas this rubric treats as entry-level readiness."
   }
 }

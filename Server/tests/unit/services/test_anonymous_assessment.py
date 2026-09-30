@@ -18,6 +18,7 @@ from app.repositories.records import (
     CheckoutBeginResult,
     ClaimWriteResult,
     FulfillmentResult,
+    OwnedAssessmentSummary,
     PaymentRecord,
     PersistenceBundle,
     PersistWriteResult,
@@ -118,6 +119,7 @@ class RecordingRepository:
         self.begin_checkout_error: Exception | None = None
         self.fulfill_error: Exception | None = None
         self.mark_initialized_error: Exception | None = None
+        self.list_summaries_error: Exception | None = None
 
     async def persist_bundle(self, bundle: PersistenceBundle) -> PersistWriteResult:
         if self.persist_error is not None:
@@ -146,6 +148,69 @@ class RecordingRepository:
         if record is None or record.latest_run_id is None:
             return None
         return self.runs.get(record.latest_run_id)
+
+    async def list_owned_assessment_summaries(
+        self,
+        *,
+        owner_user_id: str,
+        limit: int,
+        offset: int,
+    ) -> list[OwnedAssessmentSummary]:
+        if self.list_summaries_error is not None:
+            raise self.list_summaries_error
+        owner = owner_user_id.strip()
+        rows: list[OwnedAssessmentSummary] = []
+        for record in self.assessments.values():
+            if record.owner_user_id != owner:
+                continue
+            run = self.runs.get(record.latest_run_id) if record.latest_run_id else None
+            result = run.assessment_result if run is not None else None
+            score = None
+            band = None
+            if run is not None and run.state == "COMPLETED" and isinstance(result, dict):
+                raw_score = result.get("final_score")
+                if (
+                    isinstance(raw_score, int)
+                    and not isinstance(raw_score, bool)
+                    and 0 <= raw_score <= 100
+                ):
+                    score = raw_score
+                raw_band = result.get("band")
+                if isinstance(raw_band, str):
+                    band = raw_band
+            unlocked_at = None
+            if record.access_state == "UNLOCKED":
+                paid = [
+                    payment.paid_at
+                    for payment in self.payments.values()
+                    if payment.assessment_id == record.assessment_id
+                    and payment.owner_user_id == owner
+                    and payment.status == "SUCCEEDED"
+                    and payment.paid_at is not None
+                ]
+                if paid:
+                    unlocked_at = max(paid)
+            assessed_at = run.assessed_at if run is not None else record.created_at
+            rows.append(
+                OwnedAssessmentSummary(
+                    assessment_id=record.assessment_id,
+                    track=record.track,
+                    access_state=record.access_state,
+                    assessed_at=assessed_at,
+                    final_score=score,
+                    band=band,
+                    unlocked_at=unlocked_at,
+                )
+            )
+        rows.sort(
+            key=lambda item: (
+                item.assessed_at or datetime.min.replace(tzinfo=UTC),
+                item.assessment_id,
+            ),
+            reverse=True,
+        )
+        start = max(offset, 0)
+        return rows[start : start + max(limit, 0)]
 
     async def claim_assessment(
         self,
@@ -720,6 +785,46 @@ def test_links_receive_server_ids_and_preserve_url_and_type() -> None:
             "declared_type": "portfolio",
         },
     ]
+
+
+def test_repository_profile_handle_is_stored_when_it_matches() -> None:
+    repository = RecordingRepository()
+    outcome = _submit(
+        repository=repository,
+        links=[
+            {
+                "submitted_url": "https://github.com/ada/workflow",
+                "declared_type": "repository",
+                "profile_handle": "ada",
+            }
+        ],
+        retrieve_link=_failed_retrieve,
+    )
+    assert outcome["state"] == "COMPLETED"
+    assert repository.bundles[0].assessment_input["links"] == [
+        {
+            "link_id": "link-001",
+            "submitted_url": "https://github.com/ada/workflow",
+            "declared_type": "repository",
+            "profile_handle": "ada",
+        }
+    ]
+
+
+def test_invalid_profile_handle_is_rejected() -> None:
+    spy = PipelineSpy()
+    outcome = _submit(
+        links=[
+            {
+                "submitted_url": "https://github.com/ada/workflow",
+                "declared_type": "repository",
+                "profile_handle": "not a handle",
+            }
+        ],
+        run_pipeline=spy,
+    )
+    assert outcome["error_code"] == ERROR_INVALID_SUBMISSION
+    assert spy.calls == []
 
 
 def test_more_than_five_links_rejected_before_pipeline_and_storage() -> None:

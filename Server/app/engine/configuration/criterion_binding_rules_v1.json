@@ -114,7 +114,7 @@
         },
         {
           "criterion_id": "se.tools.dev_environment",
-          "subjects": []
+          "subjects": ["command_line"]
         },
         {
           "criterion_id": "se.tools.repository_platform",

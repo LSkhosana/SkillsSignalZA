@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any
 
 from app.engine.extraction.links.html import extract_visible_blocks
+from app.engine.extraction.links.repository import parse_public_repository, retrieve_public_repository
 from app.engine.extraction.links.http import (
     HopResponse,
     RetrievalError,
@@ -43,6 +44,7 @@ def retrieve_candidate_link(
     link_id: str,
     declared_type: str,
     retrieved_at: str,
+    profile_handle: str = "",
 ) -> dict[str, Any]:
     """Retrieve and freeze one candidate-submitted web link.
 
@@ -72,6 +74,20 @@ def retrieve_candidate_link(
         except (ValueError, TypeError):
             return _failure(ERROR_MALFORMED_URL, link=link, retrieved_at=retrieved_at)
         link["normalized_url"] = normalized
+        if safe_type == "repository":
+            repository = parse_public_repository(normalized)
+            if repository is not None:
+                enriched = retrieve_public_repository(
+                    repository,
+                    link_id=safe_link_id,
+                    declared_type=safe_type,
+                    submitted_url=original_url,
+                    normalized_url=normalized,
+                    retrieved_at=retrieved_at if isinstance(retrieved_at, str) else "",
+                    profile_handle=profile_handle if isinstance(profile_handle, str) else "",
+                )
+                if enriched is not None:
+                    return enriched
         response = retrieve_validated_resource(normalized)
         return _complete_from_response(
             response,

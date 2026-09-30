@@ -27,7 +27,7 @@
   "fixtures": [
     {
       "acceptance_requirement": 1,
-      "canonical_sha256": "cc0290351afa7aacddd5a7c8b583a96ded6b5c4eb3920c746d61dedf89260be4",
+      "canonical_sha256": "94bc5bb09464b37498299a5283e4e59660ef4bc74add14c75e4348e470a7bbff",
       "filename": "c01_se_full_score.json",
       "fixture_id": "c01.se.full_score",
       "fixture_kind": "completed_assessment",
@@ -35,7 +35,7 @@
     },
     {
       "acceptance_requirement": 2,
-      "canonical_sha256": "eb31f4b0666bf1a62bf9f8eda23c87493082117b5c9998d5ec8dd938ba6f47d5",
+      "canonical_sha256": "9cfebd71e7dac3a088d18d779337ebe5dec79a3ff368b9884f47676e8ca4f281",
       "filename": "c02_da_full_score.json",
       "fixture_id": "c02.da.full_score",
       "fixture_kind": "completed_assessment",
@@ -43,7 +43,7 @@
     },
     {
       "acceptance_requirement": 3,
-      "canonical_sha256": "df045b3b525d74416b6c320b1b227ed30713127e04b38012f10bb82269ba67c9",
+      "canonical_sha256": "6affbe347acfd267d4c72844022188805ca99a14e84a89d9df490c2f4140f68b",
       "filename": "c03_se_no_language_cap.json",
       "fixture_id": "c03.se.no_language_cap",
       "fixture_kind": "completed_assessment",
@@ -51,7 +51,7 @@
     },
     {
       "acceptance_requirement": 4,
-      "canonical_sha256": "268685431f2d57f13437a7fae0dd1984f870099865179318580496aa6947a99c",
+      "canonical_sha256": "86ee7d388a35b7924c19fbd8d5e4444e568c985f5965ecbd7eec69df3486e5c1",
       "filename": "c04_se_named_language.json",
       "fixture_id": "c04.se.named_language",
       "fixture_kind": "completed_assessment",
@@ -59,7 +59,7 @@
     },
     {
       "acceptance_requirement": 5,
-      "canonical_sha256": "b459e224dc4023bcf7317d928d28299ae35b21e45605c1ff1c270712850a15f8",
+      "canonical_sha256": "5ff0cc549538fed31bc1a63f792270b2e93b46e89699e6fcc00f9fb1b4f6c40c",
       "filename": "c05_se_framework_only.json",
       "fixture_id": "c05.se.framework_only",
       "fixture_kind": "completed_assessment",
@@ -67,7 +67,7 @@
     },
     {
       "acceptance_requirement": 6,
-      "canonical_sha256": "7e50c19f28c11284614ad7f85767f8cbb92589025e26d53778a61957f9bbcddf",
+      "canonical_sha256": "de8c3e38ebf4097bdc6211caac697e3ccdd5feb8131c53ad9efc95733a0dd8fa",
       "filename": "c06_se_cv_only_project.json",
       "fixture_id": "c06.se.cv_only_project",
       "fixture_kind": "completed_assessment",
@@ -75,7 +75,7 @@
     },
     {
       "acceptance_requirement": 7,
-      "canonical_sha256": "2ec23708946ece8a2575c12729632c446df9e0c9b713ab1b716f212b85d94276",
+      "canonical_sha256": "97014d51647f17c5e1d59705f50a844c749ff858f8e54793d4a572af7ff9e683",
       "filename": "c07_da_no_sql_cap.json",
       "fixture_id": "c07.da.no_sql_cap",
       "fixture_kind": "completed_assessment",
@@ -83,7 +83,7 @@
     },
     {
       "acceptance_requirement": 8,
-      "canonical_sha256": "0888f55e149a9af407d456d77ad1474674bec360e70dd5999bdedd1e4dd57316",
+      "canonical_sha256": "b66a6e7da7a8163e9b57769e0a8b0f4a68e74e022a1f650ed78b4145bb678038",
       "filename": "c08_da_named_sql.json",
       "fixture_id": "c08.da.named_sql",
       "fixture_kind": "completed_assessment",
@@ -91,7 +91,7 @@
     },
     {
       "acceptance_requirement": 9,
-      "canonical_sha256": "56210901d78660497a5cddb6e3d3872aa2ba4b7a10fcfed75c39414e45589c1b",
+      "canonical_sha256": "5d2d0c69ffe014c22afb0b9fef2f06199bc360136ef14042c7e4e2e5eb113af0",
       "filename": "c09_da_database_only.json",
       "fixture_id": "c09.da.database_only",
       "fixture_kind": "completed_assessment",
@@ -99,7 +99,7 @@
     },
     {
       "acceptance_requirement": 10,
-      "canonical_sha256": "5e64b85db4d0d35599adc0dc0e4d31efdefa092e007453015466e2e1d652f02b",
+      "canonical_sha256": "d23eeb2149acbde4efa61b7281db585f2ae464f6af1281e75c55704bf22e71f9",
       "filename": "c10_da_cv_only_project.json",
       "fixture_id": "c10.da.cv_only_project",
       "fixture_kind": "completed_assessment",
@@ -107,7 +107,7 @@
     },
     {
       "acceptance_requirement": 11,
-      "canonical_sha256": "efe5bd80967e90bea26ce1ad62d43e63fc911e8402de609666e01c2a6c75bbbc",
+      "canonical_sha256": "3313551904cff2d0ac8ce9525c34f2c7af6739e6d14cde5e83acd0a375a02ec9",
       "filename": "c11_da_google_sheets_ceiling.json",
       "fixture_id": "c11.da.google_sheets_ceiling",
       "fixture_kind": "completed_assessment",
@@ -115,7 +115,7 @@
     },
     {
       "acceptance_requirement": 12,
-      "canonical_sha256": "8a593b9868ac8689552886f7b0a3f81b21c21836bb45ac21e00376cade750e83",
+      "canonical_sha256": "2cf922a42e67f9512583be4e089b08d7307d7c8448c50a57b8df4ffc283761b5",
       "filename": "c12_da_context_free_dashboard.json",
       "fixture_id": "c12.da.context_free_dashboard",
       "fixture_kind": "completed_assessment",
@@ -123,7 +123,7 @@
     },
     {
       "acceptance_requirement": 13,
-      "canonical_sha256": "1560163eb3fce6cc7c3ef6b9676d6686a1759c51ded4b1fc18adb20a240a7d32",
+      "canonical_sha256": "3fae1fdd8926e968aa880ea3b19926f6007b7374137e8d64771321ac39561818",
       "filename": "c13_da_power_bi_alignment.json",
       "fixture_id": "c13.da.power_bi_alignment",
       "fixture_kind": "completed_assessment",
@@ -131,7 +131,7 @@
     },
     {
       "acceptance_requirement": 14,
-      "canonical_sha256": "dcbb94a876863b3f8c04f46ff3dbeb715bb6993ebbdae17c5c289f1575f4951e",
+      "canonical_sha256": "8e22eba29b872c1271db9bab9cf48d250012a6abed142ef04f9a2e8e79155378",
       "filename": "c14_inaccessible_link.json",
       "fixture_id": "c14.se.inaccessible_link",
       "fixture_kind": "completed_assessment",
@@ -147,7 +147,7 @@
     },
     {
       "acceptance_requirement": 16,
-      "canonical_sha256": "2c8c6e1cf2181ed400e36cc3652afe7c6b5effac577294c0047e2cc42bcf598a",
+      "canonical_sha256": "26b845ad8034ace8a7d84afed3258615a4c647328942977645324874334cab75",
       "filename": "c16_unsupported_team_player.json",
       "fixture_id": "c16.se.unsupported_team_player",
       "fixture_kind": "completed_assessment",
@@ -155,7 +155,7 @@
     },
     {
       "acceptance_requirement": 17,
-      "canonical_sha256": "d68311b30e62380c6aa5a8fb405bb10c4a4b65a5474763aa1fabed4c73d7bafe",
+      "canonical_sha256": "a54a94dca6bb7206f42c006d2c1f2942296987fd5f1945b73403e634d4cb0e79",
       "filename": "c17_qualification_isolation.json",
       "fixture_id": "c17.se.qualification_isolation",
       "fixture_kind": "completed_assessment",
@@ -163,7 +163,7 @@
     },
     {
       "acceptance_requirement": 18,
-      "canonical_sha256": "a99c1cf7785e2d526aea182f3c1ea36621f357ccd82ce580565693884ad44b6b",
+      "canonical_sha256": "d3c4366b12d141a69582f1b07b95f461e9890aa7bc75af1705fb277c2549b451",
       "filename": "c18_duplicate_claim_normalization.json",
       "fixture_id": "c18.da.duplicate_claim_normalization",
       "fixture_kind": "normalization_invariant",
@@ -179,7 +179,7 @@
     },
     {
       "acceptance_requirement": 20,
-      "canonical_sha256": "8060e253db2be6fd8c2eb967b33ea1296fdea12240afbb33f62fc9c359fcd037",
+      "canonical_sha256": "c2276f99352a00d8a0fdc6055c8d8c2816b2d045ce3c29750e899c321511d8ad",
       "filename": "c20_determinism.json",
       "fixture_id": "c20.se.determinism",
       "fixture_kind": "determinism_invariant",
@@ -195,7 +195,7 @@
     },
     {
       "acceptance_requirement": 22,
-      "canonical_sha256": "f9aac5600b1160866685c9bb789d6e4b97509c2abb348200a37256024a727cc7",
+      "canonical_sha256": "bc6a2f299b1c186324108a8cfd91085c21381828c6b0d791f043d2d11dfb509c",
       "filename": "c22_secret_exclusion.json",
       "fixture_id": "c22.da.secret_exclusion",
       "fixture_kind": "security_invariant",

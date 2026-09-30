@@ -163,7 +163,7 @@
           "evidence_ids": [
             "ev-001"
           ],
-          "evidence_note": "Power BI market-alignment point scored from locked named_only evidence.",
+          "evidence_note": "Power BI market-alignment point is named only in the CV: \"Power BI\".",
           "flags": [],
           "max_points": 1,
           "rule_ids": [

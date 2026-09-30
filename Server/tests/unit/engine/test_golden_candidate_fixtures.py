@@ -25,7 +25,7 @@ FIXTURE_DIR = Path(__file__).resolve().parents[2] / "fixtures" / "golden_candida
 SCHEMA_DIR = Path(__file__).resolve().parents[3] / "app" / "schemas"
 FIXTURE_SCHEMA_PATH = FIXTURE_DIR / "golden_fixture.schema.json"
 MANIFEST_PATH = FIXTURE_DIR / "manifest.json"
-LOCKED_MANIFEST_SHA256 = "3b254c00f87e774cb74f04f1abc64479504d17f6ec8a126be6f106a2809bacd9"
+LOCKED_MANIFEST_SHA256 = "e75d4fd8720a7181d9819a329dc72263d953b7b2a8d66cd67870e177b6eabc3e"
 LOCKED_CONTRACT_VERSION = "1.2.0"
 LOCKED_RUBRIC_VERSION = "V2"
 LOCKED_PACKAGE_VERSION = "1.0.1"
@@ -80,61 +80,61 @@ OUTCOME_FIELD_NAMES = frozenset(
     }
 )
 LOCKED_PACKAGE_C_EXPECTED_SHA256 = {
-    "c01_se_full_score.json": ("b1cf3aff623e006693ba1531d26c53a26ab726895b483c9031ca3dbf1a05fed5"),
-    "c02_da_full_score.json": ("76b55d3bb7bd3fda64d0e32a88d04cb5904f2b5dbc2183e5562771af6600ae59"),
+    "c01_se_full_score.json": ("ff6d77b25140a885a521313d3ccca18287b2aa72fc7104a713fb3fe79c381083"),
+    "c02_da_full_score.json": ("d7356003e77251920842a6b97658050e3fcf332533edaee0cfdb20836b4ea01f"),
     "c03_se_no_language_cap.json": (
-        "9e86839e38a2909f51b825927f4bcf36da0143d0a308a33eac2554161e512edb"
+        "6c0285be748e03689357f24479dff30b41ea65986b70541775c2c05becc76d3d"
     ),
     "c04_se_named_language.json": (
-        "00ab60da15d3b3dfd4bafe016eebe083009820dce1bb4820511fb083886e34e5"
+        "4faac306d48b7d7282c8ee12bde9b4757d3233610fc53ff3d578953d252d6a5e"
     ),
     "c05_se_framework_only.json": (
-        "cb1fa11143527da4a7d602107a765386c3876ce1260e17024ebc1490bf3f3c93"
+        "71023e225d922b5f577d5bda715cc478a48dfd34e4c6d1fff3d255b87d089dcd"
     ),
     "c06_se_cv_only_project.json": (
-        "ade923744f401bfb9ebd3c9e7435ac97483621c818858882de5ba088ada347cc"
+        "2e692b8ecd22833c7fdaf22a23c4b83f6684a10c18444c3fdcf872691b56d1d8"
     ),
-    "c07_da_no_sql_cap.json": ("9f3f52141ca9b148b5d2c9cff049b72dcb39b369fb8043a3c99c4e5d277f6f11"),
-    "c08_da_named_sql.json": ("02d8ee0f16756ea3c4c91508e9b2127737f4a859bfbca3d0d27df8e5f594c215"),
+    "c07_da_no_sql_cap.json": ("7ba4b8f4fa9181448e4897f097fdab4871c639a983f2149e1d21663117886225"),
+    "c08_da_named_sql.json": ("2ac06884ba12028cf737fbfa47c4042ebadbb1d3adcbf411ed6814d2328c9c47"),
     "c09_da_database_only.json": (
-        "95f4b37e5d0225fe587972ef248545bb585f6aab23e5dd31791db096f8f3174e"
+        "584fac77fef3069a05941085d12f400c67bb2c84ad852446de46ddf386a68a7f"
     ),
     "c10_da_cv_only_project.json": (
-        "b7b71b8fe7cfb40bf119110be215a3f775c0d8afb0c134571d3c51ca7c94cde2"
+        "1e3bca7b2c46b1cff9de261bb06f8d79c9565c2ce5c667f4ecfa990085e51463"
     ),
     "c11_da_google_sheets_ceiling.json": (
-        "2d82424c847a49e25cb26bbf5735a8cf09e7753aaef9aa77788f77e9a0f83096"
+        "33ba9d38a457f7d90a050249051fcf8362fbdeaaaf06040dcaa44265ea7973fc"
     ),
     "c12_da_context_free_dashboard.json": (
-        "78421b4506649bb742b0457a3fd7a7f3548affcbac2eac873838ea693d00befa"
+        "c94e113147d4ad8bb46de2a2e4539a688e5de8a2b8a930b2d30f0aa3573ea3e6"
     ),
     "c13_da_power_bi_alignment.json": (
-        "1a34a277024998f4932753c8e38bb124c7ea6c5bed8573b1585e162873ab457f"
+        "1fa4d86201dd09b9383b18b37e66c3d95840ca67c63b4f0ffefd70aac9cb5ccd"
     ),
     "c14_inaccessible_link.json": (
-        "9f27623a9ebb3affa2e3289819ad2d1dc39d055a38569dfcbcf3a45767c495f4"
+        "990501b971ef75456f271d2f0d5e777c555ce31bf8a28842fb8cad436a874fa5"
     ),
     "c15_conflicting_sources_review.json": (
         "49073f286a51793d5e612d0216116936179f0a0a749bcc67bd9d953bae1b2a45"
     ),
     "c16_unsupported_team_player.json": (
-        "43e3f892d473fe793bac0a6ac8179bb663868ed6cc250650b3801d70263a1fce"
+        "8214cd362e727bf7146faa243dac44224696ff944071420c8fd973d27455365a"
     ),
     "c17_qualification_isolation.json": (
-        "988a1c7161087c9692ac8b54e9deab16a152b2120284df1090108218c47916dd"
+        "87746cada769724987bf52c019a513e6fae510ae97e386fd5d84560df4f2c3c2"
     ),
     "c18_duplicate_claim_normalization.json": (
-        "70649f3b7c7cdfced7d15f29cfc9756683297d80cc5634e9e79aa4ddd27c4a23"
+        "14eee29980965a4178c6fdfe422d70a15fdf8d0d554f9eaec61ed2bdd663fdb3"
     ),
     "c19_band_boundaries.json": (
         "9bcdd0144df942c13cb2da61406a56dda9488e5c3792187e128bcc2d4bf0554c"
     ),
-    "c20_determinism.json": ("37d07aa74f108ea2822c61a10643b1ac2ce0453dd27a18b9e013faab15ead865"),
+    "c20_determinism.json": ("05191273d72bf52a334a03e71fdc7668dd6d58ecfc4bba607ffff04789d50ae8"),
     "c21_technical_failure_isolation.json": (
         "da62e682bc19198ae3145868d7016591cb343184c081eb7e03a4f546a8c26364"
     ),
     "c22_secret_exclusion.json": (
-        "8715395a05c7df1856926097cc4e65942c7e6fd5ced03740b03a8613d467f206"
+        "bc21253a88f41450388ee90d3831ff394ab68207d43d5beb2f08dd74ec6a07f3"
     ),
 }
 SECRET_SENTINEL = "SKILLSIGNALZA_GOLDEN_SECRET_DO_NOT_LEAK_7f9c2e"

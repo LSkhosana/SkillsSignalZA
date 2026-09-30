@@ -16,6 +16,8 @@
     "score_max",
     "band_id",
     "band_label",
+    "band_statement",
+    "disclaimer",
     "strongest_area",
     "priority_gap"
   ],
@@ -38,6 +40,8 @@
       ]
     },
     "band_label": { "type": "string", "minLength": 1 },
+    "band_statement": { "type": "string", "minLength": 1 },
+    "disclaimer": { "type": "string", "minLength": 1 },
     "strongest_area": {
       "type": "object",
       "additionalProperties": false,
